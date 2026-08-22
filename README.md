@@ -4,13 +4,16 @@ Offline-first web games for the family, built to be installed on an iPad from
 the home screen. Every game is a static PWA — no build step, no dependencies, no
 server code.
 
+Live site: <https://marioberges.github.io/family-games/>
+
 ## Layout
 
 ```
 games/<name>/        one game, self-contained and served as-is
 index.html           catalog, generated — do not hand-edit
 templates/catalog.html   the catalog source, with per-target blocks
-scripts/publish.sh   renders the catalog and the Sprite mirror
+scripts/publish.sh   renders the catalogs and the Sprite mirror
+scripts/deploy.py    pushes the committed tree to GitHub via the connector
 artifacts/           generated mirror for the Sprite preview (gitignored)
 ```
 
@@ -22,9 +25,16 @@ The repository root **is** the GitHub Pages site, so `games/hoist/` is served at
 Edit files under `games/<name>/` directly, then:
 
 ```bash
-./scripts/publish.sh     # refresh the Sprite preview + catalog
-git commit -am "..."     # push to publish to Pages
+./scripts/publish.sh          # refresh the catalogs + Sprite preview
+git commit -am "..."          # history lives here
+./scripts/deploy.py           # push to GitHub -> Pages rebuilds in ~30s
 ```
+
+`deploy.py` exists because the Sprite has no git transport: the Sprites
+connector proxies GitHub's REST API only, so a commit is assembled from blobs,
+a tree, and a ref. Unchanged files are matched by blob sha and never re-sent.
+The connector URL is the credential and this repository is public, so it is kept
+outside the tree in `~/.config/family-games/gateway.env`.
 
 Bump `VERSION` in a game's `sw.js` whenever its `index.html` changes, or
 installed copies will keep serving the cached old shell.
@@ -37,6 +47,8 @@ installed copies will keep serving the cached old shell.
 | Service worker / offline | yes | no |
 | Saved progress | yes | no |
 | Purpose | the real thing | quick look from a phone |
+
+Live: <https://marioberges.github.io/family-games/>
 
 The Sprite serves artifacts under a CSP `sandbox` without `allow-same-origin`,
 which puts the page in an opaque origin: no service worker, no `localStorage`,
