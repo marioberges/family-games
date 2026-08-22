@@ -768,6 +768,18 @@ function renderPlate(){
   }
   $("#hint").addEventListener("click", showHint);
   $("#next").addEventListener("click", nextCard);
+
+  /* The plate is rebuilt from scratch whenever the answer mode changes, which
+     can happen part-way through a question — so anything the player has
+     already done to this specimen has to be put back. */
+  if(hintUsed){
+    $("#hint").disabled = true;
+    $("#hintline").textContent = current.answer.region + " · half points";
+  }
+  if(answered){
+    paintReveal(chosenCode);
+    $("#next").disabled = false;
+  }
 }
 
 const choicesMarkup = options => `
@@ -940,13 +952,12 @@ function showHint(){
   $("#hintline").textContent = current.answer.region + " · half points";
 }
 
-function answer_(code){
-  if(answered) return;
-  answered = true;
-  chosenCode = code;
-  const right = code === current.answer.code;
+/* Everything the reveal puts on screen, and nothing that scores it. Split out
+   because switching answer mode re-renders the plate mid-question, and the
+   answer has to come back with it. */
+function paintReveal(code){
   const c = current.answer;
-  const rec = state.cards[c.code] || {b:0,d:0,r:0,w:0,f:false};
+  const right = code === c.code;
 
   if(isMap()) paintMap(code, c.code);
   else document.querySelectorAll(".choice").forEach(b=>{
@@ -966,6 +977,17 @@ function answer_(code){
   v.textContent = right ? "Identified" : "Missed";
   $("#band").classList.add("show");
   $("#iso").hidden = false;
+}
+
+function answer_(code){
+  if(answered) return;
+  answered = true;
+  chosenCode = code;
+  const right = code === current.answer.code;
+  const c = current.answer;
+  const rec = state.cards[c.code] || {b:0,d:0,r:0,w:0,f:false};
+
+  paintReveal(code);
 
   if(right){
     rec.r++;
@@ -1056,9 +1078,25 @@ function paintLevels(){
         b.roll ? "🎲 Surprise me" : `${b.label} · ${inBucket(b).length}`}</option>`).join("");
   }
 }
-function setDifficulty(patch){
-  Object.assign(state, patch);
-  rolled = null;               /* re-roll "Surprise me" when anything changes */
+/* Changing HOW you answer keeps the specimen, the four options, the hint and
+   the reveal exactly as they were. That is the point of the ladder: flip the
+   same flag between a list of names and a map to see where the country is, or
+   pick the way you would rather answer this particular one. */
+function setMode(mode){
+  if(mode === state.answerMode) return;
+  state.answerMode = mode;
+  save();
+  paintLevels();
+  renderPlate();
+  paintRail();
+}
+
+/* Changing WHICH flags are in play is a different matter — the specimen may not
+   belong to the new bucket at all, so this one does start a fresh question. */
+function setBucket(bucket){
+  if(bucket === state.bucket) return;
+  state.bucket = bucket;
+  rolled = null;               /* re-roll "Surprise me" */
   mapCache = null;             /* geometry is per-bucket; rebuild on next mount */
   lastCode = null;             /* the old answer may not be in the new pool */
   save();
@@ -1069,7 +1107,7 @@ function setDifficulty(patch){
 function wireLevels(){
   $("#modeSeg").addEventListener("click", e=>{
     const b = e.target.closest("[data-mode]");
-    if(b) setDifficulty({answerMode:b.dataset.mode});
+    if(b) setMode(b.dataset.mode);
   });
   $("#levelSeg").addEventListener("click", e=>{
     const b = e.target.closest("[data-level]");
@@ -1082,9 +1120,9 @@ function wireLevels(){
     const want = level==="world" ? "all"
                : level==="region" ? "r:"+(here?here.region:REGIONS[0])
                : "s:"+(here?here.sub:SUBS[0]);
-    setDifficulty({bucket: BUCKETS.some(x=>x.id===want) ? want : "all"});
+    setBucket(BUCKETS.some(x=>x.id===want) ? want : "all");
   });
-  $("#bucketPick").addEventListener("change", e=>setDifficulty({bucket:e.target.value}));
+  $("#bucketPick").addEventListener("change", e=>setBucket(e.target.value));
 }
 
 function paintRail(){
