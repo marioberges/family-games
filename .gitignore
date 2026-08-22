@@ -3,3 +3,6 @@ artifacts/
 # Source archive of the first import; the unpacked tree in games/ is canonical.
 files.zip
 .DS_Store
+
+# Build cache for scripts/build-map.py — re-fetched on demand.
+scripts/.mapcache/

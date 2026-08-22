@@ -2,7 +2,7 @@
    Shell: precached, cache-first with a background refresh.
    Flags + fonts: cache-first runtime caches, so a flag you've seen once works offline. */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL  = `hoist-shell-${VERSION}`;
 const FLAGS  = "hoist-flags-v1";   // unversioned on purpose: flag art rarely changes
 const FONTS  = "hoist-fonts-v1";
@@ -56,8 +56,14 @@ const SHELL_FILES = [
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL);
-    // addAll is all-or-nothing; add individually so one 404 can't break install
-    await Promise.all(SHELL_FILES.map(f => cache.add(f).catch(() => {})));
+    // addAll is all-or-nothing; add individually so one 404 can't break install.
+    // The HTML goes through with cache:"reload" because Pages serves it with
+    // max-age=600 — without that a new worker can precache the OLD index.html
+    // and the version bump buys nothing at all.
+    await Promise.all(SHELL_FILES.map(f => {
+      const fresh = f === "./" || f === "./index.html";
+      return cache.add(fresh ? new Request(f, { cache: "reload" }) : f).catch(() => {});
+    }));
     self.skipWaiting();
   })());
 });
@@ -110,6 +116,9 @@ self.addEventListener("fetch", event => {
         if (res && res.ok) cache.put("./index.html", res.clone());
         return res;
       }).catch(() => null);
+      // Keep the worker alive for the background refresh; returning the cached
+      // shell first would otherwise let the event settle and kill the fetch.
+      event.waitUntil(network);
       return cached || (await network) || new Response(
         "<h1>Offline</h1><p>Open Hoist once while connected, then it works without a network.</p>",
         { headers: { "Content-Type": "text/html" } }

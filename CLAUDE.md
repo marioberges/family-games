@@ -65,15 +65,30 @@ progress can only be judged on the device, against the Pages URL.
   `"./"`; icons, splash screens, and the service worker's precache list are all
   relative paths. This is what lets a game live in a subdirectory of a shared
   origin. A single leading `/` breaks it, silently, only once deployed.
-- **Bump `VERSION` in `sw.js` whenever `index.html` changes.** Installed copies
-  serve the cached shell first; without the bump the family keeps playing the old
-  game and nobody knows why. Check before deploying:
-  `git diff --stat HEAD~1 -- games/<name>/` — if `index.html` moved and `sw.js`
-  didn't, stop.
+- **Bump `VERSION` in `sw.js` whenever anything precached changes.** It names the
+  shell cache, so bumping it is what forces a fresh precache of the icons, the
+  splash screens and the manifest — the assets nothing else will ever refresh.
+  Check before deploying: `git diff --stat HEAD~1 -- games/<name>/` — if the
+  precached set moved and `sw.js` didn't, stop.
+- **Getting a new build onto an installed iPad is its own problem.** The shell is
+  served cache-first, so new HTML would surface only on the *second* cold launch
+  — and iOS freezes a home-screen app rather than cold-launching it, so that
+  second launch can be weeks away, invisibly. Hoist's answer, worth copying:
+  register the worker with `updateViaCache:"none"`, call `registration.update()`
+  on `visibilitychange`/`pageshow` (throttled), and when a new worker reaches
+  `installed` while one is already in control, reload at the **next question
+  boundary** — a point where state is saved and nothing is on screen to lose.
+  Silent, no dialog: a kid will dismiss a banner without reading it.
 - **Namespace `localStorage` per game.** All games share the origin
   `marioberges.github.io` (a public suffix, so the origin spans every repo of
   yours on that host). Hoist uses `hoist:deck:v1`. A bare `state` key would
   collide.
+- **Version the saved blob from the start, and keep the key stable.** Put a `v`
+  inside the JSON, migrate oldest-first on read, and stamp it on write. The key
+  itself never changes — a new key silently abandons the old progress. The case
+  that makes this worth doing is two iPads updating at different times: a build
+  that meets data newer than it understands must go read-only rather than save
+  over fields it has never heard of. Hoist does this in `load()`.
 - **Guard storage and service-worker calls in `try`/`catch`.** Not defensive
   padding: it is what lets the sandboxed preview degrade to a playable demo
   instead of a blank screen.
