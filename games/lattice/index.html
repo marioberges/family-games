@@ -136,8 +136,12 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   .band{min-height:58px;padding:9px 14px}
   .choice{min-height:50px;padding:11px 14px}
   .padk{min-height:44px}
-  /* the sum and the dots are both on screen here, so the dots take what's left */
-  .dotwrap{height:clamp(90px, 30vh, 200px)}
+  /* the sum, the dots and the pegboard are all on screen here, so the two grids
+     take what is left rather than pushing the answer off the bottom */
+  .dotwrap{height:clamp(110px, 34vh, 240px)}
+  .board{width:min(100%,300px)}
+  .build-body{padding:9px 12px 11px}
+  .build-say{margin-bottom:7px}
 }
 
 /* ---------- the plate ---------- */
@@ -162,23 +166,33 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   padding:26px;display:flex;align-items:center;justify-content:center;gap:clamp(18px,4vw,44px);
   overflow:hidden;flex-wrap:wrap;
 }
-.mount.with-dots{justify-content:space-around}
+/* With the array up, stack instead of sitting side by side: the array is the
+   thing worth looking at, so it gets the full width of the plate and the sum
+   steps back to a caption over it. */
+.mount.with-dots{flex-direction:column;gap:12px;padding:20px 18px 18px}
 .expr{
   font-family:"Bodoni Moda",Didot,Georgia,serif;color:var(--glass-hi);
   font-size:clamp(40px,11vw,104px);line-height:1;letter-spacing:.01em;white-space:nowrap;
   text-shadow:0 12px 30px rgba(0,0,0,.45);
 }
+.mount.with-dots .expr{font-size:clamp(30px,7vw,64px);text-shadow:0 8px 20px rgba(0,0,0,.4)}
 .expr em{font-style:normal;opacity:.5;margin:0 .16em;font-size:.72em;vertical-align:.06em}
 .expr .eq{opacity:.42}
 .expr .ans{color:var(--gold)}
 
 .dotwrap{
-  flex:0 1 auto;display:flex;align-items:center;justify-content:center;
+  flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
   /* height follows the shorter axis too, so landscape on a phone doesn't
      push the answer buttons below the fold */
-  height:clamp(120px, min(34vw, 30vh), 300px);
-  max-width:100%;min-width:0;
+  height:clamp(190px, min(58vw, 44vh), 460px);
+  width:100%;max-width:100%;min-width:0;
 }
+.dotcap{
+  margin:0;flex:0 0 auto;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:clamp(11px,2.5vw,14px);letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.62);text-align:center;
+}
+.dotcap b{color:var(--gold);font-weight:600}
 .dots{
   display:grid;grid-template-columns:repeat(var(--cols),1fr);
   gap:clamp(2px,.7vw,6px);
@@ -235,6 +249,8 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .verdict.no{color:var(--red)}
 .prompt{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.16em;
   text-transform:uppercase;color:rgba(11,30,45,.5)}
+.prompt b{display:block;font-family:"Archivo",sans-serif;font-size:15px;letter-spacing:0;
+  text-transform:none;font-weight:500;color:var(--ink);margin-top:3px}
 
 /* ---- four-choice answer surface ---- */
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
@@ -287,6 +303,43 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .padk.act{background:#dfe5e0}
 .padk.go{background:var(--ink);color:var(--glass-hi);font-size:20px}
 .padk.go:disabled{background:var(--glass-hi);color:var(--ink)}
+
+/* ---- build-it-yourself pegboard ---- */
+.build{border-top:1px solid var(--rule);background:#dfe5e0}
+.build-head{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 14px;border-bottom:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;color:rgba(11,30,45,.72);
+}
+.build-head h3{margin:0;font:inherit;letter-spacing:inherit}
+.build-body{padding:12px 14px 15px}
+.build-say{
+  margin:0 0 10px;font-size:clamp(13px,3vw,15px);line-height:1.4;color:rgba(11,30,45,.75);
+  text-align:center;
+}
+.build-say b{color:var(--ink);font-weight:600}
+.board{
+  display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(2px,.6vw,4px);
+  width:min(100%,430px);margin:0 auto;
+  touch-action:none;          /* dragging across the board must not scroll the page */
+  cursor:crosshair;
+}
+.cell{
+  aspect-ratio:1;border:1px solid var(--rule);border-radius:2px;background:transparent;
+  transition:background .09s,border-color .09s,border-radius .09s;
+}
+.cell.on{background:var(--blue);border-color:var(--blue);border-radius:50%}
+.cell.fit{background:var(--green);border-color:var(--green)}
+.build-read{
+  margin:11px 0 0;text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:clamp(13px,3.2vw,17px);font-variant-numeric:tabular-nums;letter-spacing:.06em;
+  color:rgba(11,30,45,.55);min-height:1.5em;
+}
+.build-read b{color:var(--ink);font-weight:600}
+.build-read.fit{color:var(--green)}
+.build-read.fit b{color:var(--green)}
+@media (max-width:600px){ .build-body{padding:10px 10px 12px} }
 
 .plate-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;
   padding:11px 14px;border-top:1px solid var(--rule);flex-wrap:wrap}
@@ -416,7 +469,8 @@ body.is-offline .offline-bar{display:block}
           <p class="tiny">Which facts</p>
           <div class="seg" id="levelSeg"></div>
           <select class="pickone" id="bucketPick"></select>
-          <p class="tiny" style="margin-top:12px">Dot array</p>
+          <p class="tiny" style="margin-top:12px">Dot array —
+            <b>6 × 7</b> drawn as 6 rows of 7 dots</p>
           <div class="seg" id="dotsSeg" style="margin-bottom:0"></div>
         </div>
       </div>
@@ -426,6 +480,9 @@ body.is-offline .offline-bar{display:block}
         <div class="meter">
           <div class="row"><span>Known</span><b><span id="pKnown">0</span> / <span id="pTotal">78</span></b></div>
           <div class="bar"><i id="pBar"></i></div>
+          <p class="tiny" style="margin:10px 0 0">A fact counts as known once you
+            have had it right at least once. There are <b>78</b>, not 144, because
+            <b>6 × 7</b> and <b>7 × 6</b> are the same fact.</p>
         </div>
       </div>
 
@@ -473,14 +530,15 @@ const INTERVALS=[45*1000, 8*MIN, 45*MIN, 5*HR, DAY, 3*DAY];
 /* Answer speed, in ms. Never rendered anywhere — see the note on `t` below. */
 const FAST=1800, FLUENT=3500, SLOW=8000;
 
-const STATE_V = 1;
-const MIGRATIONS = {};   /* v1 is the first shape this game ever had. The loop in
-                            load() stays anyway: its other half — refusing to
-                            write over data from a NEWER build — is live from day
-                            one on a household with two iPads. */
+const STATE_V = 2;
+const MIGRATIONS = {
+  /* v2 added the build-it-yourself pegboard. Anyone already playing gets it
+     open, since it is the point of the update. */
+  1: blob => { blob.builder = true; return blob; }
+};
 const defaults = () => ({
   v:STATE_V, score:0, best:0, asked:0, cards:{},
-  answerMode:"choice", bucket:"f:easy", dots:"reveal"
+  answerMode:"choice", bucket:"f:easy", dots:"reveal", builder:true
 });
 
 /* A card record is {b,d,r,w,f,t}: Leitner box 0-5, due ms, right, wrong,
@@ -492,6 +550,8 @@ let state = defaults();
 let current=null, answered=false, hintUsed=false, lastKey=null, advanceTimer=null, streak=0;
 let chosenValue=null;   /* what was answered, kept so a repaint can show it again */
 let buf="";             /* number pad buffer — not an <input>, see padMarkup */
+let bRows=0, bCols=0;   /* what the player has built on the pegboard, this card */
+let dragging=false;
 let shownAt=0, firstAt=0, stale=false;
 let updateReady=false;
 let readOnly=false;
@@ -521,19 +581,28 @@ function load(){
        fields we do not understand are the ones we would silently destroy. */
     readOnly = true;
     console.warn(`saved data is v${v}, this build speaks v${STATE_V} — running read-only`);
-  } else {
-    let b = blob;
-    while(v < STATE_V && MIGRATIONS[v]){ b = MIGRATIONS[v](b); v++; }
+  }
+  let b = blob, moved = false;
+  if(!readOnly){
+    /* Reassign: a migration is allowed to return a NEW object rather than
+       mutate in place, and merging the pre-migration blob would silently
+       discard everything it did. */
+    while(v < STATE_V && MIGRATIONS[v]){ b = MIGRATIONS[v](b); v++; moved = true; }
     b.v = STATE_V;
   }
-  Object.assign(state, blob);
+  Object.assign(state, b);
   state.v = readOnly ? blob.v : STATE_V;
   /* An id that no longer exists in the code must not wedge the UI. */
   if(!MODES.some(m=>m.id===state.answerMode)) state.answerMode = "choice";
   if(!BUCKETS.some(b=>b.id===state.bucket))   state.bucket     = "f:easy";
   if(!DOTS.some(d=>d.id===state.dots))        state.dots       = "reveal";
+  state.builder = state.builder !== false;
   if(!state.cards || typeof state.cards !== "object") state.cards = {};
   streak = 0;
+  /* Write the upgraded shape back now rather than waiting for the first answer,
+     so opening the app once is enough to migrate and the old shape stops being
+     re-migrated on every launch. */
+  if(moved) save();
 }
 
 function until(ms){
@@ -681,13 +750,118 @@ function makeOptions(fact){
 }
 
 /* ============ the plate ============ */
-function dotsMarkup(rows, cols){
+/* `told` is the caption under the array. It is the label that makes the picture
+   mean something: without it the array is decoration, with it the array is a
+   sentence — "6 rows of 7". */
+function dotsMarkup(rows, cols, told){
   let cells = "";
   for(let r=0;r<rows;r++)
     for(let c=0;c<cols;c++)
       cells += `<i class="dot${r%2?" alt":""}" style="--i:${r*cols+c}"></i>`;
-  return `<div class="dotwrap"><div class="dots" style="--cols:${cols};--rows:${rows}"
-    role="img" aria-label="${rows} rows of ${cols}">${cells}</div></div>`;
+  const cap = told || `${rows} row${rows>1?"s":""} of ${cols}`;
+  return `<div class="dotwrap">
+    <div class="dots" style="--cols:${cols};--rows:${rows}"
+      role="img" aria-label="${rows} rows of ${cols}">${cells}</div>
+    <p class="dotcap">${cap}</p>
+  </div>`;
+}
+
+/* ---- build it yourself --------------------------------------------------
+   A 12x12 pegboard. Touch or drag anywhere and the array grows from the top
+   left corner to meet your finger, so no precision is needed: aim roughly and
+   read the line underneath, which says what you have actually made. Nothing
+   here is scored. It is somewhere to try the question out with your hands
+   before committing to an answer. */
+function buildMarkup(){
+  let cells = "";
+  for(let r=0;r<12;r++)
+    for(let c=0;c<12;c++)
+      cells += `<i class="cell" data-r="${r}" data-c="${c}"></i>`;
+  return `<section class="build" id="build">
+    <div class="build-head">
+      <h3>Build it yourself</h3>
+      <button class="linkish" id="buildToggle">${state.builder?"Hide":"Show"}</button>
+    </div>
+    ${state.builder ? `<div class="build-body">
+      <p class="build-say" id="buildSay"></p>
+      <div class="board" id="board">${cells}</div>
+      <p class="build-read" id="buildRead"></p>
+    </div>` : ""}
+  </section>`;
+}
+
+function setBuild(r, c){
+  r = Math.max(0, Math.min(12, r)); c = Math.max(0, Math.min(12, c));
+  if(r===bRows && c===bCols) return;
+  bRows = r; bCols = c; paintBuild();
+}
+
+function paintBuild(){
+  const board = $("#board");
+  if(!board || !current) return;
+  const {fact, flip} = current;
+  const rows = flip ? fact.b : fact.a, cols = flip ? fact.a : fact.b;
+  const exact = bRows===rows && bCols===cols;
+  const turned = bRows===cols && bCols===rows && !exact;
+  const fit = exact || turned;
+
+  [...board.children].forEach(el=>{
+    const on = +el.dataset.r < bRows && +el.dataset.c < bCols;
+    el.className = "cell" + (on ? " on" : "") + (on && fit ? " fit" : "");
+  });
+
+  const read = $("#buildRead");
+  read.className = "build-read" + (fit ? " fit" : "");
+  if(!bRows || !bCols){
+    read.innerHTML = "Nothing built yet";
+  } else if(exact){
+    read.innerHTML = `<b>${bRows} × ${bCols} = ${bRows*bCols}</b> — that's it`;
+  } else if(turned){
+    /* Worth saying out loud rather than just accepting: it is the one idea the
+       whole deck is built on — 78 facts, not 144. */
+    read.innerHTML = `<b>${bRows} × ${bCols} = ${bRows*bCols}</b> — the same, turned round`;
+  } else {
+    read.innerHTML = `<b>${bRows} × ${bCols} = ${bRows*bCols}</b>`;
+  }
+}
+
+function paintBuildSay(){
+  const say = $("#buildSay");
+  if(!say || !current) return;
+  const {fact, flip} = current;
+  const rows = flip ? fact.b : fact.a, cols = flip ? fact.a : fact.b;
+  say.innerHTML = answered
+    ? `<b>${rows} × ${cols}</b> is <b>${rows}</b> row${rows>1?"s":""} of <b>${cols}</b>${
+        fact.p===rows*cols?` — ${fact.p} dots altogether`:""}.`
+    : `Drag across the grid to make <b>${rows}</b> row${rows>1?"s":""} of <b>${cols}</b>.`;
+}
+
+function wireBuild(){
+  $("#buildToggle").addEventListener("click", ()=>{
+    state.builder = !state.builder;
+    save();
+    renderPlate();
+  });
+  const board = $("#board");
+  if(!board) return;
+  const at = e => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if(el && el.dataset && el.dataset.r !== undefined) setBuild(+el.dataset.r+1, +el.dataset.c+1);
+  };
+  board.addEventListener("pointerdown", e=>{
+    dragging = true;
+    try{ board.setPointerCapture(e.pointerId); }catch(err){}
+    at(e); e.preventDefault();
+  });
+  board.addEventListener("pointermove", e=>{ if(dragging) at(e); });
+  board.addEventListener("pointerup",     ()=>{ dragging = false; });
+  board.addEventListener("pointercancel", ()=>{ dragging = false; });
+  /* Plain click as well: it is what a keyboard or an assistive tap produces, and
+     it is what jsdom can drive in a test. */
+  board.addEventListener("click", e=>{
+    const el = e.target.closest("[data-r]");
+    if(el) setBuild(+el.dataset.r+1, +el.dataset.c+1);
+  });
 }
 function choicesMarkup(options){
   return `<div class="choices" id="choices">` + options.map((q,i)=>
@@ -716,18 +890,22 @@ function renderPlate(){
   $("#plate").innerHTML = `
     <div class="plate-head">
       <span>Fact No. ${String(state.asked+1).padStart(3,"0")}</span>
-      <span class="box-tag${rec?"":" new"}">${rec ? `Box ${rec.b} / 5` : "New"}</span>
+      <span class="box-tag${rec?"":" new"}" title="${rec
+        ? `Box ${rec.b} of 5. Every time you get this right it moves up a box and comes back later. Miss it and it drops to 0.`
+        : "You haven't been asked this one yet."}">${rec ? `Box ${rec.b} / 5` : "New"}</span>
     </div>
     <div class="mount${showDots?" with-dots":""}" id="mount">
       <div class="expr" id="expr">${rows}<em>×</em>${cols}</div>
       ${showDots ? dotsMarkup(rows, cols) : ""}
     </div>
     <div class="band" id="band">
-      <span class="prompt" id="prompt">What is the answer?</span>
+      <span class="prompt" id="prompt">${rows} × ${cols} = ?<b>${
+        state.answerMode==="keypad" ? "Type the answer, then ↵" : "Tap the answer"}</b></span>
       <span class="name" id="name"></span>
       <span class="verdict" id="verdict"></span>
     </div>
     ${state.answerMode==="keypad" ? padMarkup() : choicesMarkup(options)}
+    ${buildMarkup()}
     <div class="plate-foot">
       <button class="btn" id="hint">Hint</button>
       <span class="hintline" id="hintline"></span>
@@ -748,6 +926,7 @@ function renderPlate(){
   }
   $("#hint").addEventListener("click", showHint);
   $("#next").addEventListener("click", nextCard);
+  wireBuild(); paintBuildSay(); paintBuild();
 
   /* renderPlate rebuilds the DOM, so anything already true of this question has
      to be put back — otherwise flipping a setting mid-question loses the hint,
@@ -829,11 +1008,18 @@ function paintReveal(value){
   $("#expr").innerHTML =
     `${flip?fact.b:fact.a}<em>×</em>${flip?fact.a:fact.b}<span class="eq"> = </span><span class="ans">${fact.p}</span>`;
 
-  if(state.dots!=="off" && !$("#mount .dotwrap")){
-    $("#mount").insertAdjacentHTML("beforeend",
-      dotsMarkup(flip?fact.b:fact.a, flip?fact.a:fact.b));
+  const rows = flip?fact.b:fact.a, cols = flip?fact.a:fact.b;
+  const told = `${rows} row${rows>1?"s":""} of ${cols} makes <b>${fact.p}</b>`;
+  const wrap = $("#mount .dotwrap");
+  if(state.dots==="off"){
+    /* nothing to draw */
+  } else if(wrap){
+    wrap.querySelector(".dotcap").innerHTML = told;   /* already up: relabel it */
+  } else {
+    $("#mount").insertAdjacentHTML("beforeend", dotsMarkup(rows, cols, told));
     $("#mount").classList.add("with-dots");
   }
+  paintBuildSay();
 
   if(state.answerMode==="keypad"){
     const out = $("#padout");
@@ -927,6 +1113,7 @@ function nextCard(){
   lastKey = current ? current.fact.key : null;
   answered = false; hintUsed = false; buf = "";
   chosenValue = null;
+  bRows = 0; bCols = 0; dragging = false;   /* the pegboard is per-question */
   current = pick();
   /* Stamped here and NOT in renderPlate: setMode() re-renders mid-question, and
      restamping there would hand out a free fast answer for flipping a setting. */
@@ -1081,7 +1268,8 @@ $("#reset").addEventListener("click", ()=>{
      writes `v` — dropping it makes the next load() treat the blob as
      pre-versioned. */
   state = Object.assign(defaults(), {
-    answerMode: state.answerMode, bucket: state.bucket, dots: state.dots
+    answerMode: state.answerMode, bucket: state.bucket,
+    dots: state.dots, builder: state.builder
   });
   streak = 0; lastKey = null;
   save(); paintLevels(); paintRail(); nextCard();

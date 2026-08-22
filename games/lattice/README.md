@@ -43,7 +43,25 @@ observe is that the easy facts stop appearing.
   dots is what the fact actually means. On reveal is the default: miss a fact and
   you see why the answer is 42. Always leaves it up from the start, to count or
   chunk. Whatever the setting, the **Hint** button reaches the array for half
-  points.
+  points. The array is captioned — "6 rows of 7", becoming "6 rows of 7 makes
+  42" once answered — because an uncaptioned array is decoration.
+
+## Build it yourself
+
+Under the answer buttons is a 12 × 12 pegboard. Drag anywhere on it and an array
+grows from the top-left corner to meet your finger; the line underneath says what
+you have actually made, updating as you go. Build the array the question is
+asking for and it turns green.
+
+No precision is needed and nothing is scored. It is somewhere to try the question
+out with your hands before committing to an answer, and it is the one place where
+`6 × 7` stops being a string to recall and becomes a shape you made.
+
+Building the array the other way round is accepted too, and says so — *"7 × 6 =
+42 — the same, turned round."* That is not a leniency; it is the idea the whole
+deck is built on.
+
+Hide it from the header if it is in the way; the choice is remembered.
 
 ## Put it on an HTTPS host
 

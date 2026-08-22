@@ -641,6 +641,12 @@ function activeBucket(){
   return rolled;
 }
 function inBucket(b){
+  /* A "Surprise me" bucket has no membership of its own — activeBucket() resolves
+     it to a real one first. But paintLevels() asks every bucket how big it is in
+     order to build the dropdown, and slicing an id like "rand:r" gives "nd:r",
+     which matches nothing: the option was being filtered out by the length test
+     and could never be chosen. Answer for the whole deck instead. */
+  if(b.roll) return COUNTRIES;
   if(b.level==="world") return COUNTRIES;
   const key = b.id.slice(2);
   return COUNTRIES.filter(c=> b.level==="region" ? c.region===key : c.sub===key);
@@ -1406,10 +1412,15 @@ document.addEventListener("keydown", e=>{
 
 $("#reset").addEventListener("click", async ()=>{
   if(!confirm("Clear your score and every flagged card? This can't be undone.")) return;
-  state = {score:0, best:0, asked:0, cards:{}};
+  /* Keep `v` and the three settings. Dropping `v` makes the next load() read the
+     blob as pre-versioned and run it back through the migrations; dropping the
+     settings sends the difficulty ladder to the start, which is not what
+     "clear progress" means. */
+  state = {v:STATE_V, score:0, best:0, asked:0, cards:{},
+           answerMode:state.answerMode, bucket:state.bucket, labels:state.labels};
   streak = 0; lastCode = null;
   await save();
-  nextCard(); paintRail();
+  paintLevels(); nextCard(); paintRail();
 });
 
 setInterval(()=>{ if(document.visibilityState==="visible") paintRail(); }, 20000);
