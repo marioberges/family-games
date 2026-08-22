@@ -27,7 +27,6 @@ games/<name>/            one game, self-contained, served as-is
 index.html               catalog for Pages — GENERATED, do not hand-edit
 templates/catalog.html   the catalog source; per-target blocks below
 scripts/publish.sh       renders both catalogs + the Sprite mirror
-scripts/deploy.py        fallback deploy over the REST API — see below
 artifacts/               Sprite preview mirror — GENERATED, gitignored
 ```
 
@@ -93,7 +92,7 @@ progress can only be judged on the device, against the Pages URL.
 1. `games/<name>/` with `index.html`, `sw.js`, `manifest.webmanifest`, `icons/`.
 2. Add a card to `templates/catalog.html` — copy Hoist's block, change the
    `{{BASE}}<name>/` hrefs and the blurb.
-3. `./scripts/publish.sh && git add -A && git commit && ./scripts/deploy.py`
+3. `./scripts/publish.sh && git add -A && git commit && git push`
 4. Test the install on the actual iPad before telling anyone it works.
 
 Prefer one self-contained `index.html` per game with inline CSS and JS, as Hoist
@@ -122,11 +121,11 @@ committed or written into `artifacts/`; both persist in Sprite checkpoints.
   this repository so it cannot leak into another. Revoke by deleting key
   `160990795` through the connector, and nothing else is affected.
 - **`~/.config/family-games/gateway.env`** (mode 600) — the Sprites GitHub
-  connector URL, read by `deploy.py` as `GH_GATEWAY`. **The URL is the
-  credential.** Its OAuth scopes are `repo, read:org`, but the connector's
-  access policy pins it to repositories named `family-*`, so the blast radius
-  is this repo and future siblings — not the whole account. Used for the
-  fallback deploy and for repo administration (enabling Pages, managing keys).
+  connector URL, exported as `GH_GATEWAY`. **The URL is the credential.** Its
+  OAuth scopes are `repo, read:org`, but the connector's access policy pins it
+  to repositories named `family-*`, so the blast radius is this repo and future
+  siblings — not the whole account. Nothing routine uses it: it is for repo
+  administration — enabling Pages, and minting the deploy key below.
 
 Before any deploy that touches new files:
 
@@ -134,38 +133,51 @@ Before any deploy that touches new files:
 grep -rl "$(sed -n 's/.*gateway\/github\///p' ~/.config/family-games/gateway.env)" $(git ls-files) artifacts/
 ```
 
-## Deploying, and why `deploy.py` still exists
+## Deploying
 
 `git push` is the deploy. GitHub Pages rebuilds from `main` at the repo root,
-so there is nothing else to trigger.
+so there is nothing else to trigger and no deploy script to run. There was one
+once — it assembled commits out of blobs and trees through the connector's REST
+API, because that looked like the only door open. It was removed: it could not
+rebase or merge, it wrote commits the local repository never learned about, and
+a machine that can only append to a branch is a machine that will eventually
+clobber something.
 
-That works because git's transport is reachable from the Sprite even though the
-connector cannot carry it. Worth knowing, because it is not obvious:
+Why the connector cannot carry a push, so nobody rebuilds that road:
 
 - The gateway fronts **`api.github.com` only**. Git's smart-HTTP endpoints live
-  on `github.com`. Send a `receive-pack` path through the gateway and you get
-  GitHub's own 404 — the request arrived, at a host with no git endpoints.
-- But `github.com:22` and `ssh.github.com:443` are both reachable from here, and
-  `git fetch`/`clone`/`ls-remote` over HTTPS work unauthenticated because the
-  repository is public. Only push ever needed a credential, which the deploy key
-  now supplies.
+  on `github.com`. Send a `receive-pack` path through the gateway and GitHub's
+  own 404 comes back — the request arrived, at a host with no git endpoints.
+- Git's transport was never the obstacle. `github.com:22` and
+  `ssh.github.com:443` are reachable from the Sprite, and `git fetch` / `clone`
+  / `ls-remote` over HTTPS work unauthenticated because the repository is
+  public. Only push ever needed a credential.
 
-`scripts/deploy.py` is kept as the fallback for a Sprite without SSH egress, or
-a lost key. It assembles a commit out of blobs, a tree, and a ref through the
-connector's REST API; it is incremental (unchanged files are matched by blob
-sha and never re-sent) and it refuses to run on a dirty tree. It cannot rebase,
-force-push, or merge — if it is ever the only path again, treat the remote as
-append-only.
+### Restoring push access
 
-**Never interleave the two.** `deploy.py` builds its commit server-side, so the
-local repository never learns that commit's sha; push afterwards and git sees
-two unrelated histories with identical content. That is exactly what the
-switchover hit — three REST-built commits, same trees, different shas. The fix
-is not a force-push: `git fetch` and then
+A fresh or restored Sprite has no key. Mint a new one — the connector exists for
+exactly this, and it is the only routine use it has:
 
 ```bash
-git rebase --empty=drop origin/main
+ssh-keygen -t ed25519 -N '' -C 'family-games deploy key (sprite)' \
+  -f ~/.ssh/family-games-deploy
+G=$(sed -n 's/^GH_GATEWAY=//p' ~/.config/family-games/gateway.env)
+python3 - "$G" <<'EOF'
+import json, pathlib, sys, urllib.request
+pub = (pathlib.Path.home() / '.ssh/family-games-deploy.pub').read_text().strip()
+req = urllib.request.Request(
+    sys.argv[1].rstrip('/') + '/repos/marioberges/family-games/keys',
+    data=json.dumps({'title': 'sprite:family-games (push)',
+                     'key': pub, 'read_only': False}).encode(), method='POST',
+    headers={'Accept': 'application/vnd.github+json',
+             'Content-Type': 'application/json'})
+print(json.load(urllib.request.urlopen(req, timeout=30))['id'])
+EOF
+git config core.sshCommand "ssh -i /home/sprite/.ssh/family-games-deploy -o IdentitiesOnly=yes"
+git remote set-url origin git@github.com:marioberges/family-games.git
+ssh -i ~/.ssh/family-games-deploy -o IdentitiesOnly=yes -T git@github.com   # expect: Hi marioberges/family-games!
 ```
 
-replays local work onto the real remote history and drops the duplicates, after
-which an ordinary `git push` fast-forwards.
+Revoke the old key at the same time — `DELETE /repos/marioberges/family-games/keys/<id>`
+through the connector returns 204, and a key you cannot account for should not
+keep write access. List them with `GET .../keys`.
