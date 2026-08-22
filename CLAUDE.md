@@ -13,12 +13,12 @@ Live site: <https://marioberges.github.io/family-games/>
 $EDITOR games/<name>/index.html   # edit the game in place
 ./scripts/publish.sh              # re-render both catalogs + the Sprite mirror
 git commit -am "..."              # history lives in the local repo
-./scripts/deploy.py               # push to GitHub; Pages rebuilds in ~30 s
+git push                          # Pages rebuilds in ~30 s
 ```
 
 `publish.sh` is safe to run any time; it regenerates `index.html` and
-`artifacts/` from `games/` and `templates/catalog.html`. `deploy.py` refuses to
-run on a dirty tree, so local and remote never disagree about what shipped.
+`artifacts/` from `games/` and `templates/catalog.html`. `git push` is a real push, over SSH, using a
+deploy key scoped to this repository — see Credentials.
 
 ## Layout
 
@@ -27,7 +27,7 @@ games/<name>/            one game, self-contained, served as-is
 index.html               catalog for Pages — GENERATED, do not hand-edit
 templates/catalog.html   the catalog source; per-target blocks below
 scripts/publish.sh       renders both catalogs + the Sprite mirror
-scripts/deploy.py        pushes the committed tree to GitHub
+scripts/deploy.py        fallback deploy over the REST API — see below
 artifacts/               Sprite preview mirror — GENERATED, gitignored
 ```
 
@@ -113,35 +113,46 @@ path bugs.
 
 ## Credentials
 
-The Sprites GitHub connector URL **is** the credential — anyone holding it acts
-as `marioberges` on GitHub. This repository is public, so the URL lives outside
-the tree, in `~/.config/family-games/gateway.env` (mode 600), read by
-`deploy.py` via `GH_GATEWAY`. Never inline it, never commit it, never write it
-into `artifacts/`. Before any deploy that touches new files:
+Two, both outside the tree, both narrower than they look. Neither may ever be
+committed or written into `artifacts/`; both persist in Sprite checkpoints.
+
+- **`~/.ssh/family-games-deploy`** (mode 600) — an ed25519 **deploy key** with
+  write access to this repository and nothing else. No API access, no other
+  repo. This is what `git push` uses; `git config core.sshCommand` pins it to
+  this repository so it cannot leak into another. Revoke by deleting key
+  `160990795` through the connector, and nothing else is affected.
+- **`~/.config/family-games/gateway.env`** (mode 600) — the Sprites GitHub
+  connector URL, read by `deploy.py` as `GH_GATEWAY`. **The URL is the
+  credential.** Its OAuth scopes are `repo, read:org`, but the connector's
+  access policy pins it to repositories named `family-*`, so the blast radius
+  is this repo and future siblings — not the whole account. Used for the
+  fallback deploy and for repo administration (enabling Pages, managing keys).
+
+Before any deploy that touches new files:
 
 ```bash
 grep -rl "$(sed -n 's/.*gateway\/github\///p' ~/.config/family-games/gateway.env)" $(git ls-files) artifacts/
 ```
 
-## Open question: deploying without the REST dance
+## Deploying, and why `deploy.py` still exists
 
-`deploy.py` assembles a commit out of blobs, a tree, and a ref because the
-Sprite has no git transport — the connector proxies GitHub's REST API only, and
-git's smart-HTTP endpoints live on `github.com`, which the connector does not
-front. It works and it is incremental (unchanged files are matched by blob sha
-and never re-sent), but it is not `git push`, and it will not survive a
-force-push, a rebase, or a second contributor.
+`git push` is the deploy. GitHub Pages rebuilds from `main` at the repo root,
+so there is nothing else to trigger.
 
-Better answers, roughly in order of how much they'd be liked:
+That works because git's transport is reachable from the Sprite even though the
+connector cannot carry it. Worth knowing, because it is not obvious:
 
-1. **A `git-remote-sprites` helper** — a remote helper script that speaks git's
-   transport protocol on one side and the connector's REST API on the other.
-   Then `git push` is literally `git push`, and everything above stays true.
-2. **`gh auth login` in the Sprite** (device flow, user-driven) — real git push
-   immediately, at the cost of a live GitHub token sitting in the filesystem and
-   in every checkpoint from then on.
-3. **A deploy key** scoped to this one repository, which limits the blast radius
-   of that token to a repo that is public anyway.
+- The gateway fronts **`api.github.com` only**. Git's smart-HTTP endpoints live
+  on `github.com`. Send a `receive-pack` path through the gateway and you get
+  GitHub's own 404 — the request arrived, at a host with no git endpoints.
+- But `github.com:22` and `ssh.github.com:443` are both reachable from here, and
+  `git fetch`/`clone`/`ls-remote` over HTTPS work unauthenticated because the
+  repository is public. Only push ever needed a credential, which the deploy key
+  now supplies.
 
-Not urgent — the current path deploys correctly. Worth doing before a second
-person ever pushes to this repo.
+`scripts/deploy.py` is kept as the fallback for a Sprite without SSH egress, or
+a lost key. It assembles a commit out of blobs, a tree, and a ref through the
+connector's REST API; it is incremental (unchanged files are matched by blob
+sha and never re-sent) and it refuses to run on a dirty tree. It cannot rebase,
+force-push, or merge — if it is ever the only path again, treat the remote as
+append-only.
