@@ -57,6 +57,13 @@ No precision is needed and nothing is scored. It is somewhere to try the questio
 out with your hands before committing to an answer, and it is the one place where
 `6 × 7` stops being a string to recall and becomes a shape you made.
 
+**The array above and the pegboard below are drawn at the same pitch** — one dot
+is exactly one cell — so building four rows of four down here gives you something
+the same size as the four rows of four up there. That is the whole reason to have
+both on screen; at two different scales they would not be comparable, and the
+array would just be a picture. The array only shrinks below that pitch when a
+dense fact would not otherwise fit the panel.
+
 Building the array the other way round is accepted too, and says so — *"7 × 6 =
 42 — the same, turned round."* That is not a leniency; it is the idea the whole
 deck is built on.

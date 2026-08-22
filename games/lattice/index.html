@@ -785,6 +785,27 @@ function dotsMarkup(rows, cols, told){
 /* Measure the room the array actually has and fill it. Pure CSS cannot: the
    grid needs to be as large as the SMALLER of what the width allows and what the
    height allows, and those two are only both known once laid out. */
+/* The pegboard's cell pitch. The array above is drawn at exactly this pitch, so
+   the two grids are one scale: build 4 rows of 4 below and it is the same size
+   as the 4 rows of 4 above, which is what makes comparing them worth anything. */
+function boardPitch(){
+  const board = $("#board");
+  if(board && board.clientWidth > 0){
+    const gap = parseFloat(getComputedStyle(board).columnGap) || 0;
+    return { dot: (board.clientWidth - gap*11) / 12, gap };
+  }
+  /* Builder hidden, so there is no board to measure — mirror its CSS instead:
+     see .board, width:min(100%,430px) over 12 columns, gap:clamp(2px,.6vw,4px). */
+  const gap = Math.max(2, Math.min(4, window.innerWidth * 0.006));
+  const plate = $("#plate");
+  const pad = window.innerWidth <= 600 ? 10 : 14;          /* .build-body padding */
+  const w = Math.min((plate ? plate.clientWidth : window.innerWidth) - pad*2, 430);
+  return { dot: (w - gap*11) / 12, gap };
+}
+
+/* Draw the array at the pegboard's pitch, shrinking only if this particular fact
+   would not otherwise fit the panel. Never grows past it: matching the board is
+   the point, and a 12-wide array at board pitch is exactly the board's width. */
 function sizeDots(){
   const grid = document.querySelector("#mount .dots");
   if(!grid) return;
@@ -794,16 +815,15 @@ function sizeDots(){
   const availW = wrap.clientWidth;
   const availH = parseFloat(getComputedStyle(grid).maxHeight);
   if(!(availW > 0) || !(availH > 0)) return;      /* not laid out yet */
-  /* The gap is a fraction of the dot, not a fixed number of pixels: at these
-     sizes a 6px gap between 70px dots reads as one solid block. */
-  const K = 0.2;
-  const span = n => n + K*(n-1);
-  const dot = Math.min(availW / span(cols), availH / span(rows));
+  let {dot, gap} = boardPitch();
   if(!(dot > 0)) return;
-  const gap = dot * K;
+  const span = (n, d, g) => d*n + g*(n-1);
+  const shrink = Math.min(1, availW / span(cols, dot, gap),
+                             availH / span(rows, dot, gap));
+  if(shrink < 1){ dot *= shrink; gap *= shrink; }
   grid.style.gap    = gap.toFixed(2) + "px";
-  grid.style.width  = (dot*cols + gap*(cols-1)).toFixed(2) + "px";
-  grid.style.height = (dot*rows + gap*(rows-1)).toFixed(2) + "px";
+  grid.style.width  = span(cols, dot, gap).toFixed(2) + "px";
+  grid.style.height = span(rows, dot, gap).toFixed(2) + "px";
 }
 
 /* Re-measure on rotation, Split View, and anything else that moves the plate.
