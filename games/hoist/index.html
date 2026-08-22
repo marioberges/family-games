@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hoist — flag recognition drill</title>
+<meta name="description" content="Learn the flags of every country, with spaced repetition on the ones you miss.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#D6DFDB">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hoist">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+
+<!-- launch screens: without these iOS shows a white flash on every cold start -->
+<link rel="apple-touch-startup-image" href="icons/splash/320x568@2x.png" media="screen and (device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x667@2x.png" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x736@3x.png" media="screen and (device-width:414px) and (device-height:736px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x812@3x.png" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/390x844@3x.png" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/393x852@3x.png" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/402x874@3x.png" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@2x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@3x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/428x926@3x.png" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/430x932@3x.png" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/440x956@3x.png" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/744x1133@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1133x744@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/768x1024@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x768@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/810x1080@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1080x810@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/820x1180@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1180x820@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1112@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1112x834@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1194@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1194x834@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x1366@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1366x1024@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1032x1376@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1376x1032@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://flagcdn.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1E2D;
+  --ink-2:#153554;
+  --glass:#D6DFDB;
+  --glass-hi:#E7ECE8;
+  --red:#C8102E;
+  --gold:#FFB612;
+  --blue:#005EB8;
+  --green:#007A33;
+  --rule:rgba(11,30,45,.16);
+  --rule-2:rgba(11,30,45,.32);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--glass)}
+body{
+  background:var(--glass);
+  background-image:
+    linear-gradient(rgba(11,30,45,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,30,45,.045) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:"Archivo", system-ui, -apple-system, sans-serif;
+  font-size:16px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;
+  min-height:100vh;
+}
+.case{
+  max-width:1180px;margin:0 auto;
+  padding:calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right))
+          calc(48px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left));
+}
+
+/* ---------- masthead ---------- */
+.masthead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:22px;flex-wrap:wrap;
+}
+.wordmark{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wordmark b{
+  font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:700;font-size:clamp(30px,5vw,46px);
+  letter-spacing:.02em;line-height:1;
+}
+.wordmark span{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.22em;
+  text-transform:uppercase;color:rgba(11,30,45,.6);
+}
+.tally{display:flex;gap:26px;font-family:"IBM Plex Mono",ui-monospace,monospace}
+.tally div{text-align:right}
+.tally .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(11,30,45,.55)}
+.tally .v{font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.tally .v.hot{color:var(--red)}
+
+/* ---------- layout ---------- */
+main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:start}
+
+/* iPad portrait and Split View: rail moves below the plate but keeps two
+   columns, so the panels don't turn into one long scroll */
+@media (max-width:880px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .rail{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  #reviewCard{grid-row:1 / span 4}
+  .footnote{grid-column:1 / -1}
+  .review{max-height:none}
+}
+@media (max-width:600px){
+  .rail{grid-template-columns:1fr}
+  #reviewCard{grid-row:auto}
+  .review{max-height:300px}
+}
+/* short landscape viewports: tighten the chrome so a full turn fits on screen */
+@media (orientation:landscape) and (max-height:560px){
+  .case{padding-top:calc(12px + env(safe-area-inset-top))}
+  .masthead{margin-bottom:14px;padding-bottom:7px}
+  .mount{padding:14px 14px 14px 0}
+  .band{min-height:58px;padding:9px 14px}
+  .choice{min-height:50px;padding:11px 14px}
+}
+
+/* ---------- the plate ---------- */
+.plate{background:var(--glass-hi);border:1px solid var(--rule-2);position:relative}
+.plate-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:9px 14px;border-bottom:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(11,30,45,.62);
+}
+.box-tag{color:var(--ink);border:1px solid var(--rule-2);padding:2px 7px;white-space:nowrap}
+.box-tag.new{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+
+.mount{
+  position:relative;background:var(--ink);
+  background-image:radial-gradient(120% 120% at 20% 0%, #1a3d5c 0%, var(--ink) 60%);
+  padding:26px 26px 26px 0;display:flex;align-items:stretch;overflow:hidden;
+}
+.hoist{
+  flex:0 0 26px;margin-right:18px;position:relative;
+  background:repeating-linear-gradient(90deg,#e9ece9 0 3px,#c9cfcd 3px 6px);
+  display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:14px 0;
+}
+.grommet{width:9px;height:9px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 1.5px #8d9a95}
+.flag-wrap{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+  /* height follows the shorter axis too, so landscape on a phone doesn't
+     push the answer buttons below the fold */
+  height:clamp(140px, min(32vw, 38vh), 320px);
+}
+.flag-wrap img{
+  max-width:100%;max-height:100%;object-fit:contain;display:block;
+  box-shadow:0 14px 34px rgba(0,0,0,.45);
+}
+.flag-emoji{font-size:clamp(90px,20vw,190px);line-height:1;filter:drop-shadow(0 10px 24px rgba(0,0,0,.5))}
+.reg{position:absolute;width:16px;height:16px;opacity:.5}
+.reg::before,.reg::after{content:"";position:absolute;background:var(--glass)}
+.reg::before{left:7px;top:0;width:1px;height:16px}
+.reg::after{top:7px;left:0;height:1px;width:16px}
+.reg.tl{top:8px;left:8px}.reg.tr{top:8px;right:8px}
+.reg.bl{bottom:8px;left:8px}.reg.br{bottom:8px;right:8px}
+.iso{
+  position:absolute;right:12px;bottom:10px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.3em;color:rgba(255,255,255,.42);
+}
+.anim-in{animation:deal .5s cubic-bezier(.16,.84,.44,1) both}
+@keyframes deal{from{opacity:0;transform:translateY(16px) rotate(-1.2deg)}to{opacity:1;transform:none}}
+
+.stamp{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-11deg);
+  border:3px double var(--red);color:var(--red);background:rgba(233,229,220,.14);
+  padding:8px 16px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;
+  font-size:clamp(13px,2.6vw,20px);letter-spacing:.16em;text-transform:uppercase;
+  text-align:center;pointer-events:none;text-shadow:0 0 12px rgba(200,16,46,.5);
+  animation:thump .34s cubic-bezier(.2,1.5,.4,1) both;
+}
+.stamp small{display:block;font-size:9px;letter-spacing:.3em;font-weight:400;opacity:.85;margin-top:3px}
+@keyframes thump{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(-11deg) scale(2.1)}
+  60%{opacity:1;transform:translate(-50%,-50%) rotate(-11deg) scale(.94)}
+  100%{opacity:1;transform:translate(-50%,-50%) rotate(-11deg) scale(1)}
+}
+
+.band{
+  min-height:74px;padding:12px 16px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.band .name{
+  font-family:"Bodoni Moda",Didot,Georgia,serif;font-size:clamp(22px,4.2vw,36px);line-height:1.1;
+  opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;
+}
+.band.show .name{opacity:1;transform:none}
+.band .name i{font-style:italic;color:rgba(11,30,45,.45);font-size:.55em;display:block;
+  font-family:"Archivo",sans-serif;letter-spacing:.02em;margin-top:2px}
+.band .verdict{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  padding:4px 9px;border:1px solid currentColor;white-space:nowrap;opacity:0;transition:opacity .25s;
+}
+.band.show .verdict{opacity:1}
+.verdict.ok{color:var(--green)}
+.verdict.no{color:var(--red)}
+.prompt{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(11,30,45,.5)}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+@media (max-width:560px){.choices{grid-template-columns:1fr}}
+.choice{
+  appearance:none;border:0;background:var(--glass-hi);color:var(--ink);
+  font-family:"Archivo",sans-serif;font-size:16px;font-weight:500;text-align:left;
+  padding:15px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:background .14s,color .14s;min-height:58px;touch-action:manipulation;
+}
+.choice kbd{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;border:1px solid var(--rule-2);
+  padding:2px 5px;color:rgba(11,30,45,.55);background:transparent;flex:0 0 auto;
+}
+@media (hover:hover){.choice:hover:not(:disabled){background:#dfe5e0}}
+.choice:focus-visible{outline:2px solid var(--blue);outline-offset:-4px}
+.choice:disabled{cursor:default}
+.choice.right{background:var(--green);color:#fff}
+.choice.right kbd{border-color:rgba(255,255,255,.5);color:rgba(255,255,255,.8)}
+.choice.wrong{background:var(--red);color:#fff}
+.choice.wrong kbd{border-color:rgba(255,255,255,.5);color:rgba(255,255,255,.8)}
+.choice.muted{opacity:.4}
+
+.plate-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:11px 14px;border-top:1px solid var(--rule);flex-wrap:wrap}
+.btn{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--rule-2);color:var(--ink);padding:8px 12px;cursor:pointer;
+  transition:background .14s,color .14s;touch-action:manipulation;
+}
+@media (hover:hover){.btn:hover{background:var(--ink);color:var(--glass-hi)}}
+.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.solid{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+.btn.wide{width:100%;text-align:center}
+.hintline{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(11,30,45,.55)}
+
+.pop{
+  position:absolute;right:16px;top:52px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;
+  font-size:24px;color:var(--green);pointer-events:none;animation:rise 1s ease-out forwards;z-index:5;
+}
+@keyframes rise{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-28px)}}
+
+/* ---------- rail ---------- */
+.rail{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--glass-hi);border:1px solid var(--rule-2)}
+.card h2{
+  margin:0;padding:9px 12px;border-bottom:1px solid var(--rule);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;font-weight:600;letter-spacing:.18em;
+  text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+.count{background:var(--red);color:#fff;padding:1px 6px;font-size:10px;letter-spacing:.1em}
+.count.zero{background:transparent;color:rgba(11,30,45,.4);border:1px solid var(--rule-2)}
+.count.done{background:var(--green)}
+.review{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto;-webkit-overflow-scrolling:touch}
+.review li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--rule)}
+.review li:last-child{border-bottom:0}
+.review img{width:30px;height:20px;object-fit:cover;background:var(--ink);flex:0 0 auto;
+  box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.review .lbl{flex:1;min-width:0;font-size:13px;line-height:1.25}
+.review .lbl small{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.1em;color:rgba(11,30,45,.5)}
+.pips{display:flex;gap:3px;flex:0 0 auto}
+.pip{width:6px;height:6px;border:1px solid var(--rule-2);border-radius:50%}
+.pip.on{background:var(--gold);border-color:#c98f0a}
+.empty{padding:14px 12px;font-size:13px;color:rgba(11,30,45,.55)}
+.meter{padding:12px}
+.bar{height:8px;background:rgba(11,30,45,.1);position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--blue);transition:width .4s ease;width:0}
+.meter .row{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.1em;margin-bottom:7px;color:rgba(11,30,45,.65)}
+.meter .row b{color:var(--ink);font-variant-numeric:tabular-nums}
+.tiny{font-size:12px;line-height:1.4;color:rgba(11,30,45,.62);margin:0 0 10px}
+.tiny b{font-weight:600;color:var(--ink)}
+.footnote{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(11,30,45,.45);display:flex;justify-content:space-between;
+  align-items:center;gap:10px;padding:0 2px}
+.linkish{background:none;border:0;padding:0;font:inherit;color:rgba(11,30,45,.55);
+  text-decoration:underline;cursor:pointer}
+.linkish:hover{color:var(--red)}
+.share{display:inline-block;width:12px;height:12px;vertical-align:-1px;
+  border:1px solid currentColor;border-top:0;position:relative;margin:0 2px}
+.share::after{content:"↑";position:absolute;top:-9px;left:2px;font-size:11px;line-height:1}
+.loading{padding:40px 16px;text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,30,45,.5)}
+.offline-bar{
+  display:none;background:var(--ink);color:var(--glass-hi);text-align:center;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;padding:6px;margin-bottom:14px;
+}
+body.is-offline .offline-bar{display:block}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important;transition-duration:.001s!important}
+}
+</style>
+</head>
+<body>
+<div class="case">
+  <div class="offline-bar">No network — running from this device</div>
+
+  <header class="masthead">
+    <div class="wordmark"><b>Hoist</b><span>flag recognition drill</span></div>
+    <div class="tally">
+      <div><div class="k">Score</div><div class="v" id="tScore">0</div></div>
+      <div><div class="k">Streak</div><div class="v" id="tStreak">0</div></div>
+      <div><div class="k">Best</div><div class="v" id="tBest">0</div></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="plate" id="plate">
+      <div class="loading" id="boot">Opening the deck…</div>
+    </section>
+
+    <aside class="rail">
+      <div class="card" id="reviewCard">
+        <h2>Flagged for review <span class="count zero" id="revCount">0</span></h2>
+        <ul class="review" id="review"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Deck</h2>
+        <div class="meter">
+          <div class="row"><span>Identified</span><b id="mText">0 / 0</b></div>
+          <div class="bar"><i id="mBar"></i></div>
+        </div>
+      </div>
+
+      <div class="card" id="offlineCard" hidden>
+        <h2>Offline <span class="count zero" id="dlCount">0 / 197</span></h2>
+        <div class="meter">
+          <p class="tiny" id="dlNote">Keep every flag on this device so the drill runs with no network.</p>
+          <div class="bar" id="dlBarWrap" hidden><i id="dlBar"></i></div>
+          <button class="btn wide" id="dl">Save all flags</button>
+        </div>
+      </div>
+
+      <div class="card" id="installCard" hidden>
+        <h2>Install</h2>
+        <div class="meter">
+          <p class="tiny" id="installNote">Tap <span class="share"></span> Share, then <b>Add to Home Screen</b>. Hoist opens full screen and keeps your progress.</p>
+          <button class="btn wide" id="installBtn" hidden>Add to home screen</button>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <span id="asked">0 drawn</span>
+        <button class="linkish" id="reset">Clear progress</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+/* ============ the deck ============ */
+const COUNTRIES = [
+["dz","Algeria","Africa"],["ao","Angola","Africa"],["bj","Benin","Africa"],["bw","Botswana","Africa"],
+["bf","Burkina Faso","Africa"],["bi","Burundi","Africa"],["cv","Cabo Verde","Africa"],["cm","Cameroon","Africa"],
+["cf","Central African Republic","Africa"],["td","Chad","Africa"],["km","Comoros","Africa"],
+["cg","Republic of the Congo","Africa"],["cd","DR Congo","Africa"],["ci","Côte d'Ivoire","Africa"],
+["dj","Djibouti","Africa"],["eg","Egypt","Africa"],["gq","Equatorial Guinea","Africa"],["er","Eritrea","Africa"],
+["sz","Eswatini","Africa"],["et","Ethiopia","Africa"],["ga","Gabon","Africa"],["gm","Gambia","Africa"],
+["gh","Ghana","Africa"],["gn","Guinea","Africa"],["gw","Guinea-Bissau","Africa"],["ke","Kenya","Africa"],
+["ls","Lesotho","Africa"],["lr","Liberia","Africa"],["ly","Libya","Africa"],["mg","Madagascar","Africa"],
+["mw","Malawi","Africa"],["ml","Mali","Africa"],["mr","Mauritania","Africa"],["mu","Mauritius","Africa"],
+["ma","Morocco","Africa"],["mz","Mozambique","Africa"],["na","Namibia","Africa"],["ne","Niger","Africa"],
+["ng","Nigeria","Africa"],["rw","Rwanda","Africa"],["st","São Tomé and Príncipe","Africa"],["sn","Senegal","Africa"],
+["sc","Seychelles","Africa"],["sl","Sierra Leone","Africa"],["so","Somalia","Africa"],["za","South Africa","Africa"],
+["ss","South Sudan","Africa"],["sd","Sudan","Africa"],["tz","Tanzania","Africa"],["tg","Togo","Africa"],
+["tn","Tunisia","Africa"],["ug","Uganda","Africa"],["zm","Zambia","Africa"],["zw","Zimbabwe","Africa"],
+
+["ag","Antigua and Barbuda","Americas"],["ar","Argentina","Americas"],["bs","Bahamas","Americas"],
+["bb","Barbados","Americas"],["bz","Belize","Americas"],["bo","Bolivia","Americas"],["br","Brazil","Americas"],
+["ca","Canada","Americas"],["cl","Chile","Americas"],["co","Colombia","Americas"],["cr","Costa Rica","Americas"],
+["cu","Cuba","Americas"],["dm","Dominica","Americas"],["do","Dominican Republic","Americas"],
+["ec","Ecuador","Americas"],["sv","El Salvador","Americas"],["gd","Grenada","Americas"],
+["gt","Guatemala","Americas"],["gy","Guyana","Americas"],["ht","Haiti","Americas"],["hn","Honduras","Americas"],
+["jm","Jamaica","Americas"],["mx","Mexico","Americas"],["ni","Nicaragua","Americas"],["pa","Panama","Americas"],
+["py","Paraguay","Americas"],["pe","Peru","Americas"],["kn","Saint Kitts and Nevis","Americas"],
+["lc","Saint Lucia","Americas"],["vc","Saint Vincent and the Grenadines","Americas"],["sr","Suriname","Americas"],
+["tt","Trinidad and Tobago","Americas"],["us","United States","Americas"],["uy","Uruguay","Americas"],
+["ve","Venezuela","Americas"],
+
+["af","Afghanistan","Asia"],["am","Armenia","Asia"],["az","Azerbaijan","Asia"],["bh","Bahrain","Asia"],
+["bd","Bangladesh","Asia"],["bt","Bhutan","Asia"],["bn","Brunei","Asia"],["kh","Cambodia","Asia"],
+["cn","China","Asia"],["cy","Cyprus","Asia"],["ge","Georgia","Asia"],["in","India","Asia"],
+["id","Indonesia","Asia"],["ir","Iran","Asia"],["iq","Iraq","Asia"],["il","Israel","Asia"],["jp","Japan","Asia"],
+["jo","Jordan","Asia"],["kz","Kazakhstan","Asia"],["kw","Kuwait","Asia"],["kg","Kyrgyzstan","Asia"],
+["la","Laos","Asia"],["lb","Lebanon","Asia"],["my","Malaysia","Asia"],["mv","Maldives","Asia"],
+["mn","Mongolia","Asia"],["mm","Myanmar","Asia"],["np","Nepal","Asia"],["kp","North Korea","Asia"],
+["om","Oman","Asia"],["pk","Pakistan","Asia"],["ps","Palestine","Asia"],["ph","Philippines","Asia"],
+["qa","Qatar","Asia"],["sa","Saudi Arabia","Asia"],["sg","Singapore","Asia"],["kr","South Korea","Asia"],
+["lk","Sri Lanka","Asia"],["sy","Syria","Asia"],["tw","Taiwan","Asia"],["tj","Tajikistan","Asia"],
+["th","Thailand","Asia"],["tl","Timor-Leste","Asia"],["tr","Türkiye","Asia"],["tm","Turkmenistan","Asia"],
+["ae","United Arab Emirates","Asia"],["uz","Uzbekistan","Asia"],["vn","Vietnam","Asia"],["ye","Yemen","Asia"],
+
+["al","Albania","Europe"],["ad","Andorra","Europe"],["at","Austria","Europe"],["by","Belarus","Europe"],
+["be","Belgium","Europe"],["ba","Bosnia and Herzegovina","Europe"],["bg","Bulgaria","Europe"],
+["hr","Croatia","Europe"],["cz","Czechia","Europe"],["dk","Denmark","Europe"],["ee","Estonia","Europe"],
+["fi","Finland","Europe"],["fr","France","Europe"],["de","Germany","Europe"],["gr","Greece","Europe"],
+["hu","Hungary","Europe"],["is","Iceland","Europe"],["ie","Ireland","Europe"],["it","Italy","Europe"],
+["xk","Kosovo","Europe"],["lv","Latvia","Europe"],["li","Liechtenstein","Europe"],["lt","Lithuania","Europe"],
+["lu","Luxembourg","Europe"],["mt","Malta","Europe"],["md","Moldova","Europe"],["mc","Monaco","Europe"],
+["me","Montenegro","Europe"],["nl","Netherlands","Europe"],["mk","North Macedonia","Europe"],
+["no","Norway","Europe"],["pl","Poland","Europe"],["pt","Portugal","Europe"],["ro","Romania","Europe"],
+["ru","Russia","Europe"],["sm","San Marino","Europe"],["rs","Serbia","Europe"],["sk","Slovakia","Europe"],
+["si","Slovenia","Europe"],["es","Spain","Europe"],["se","Sweden","Europe"],["ch","Switzerland","Europe"],
+["ua","Ukraine","Europe"],["gb","United Kingdom","Europe"],["va","Vatican City","Europe"],
+
+["au","Australia","Oceania"],["fj","Fiji","Oceania"],["ki","Kiribati","Oceania"],
+["mh","Marshall Islands","Oceania"],["fm","Micronesia","Oceania"],["nr","Nauru","Oceania"],
+["nz","New Zealand","Oceania"],["pw","Palau","Oceania"],["pg","Papua New Guinea","Oceania"],
+["ws","Samoa","Oceania"],["sb","Solomon Islands","Oceania"],["to","Tonga","Oceania"],["tv","Tuvalu","Oceania"],
+["vu","Vanuatu","Oceania"]
+].map(([code,name,region])=>({code,name,region}));
+
+const BY_CODE = Object.fromEntries(COUNTRIES.map(c=>[c.code,c]));
+const KEY = "hoist:deck:v1";
+const FLAG_CACHE = "hoist-flags-v1";
+const MIN=60000, HR=60*MIN, DAY=24*HR;
+const INTERVALS=[45*1000, 8*MIN, 45*MIN, 5*HR, DAY, 3*DAY];
+
+let state = {score:0, best:0, asked:0, cards:{}};
+let current=null, answered=false, hintUsed=false, lastCode=null, advanceTimer=null, streak=0;
+
+/* ============ storage ============
+   localStorage when served from a real origin; the Claude artifact store when
+   running inside claude.ai, which has no localStorage. */
+const artifactStore = (typeof window.storage === "object" && window.storage
+                       && typeof window.storage.get === "function") ? window.storage : null;
+async function loadRaw(){
+  if(artifactStore){
+    try{ const r = await artifactStore.get(KEY); return r && r.value; }catch(e){ return null; }
+  }
+  try{ return localStorage.getItem(KEY); }catch(e){ return null; }
+}
+async function save(){
+  const v = JSON.stringify(state);
+  if(artifactStore){ try{ await artifactStore.set(KEY, v); }catch(e){ console.warn("save failed", e); } return; }
+  try{ localStorage.setItem(KEY, v); }catch(e){ console.warn("save failed", e); }
+}
+async function load(){
+  const raw = await loadRaw();
+  if(!raw) return;
+  try{ Object.assign(state, JSON.parse(raw)); }catch(e){ /* corrupt entry, start fresh */ }
+}
+
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+/* An iPad Pro renders the mount ~700 CSS px wide at 2x — 1400 real pixels — so
+   the 640px art would upscale and look soft. Pick the tier once, at load. */
+const FLAG_W = (Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1) > 1200)
+  ? 1280 : 640;
+const PACK_MB = FLAG_W === 1280 ? 14 : 6;
+const flagURL = (code,w=FLAG_W) => `https://flagcdn.com/w${w}/${code}.png`;
+const emojiFlag = code => code.length===2
+  ? String.fromCodePoint(...[...code.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65)) : "⚑";
+function until(ms){
+  if(ms<=0) return "due now";
+  if(ms<HR) return "in "+Math.max(1,Math.round(ms/MIN))+"m";
+  if(ms<DAY) return "in "+Math.round(ms/HR)+"h";
+  return "in "+Math.round(ms/DAY)+"d";
+}
+
+/* ============ card selection ============ */
+function pick(){
+  const now = Date.now();
+  const seen = Object.keys(state.cards);
+  const due = seen
+    .filter(c=>state.cards[c].d<=now && c!==lastCode)
+    .sort((a,b)=>state.cards[a].d-state.cards[b].d);
+  const unseen = COUNTRIES.filter(c=>!state.cards[c.code] && c.code!==lastCode);
+
+  let code;
+  if(due.length && (!unseen.length || due.length>2 || Math.random()<0.55)) code = due[0];
+  else if(unseen.length) code = unseen[Math.random()*unseen.length|0].code;
+  else code = seen.sort((a,b)=>state.cards[a].d-state.cards[b].d)[0];
+
+  const answer = BY_CODE[code];
+  const sameRegion = shuffle(COUNTRIES.filter(c=>c.region===answer.region && c.code!==code));
+  const other = shuffle(COUNTRIES.filter(c=>c.region!==answer.region && c.code!==code));
+  const distractors = [...sameRegion.slice(0,3), ...other].slice(0,3);
+  return {answer, options: shuffle([answer, ...distractors])};
+}
+
+/* ============ render ============ */
+function renderPlate(){
+  const {answer, options} = current;
+  const rec = state.cards[answer.code];
+  const boxTag = rec ? `Box ${rec.b} / 5` : "New";
+  $("#plate").innerHTML = `
+    <div class="plate-head">
+      <span>Specimen No. ${String(state.asked+1).padStart(3,"0")}</span>
+      <span class="box-tag ${rec?"":"new"}">${boxTag}</span>
+    </div>
+    <div class="mount anim-in" id="mount">
+      <div class="hoist"><i class="grommet"></i><i class="grommet"></i><i class="grommet"></i></div>
+      <div class="flag-wrap" id="flagWrap">
+        <img src="${flagURL(answer.code)}" alt="Flag to identify" id="flagImg">
+      </div>
+      <span class="reg tl"></span><span class="reg tr"></span>
+      <span class="reg bl"></span><span class="reg br"></span>
+      <span class="iso" id="iso" hidden>${answer.code.toUpperCase()}</span>
+    </div>
+    <div class="band" id="band">
+      <div class="prompt" id="prompt">Which country flies this?</div>
+      <div class="name" id="name" hidden></div>
+      <div class="verdict" id="verdict" hidden></div>
+    </div>
+    <div class="choices" id="choices">
+      ${options.map((o,i)=>`<button class="choice" data-code="${o.code}">
+        <kbd>${i+1}</kbd><span>${o.name}</span></button>`).join("")}
+    </div>
+    <div class="plate-foot">
+      <button class="btn" id="hint">Show region</button>
+      <span class="hintline" id="hintline"></span>
+      <button class="btn solid" id="next" disabled>Next flag →</button>
+    </div>`;
+
+  $("#flagImg").addEventListener("error", ()=>{
+    $("#flagWrap").innerHTML = `<div class="flag-emoji">${emojiFlag(answer.code)}</div>`;
+  });
+  $("#choices").addEventListener("click", e=>{
+    const b = e.target.closest(".choice"); if(b) answer_(b.dataset.code);
+  });
+  $("#hint").addEventListener("click", showHint);
+  $("#next").addEventListener("click", nextCard);
+}
+
+function showHint(){
+  if(answered || hintUsed || !current) return;
+  hintUsed = true;
+  $("#hint").disabled = true;
+  $("#hintline").textContent = current.answer.region + " · half points";
+}
+
+function answer_(code){
+  if(answered) return;
+  answered = true;
+  const right = code === current.answer.code;
+  const c = current.answer;
+  const rec = state.cards[c.code] || {b:0,d:0,r:0,w:0,f:false};
+
+  document.querySelectorAll(".choice").forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.code===c.code) b.classList.add("right");
+    else if(b.dataset.code===code) b.classList.add("wrong");
+    else b.classList.add("muted");
+  });
+
+  $("#prompt").hidden = true;
+  const nameEl = $("#name");
+  nameEl.hidden = false;
+  nameEl.innerHTML = `${c.name}<i>${c.region}</i>`;
+  const v = $("#verdict");
+  v.hidden = false;
+  v.className = "verdict " + (right?"ok":"no");
+  v.textContent = right ? "Identified" : "Missed";
+  $("#band").classList.add("show");
+  $("#iso").hidden = false;
+
+  if(right){
+    rec.r++;
+    rec.b = Math.min(5, rec.b+1);
+    rec.d = Date.now() + INTERVALS[rec.b];
+    if(rec.f && rec.b>=2) rec.f = false;
+    streak++;
+    let pts = 10 + Math.min(streak-1,10)*2;
+    if(hintUsed) pts = Math.round(pts/2);
+    state.score += pts;
+    state.best = Math.max(state.best, streak);
+    const pop = document.createElement("div");
+    pop.className = "pop"; pop.textContent = "+"+pts;
+    $("#plate").appendChild(pop);
+    setTimeout(()=>pop.remove(), 1000);
+    advanceTimer = setTimeout(nextCard, 1100);
+  }else{
+    rec.w++;
+    rec.b = 0;
+    rec.d = Date.now() + INTERVALS[0];
+    rec.f = true;
+    streak = 0;
+    const stamp = document.createElement("div");
+    stamp.className = "stamp";
+    stamp.innerHTML = "Flagged<small>for review</small>";
+    $("#mount").appendChild(stamp);
+    if(navigator.vibrate) navigator.vibrate(18);
+  }
+
+  state.cards[c.code] = rec;
+  state.asked++;
+  $("#next").disabled = false;
+  paintRail(); paintTally(); save();
+}
+
+function nextCard(){
+  clearTimeout(advanceTimer);
+  lastCode = current ? current.answer.code : null;
+  answered = false; hintUsed = false;
+  current = pick();
+  renderPlate();
+  paintTally();
+}
+
+function paintTally(){
+  $("#tScore").textContent = state.score;
+  const s = $("#tStreak");
+  s.textContent = streak;
+  s.classList.toggle("hot", streak>=3);
+  $("#tBest").textContent = state.best;
+  $("#asked").textContent = state.asked + " drawn";
+  const known = Object.values(state.cards).filter(c=>c.b>=1).length;
+  $("#mText").textContent = `${known} / ${COUNTRIES.length}`;
+  $("#mBar").style.width = (known/COUNTRIES.length*100).toFixed(1)+"%";
+}
+
+function paintRail(){
+  const now = Date.now();
+  const flagged = Object.entries(state.cards).filter(([,r])=>r.f).sort((a,b)=>a[1].d-b[1].d);
+  const cnt = $("#revCount");
+  cnt.textContent = flagged.length;
+  cnt.className = "count" + (flagged.length?"":" zero");
+  const ul = $("#review");
+  if(!flagged.length){
+    ul.innerHTML = `<li><div class="empty">Nothing flagged. Miss a flag and it lands here until you name it twice in a row.</div></li>`;
+    return;
+  }
+  ul.innerHTML = flagged.map(([code,r])=>{
+    const c = BY_CODE[code];
+    const pips = [0,1,2,3,4].map(i=>`<i class="pip ${i<r.b?"on":""}"></i>`).join("");
+    return `<li>
+      <img src="${flagURL(code,40)}" alt="" loading="lazy">
+      <span class="lbl">${c.name}<small>missed ${r.w}× · ${until(r.d-now)}</small></span>
+      <span class="pips">${pips}</span>
+    </li>`;
+  }).join("");
+}
+
+/* ============ offline flag pack ============ */
+async function countCached(){
+  if(!("caches" in window)) return 0;
+  try{
+    const cache = await caches.open(FLAG_CACHE);
+    const keys = await cache.keys();
+    return keys.filter(r=>r.url.includes(`/w${FLAG_W}/`)).length;
+  }catch(e){ return 0; }
+}
+function paintCacheCount(n){
+  const el = $("#dlCount");
+  el.textContent = `${n} / ${COUNTRIES.length}`;
+  el.className = "count " + (n>=COUNTRIES.length ? "done" : n ? "" : "zero");
+  if(n>=COUNTRIES.length){
+    $("#dlNote").innerHTML = "Every flag is on this device. Hoist runs with the network off.";
+    $("#dl").textContent = "Refresh saved flags";
+  }
+}
+async function cacheOne(cache, url){
+  try{
+    const res = await fetch(url, {cache:"reload"});
+    if(res.ok) { await cache.put(url, res); return; }
+    throw new Error(res.status);
+  }catch(e){
+    const res = await fetch(url, {mode:"no-cors"});
+    await cache.put(url, res);
+  }
+}
+async function downloadPack(){
+  const btn = $("#dl");
+  btn.disabled = true; btn.textContent = "Saving…";
+  $("#dlBarWrap").hidden = false;
+  const cache = await caches.open(FLAG_CACHE);
+  const urls = [];
+  COUNTRIES.forEach(c=>{ urls.push(flagURL(c.code)); urls.push(flagURL(c.code,40)); });
+  let done = 0, failed = 0;
+  const queue = urls.slice();
+  async function worker(){
+    while(queue.length){
+      const u = queue.shift();
+      try{ await cacheOne(cache, u); }catch(e){ failed++; }
+      done++;
+      $("#dlBar").style.width = (done/urls.length*100).toFixed(1)+"%";
+    }
+  }
+  await Promise.all(Array.from({length:6}, worker));
+  $("#dlBarWrap").hidden = true;
+  $("#dlBar").style.width = "0";
+  btn.disabled = false;
+  btn.textContent = "Save all flags";
+  paintCacheCount(await countCached());
+  if(failed) $("#dlNote").innerHTML = `${failed} flag${failed>1?"s":""} didn't download. Tap again while connected to finish.`;
+}
+
+/* ============ input ============ */
+document.addEventListener("keydown", e=>{
+  if(e.key>="1" && e.key<="4"){
+    const b = document.querySelectorAll(".choice")[+e.key-1];
+    if(b && !answered) answer_(b.dataset.code);
+  }else if(e.key==="Enter" || e.key===" "){
+    if(answered){ e.preventDefault(); nextCard(); }
+  }else if(e.key.toLowerCase()==="h"){ showHint(); }
+});
+
+$("#reset").addEventListener("click", async ()=>{
+  if(!confirm("Clear your score and every flagged card? This can't be undone.")) return;
+  state = {score:0, best:0, asked:0, cards:{}};
+  streak = 0; lastCode = null;
+  await save();
+  nextCard(); paintRail();
+});
+
+setInterval(()=>{ if(document.visibilityState==="visible") paintRail(); }, 20000);
+
+/* ============ install + connectivity ============ */
+function paintOnline(){ document.body.classList.toggle("is-offline", !navigator.onLine); }
+window.addEventListener("online", paintOnline);
+window.addEventListener("offline", paintOnline);
+
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  $("#installCard").hidden = false;
+  $("#installNote").textContent = "Install Hoist so it opens in its own window and runs offline.";
+  const b = $("#installBtn");
+  b.hidden = false;
+  b.onclick = async ()=>{ b.disabled = true; deferredPrompt.prompt(); await deferredPrompt.userChoice;
+                          deferredPrompt = null; $("#installCard").hidden = true; };
+});
+function maybeShowIOSInstall(){
+  /* iPadOS reports itself as Macintosh, so sniff for touch points as well */
+  const iPad = /iPad/.test(navigator.userAgent)
+            || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const iPhone = /iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone === true
+            || window.matchMedia("(display-mode: standalone)").matches;
+  if(!(iPad || iPhone) || standalone) return;
+  $("#installCard").hidden = false;
+  /* the Share button sits in the top toolbar on iPad, the bottom bar on iPhone */
+  $("#installNote").innerHTML = iPad
+    ? 'Tap <span class="share"></span> Share in the toolbar above, then <b>Add to Home Screen</b>. Hoist opens full screen and keeps your progress.'
+    : 'Tap <span class="share"></span> Share at the bottom, then <b>Add to Home Screen</b>. Hoist opens full screen and keeps your progress.';
+}
+
+/* ============ go ============ */
+(async function init(){
+  paintOnline();
+  maybeShowIOSInstall();
+  paintRail();
+  await load();
+  streak = 0;
+  nextCard();
+  paintRail();
+
+  if("caches" in window && window.isSecureContext){
+    $("#offlineCard").hidden = false;
+    $("#dlNote").innerHTML = `Keep every flag on this device so the drill runs with no network. <b>About ${PACK_MB} MB.</b>`;
+    $("#dl").addEventListener("click", downloadPack);
+    paintCacheCount(await countCached());
+  }
+  if("serviceWorker" in navigator){
+    try{ await navigator.serviceWorker.register("sw.js"); }
+    catch(e){ console.warn("Service worker didn't register:", e); }
+  }
+})();
+</script>
+</body>
+</html>

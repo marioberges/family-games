@@ -1,0 +1,101 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Family Games</title>
+<style>
+  :root{
+    --bg:#f7f6f3; --panel:#fff; --ink:#1b1a17; --muted:#6b6862; --line:#e2ded6;
+    --accent:#1f5f4b; --accent-ink:#fff; --warn-bg:#fdf6e3; --warn-line:#e8d9a8; --warn-ink:#6b5720;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#14150f; --panel:#1d1e19; --ink:#eceade; --muted:#9d9a8e; --line:#2f312a;
+      --accent:#5fbb9b; --accent-ink:#10251e; --warn-bg:#241f14; --warn-line:#453a22; --warn-ink:#d9c68d;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:max(20px,env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:640px;margin:0 auto}
+  header{margin:8px 0 28px}
+  h1{font-size:1.7rem;line-height:1.2;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:.94rem;margin:0}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 18px 16px; margin:0 0 18px;
+  }
+  .card h2{font-size:1.15rem;margin:0 0 2px;letter-spacing:-.01em}
+  .tag{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.07em;margin:0 0 10px}
+  .card p{margin:0 0 14px;color:var(--ink)}
+  .row{display:flex;flex-wrap:wrap;gap:9px}
+  a.btn{
+    display:inline-block; text-decoration:none; font-size:.92rem; font-weight:600;
+    padding:9px 15px; border-radius:9px; border:1px solid var(--line); color:var(--ink);
+  }
+  a.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+  .note{
+    background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn-ink);
+    border-radius:11px; padding:14px 16px; font-size:.9rem; margin:22px 0 0;
+  }
+  .note h3{margin:0 0 6px;font-size:.9rem;text-transform:uppercase;letter-spacing:.06em}
+  .note p{margin:0 0 8px}
+  .note p:last-child{margin:0}
+  .note ol{margin:0;padding-left:1.2em}
+  code{
+    font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:rgba(128,128,128,.16); padding:1px 5px; border-radius:5px;
+  }
+  footer{color:var(--muted);font-size:.82rem;margin:26px 0 0;text-align:center}
+</style>
+<div class="wrap">
+  <header>
+    <h1>Family Games</h1>
+    <p class="sub">Offline-first web apps, built to live on the home screen.</p>
+  </header>
+
+  <div class="card">
+    <h2>Hoist</h2>
+    <p class="tag">Flag recognition drill</p>
+    <p>197 country flags, drilled with spaced repetition. Progress is saved between
+       sessions, and once the flag art is downloaded the whole thing runs in airplane mode.</p>
+    <div class="row">
+      <a class="btn primary" href="{{BASE}}hoist/" target="_blank" rel="noopener">{{CTA}}</a>
+      <!--ZIP--><a class="btn" href="{{BASE}}hoist/hoist-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
+      <a class="btn" href="{{BASE}}hoist/README.md" target="_blank" rel="noopener">README</a>
+    </div>
+  </div>
+
+  <!--PREVIEW-->
+  <div class="note">
+    <h3>About the preview</h3>
+    <p>This page is served through the Sprite's artifact browser, which renders HTML in a
+       sandboxed, opaque origin. The drill itself works there, but three things do not:
+       <b>saved progress</b>, the <b>offline cache</b> (no service worker), and
+       <b>Add&nbsp;to&nbsp;Home&nbsp;Screen</b>. Flag images still load over the network.</p>
+    <p>To install it on the iPad for real, the files need an ordinary HTTPS host:</p>
+    <ol>
+      <li>Download the <code>.zip</code> above and unpack it.</li>
+      <li>Put the folder on GitHub&nbsp;Pages, Netlify, or any static host.</li>
+      <li>Open that URL in <b>Safari</b> → Share → Add to Home Screen.</li>
+      <li>Launch it, then tap <b>Save all flags</b> while you still have signal.</li>
+    </ol>
+  </div>
+  <!--/PREVIEW-->
+  <!--LIVE-->
+  <div class="note">
+    <h3>Putting a game on the iPad</h3>
+    <ol>
+      <li>Open this page in <b>Safari</b> — Chrome and Firefox on iOS cannot install web apps.</li>
+      <li>Tap the game, then <b>Share</b> → <b>Add to Home Screen</b> → <b>Add</b>.</li>
+      <li>Launch it from the home screen. It opens full screen, no browser chrome.</li>
+      <li>Do any one-time downloads (for Hoist, <b>Save all flags</b>) while you still have signal.</li>
+    </ol>
+  </div>
+  <!--/LIVE-->
+
+  <footer>{{FOOTER}}</footer>
+</div>
