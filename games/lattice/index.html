@@ -137,8 +137,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   .choice{min-height:50px;padding:11px 14px}
   .padk{min-height:44px}
   /* the sum, the dots and the pegboard are all on screen here, so the two grids
-     take what is left rather than pushing the answer off the bottom */
-  .dotwrap{height:clamp(110px, 34vh, 240px)}
+     take what is left rather than pushing the answer off the bottom. The ceiling
+     has to go on .dots, which is where sizeDots() reads it from. */
+  .dots{max-height:clamp(110px, 42vh, 260px)}
   .board{width:min(100%,300px)}
   .build-body{padding:9px 12px 11px}
   .build-say{margin-bottom:7px}
@@ -181,11 +182,11 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .expr .ans{color:var(--gold)}
 
 .dotwrap{
-  flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
-  /* height follows the shorter axis too, so landscape on a phone doesn't
-     push the answer buttons below the fold */
-  height:clamp(190px, min(58vw, 44vh), 460px);
-  width:100%;max-width:100%;min-width:0;
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
+  /* height:auto so the panel shrinks to whatever the array actually needs. A
+     fixed height leaves a band of dead navy above and below a wide, short fact
+     like 4 x 8, which is most of them. The ceiling lives on .dots instead. */
+  height:auto;width:100%;max-width:100%;min-width:0;
 }
 .dotcap{
   margin:0;flex:0 0 auto;font-family:"IBM Plex Mono",ui-monospace,monospace;
@@ -193,17 +194,28 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   color:rgba(255,255,255,.62);text-align:center;
 }
 .dotcap b{color:var(--gold);font-weight:600}
+/* sizeDots() sets width and height on this in pixels. It has to: the wrapper
+   centres its children, so the grid is shrink-to-fit across, and 1fr columns
+   full of dots with no intrinsic width collapse to nearly nothing — which then
+   drags the height down with them through aspect-ratio. The explicit size is
+   what actually makes the array fill the space it has been given.
+   The aspect-ratio below is only the fallback for the moment before the first
+   measure, and for a browser with no ResizeObserver. */
 .dots{
   display:grid;grid-template-columns:repeat(var(--cols),1fr);
-  gap:clamp(2px,.7vw,6px);
-  /* aspect-ratio + max-* is what fits the lattice inside the wrapper on both
-     axes at once and keeps every cell square, whatever the shape of the fact */
-  aspect-ratio:var(--cols) / var(--rows);
-  max-height:100%;max-width:100%;margin:auto;
+  gap:clamp(3px,.9vw,9px);
+  /* The fallback shape, and — because max-height computes to a real pixel value
+     — also how sizeDots learns the height ceiling without having to re-evaluate
+     the clamp itself. Follows the shorter axis, so landscape on a phone can't
+     push the answer buttons below the fold. */
+  width:100%;aspect-ratio:var(--cols) / var(--rows);
+  max-height:clamp(200px, min(66vw, 46vh), 520px);
+  max-width:100%;margin:auto;
 }
 .dot{
   aspect-ratio:1;border-radius:50%;background:var(--glass-hi);opacity:.92;
-  animation:seed .32s cubic-bezier(.16,.84,.44,1) both;animation-delay:calc(var(--i) * 7ms);
+  animation:seed .32s cubic-bezier(.16,.84,.44,1) both;
+  animation-delay:calc(var(--i) * var(--st, 7ms));
 }
 .dot.alt{background:#9fb4c4}       /* row banding, so the eye can count in rows */
 @keyframes seed{from{opacity:0;transform:scale(.3)}to{opacity:.92;transform:none}}
@@ -759,11 +771,52 @@ function dotsMarkup(rows, cols, told){
     for(let c=0;c<cols;c++)
       cells += `<i class="dot${r%2?" alt":""}" style="--i:${r*cols+c}"></i>`;
   const cap = told || `${rows} row${rows>1?"s":""} of ${cols}`;
+  /* Cap the total stagger rather than the per-dot delay: at a fixed 7ms the last
+     of 144 dots starts a full second after the first, which reads as the array
+     still loading. */
+  const st = Math.min(7, 420/(rows*cols)).toFixed(2);
   return `<div class="dotwrap">
-    <div class="dots" style="--cols:${cols};--rows:${rows}"
+    <div class="dots" style="--cols:${cols};--rows:${rows};--st:${st}ms"
       role="img" aria-label="${rows} rows of ${cols}">${cells}</div>
     <p class="dotcap">${cap}</p>
   </div>`;
+}
+
+/* Measure the room the array actually has and fill it. Pure CSS cannot: the
+   grid needs to be as large as the SMALLER of what the width allows and what the
+   height allows, and those two are only both known once laid out. */
+function sizeDots(){
+  const grid = document.querySelector("#mount .dots");
+  if(!grid) return;
+  const wrap = grid.parentElement;
+  const cols = +grid.style.getPropertyValue("--cols") || 1;
+  const rows = +grid.style.getPropertyValue("--rows") || 1;
+  const availW = wrap.clientWidth;
+  const availH = parseFloat(getComputedStyle(grid).maxHeight);
+  if(!(availW > 0) || !(availH > 0)) return;      /* not laid out yet */
+  /* The gap is a fraction of the dot, not a fixed number of pixels: at these
+     sizes a 6px gap between 70px dots reads as one solid block. */
+  const K = 0.2;
+  const span = n => n + K*(n-1);
+  const dot = Math.min(availW / span(cols), availH / span(rows));
+  if(!(dot > 0)) return;
+  const gap = dot * K;
+  grid.style.gap    = gap.toFixed(2) + "px";
+  grid.style.width  = (dot*cols + gap*(cols-1)).toFixed(2) + "px";
+  grid.style.height = (dot*rows + gap*(rows-1)).toFixed(2) + "px";
+}
+
+/* Re-measure on rotation, Split View, and anything else that moves the plate.
+   Guarded: the sandboxed preview and older browsers just keep the CSS fallback. */
+let dotObserver = null;
+function watchDots(){
+  try{
+    if(!window.ResizeObserver) return;
+    if(!dotObserver) dotObserver = new ResizeObserver(()=>sizeDots());
+    dotObserver.disconnect();
+    const m = $("#mount");
+    if(m) dotObserver.observe(m);
+  }catch(e){}
 }
 
 /* ---- build it yourself --------------------------------------------------
@@ -927,6 +980,7 @@ function renderPlate(){
   $("#hint").addEventListener("click", showHint);
   $("#next").addEventListener("click", nextCard);
   wireBuild(); paintBuildSay(); paintBuild();
+  watchDots(); sizeDots();
 
   /* renderPlate rebuilds the DOM, so anything already true of this question has
      to be put back — otherwise flipping a setting mid-question loses the hint,
@@ -983,6 +1037,7 @@ function paintHint(){
     $("#mount").insertAdjacentHTML("beforeend",
       dotsMarkup(flip?fact.b:fact.a, flip?fact.a:fact.b));
     $("#mount").classList.add("with-dots");
+    sizeDots();
   }
 }
 function showHint(){
@@ -1019,6 +1074,7 @@ function paintReveal(value){
     $("#mount").insertAdjacentHTML("beforeend", dotsMarkup(rows, cols, told));
     $("#mount").classList.add("with-dots");
   }
+  sizeDots();
   paintBuildSay();
 
   if(state.answerMode==="keypad"){
