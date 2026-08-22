@@ -156,3 +156,16 @@ connector's REST API; it is incremental (unchanged files are matched by blob
 sha and never re-sent) and it refuses to run on a dirty tree. It cannot rebase,
 force-push, or merge — if it is ever the only path again, treat the remote as
 append-only.
+
+**Never interleave the two.** `deploy.py` builds its commit server-side, so the
+local repository never learns that commit's sha; push afterwards and git sees
+two unrelated histories with identical content. That is exactly what the
+switchover hit — three REST-built commits, same trees, different shas. The fix
+is not a force-push: `git fetch` and then
+
+```bash
+git rebase --empty=drop origin/main
+```
+
+replays local work onto the real remote history and drops the duplicates, after
+which an ordinary `git push` fast-forwards.
