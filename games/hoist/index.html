@@ -263,6 +263,14 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
    buttons and are styled for them. */
 .m-ans, .m-ans.m-dot{fill:var(--green);stroke:#fff}
 .m-miss, .m-miss.m-dot{fill:var(--red);stroke:#fff}
+/* Names sit above everything and are never a tap target — the map underneath
+   is what answers. The halo is what keeps them readable over coastlines. */
+.m-labels{pointer-events:none}
+.m-label{
+  font-family:"Archivo",sans-serif;font-weight:600;text-anchor:middle;
+  fill:var(--ink);stroke:var(--glass-hi);stroke-width:3px;paint-order:stroke fill;
+  vector-effect:non-scaling-stroke;
+}
 
 .plate-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;
   padding:11px 14px;border-top:1px solid var(--rule);flex-wrap:wrap}
@@ -389,6 +397,10 @@ body.is-offline .offline-bar{display:block}
           <p class="tiny">Which flags</p>
           <div class="seg" id="levelSeg"></div>
           <select class="pickone" id="bucketPick" aria-label="Which part of the world"></select>
+          <div id="labelRow" hidden>
+            <p class="tiny">Country names on the map</p>
+            <div class="seg" id="labelSeg"></div>
+          </div>
         </div>
       </div>
 
@@ -505,10 +517,10 @@ const INTERVALS=[45*1000, 8*MIN, 45*MIN, 5*HR, DAY, 3*DAY];
    forward — and so an OLD build meeting a NEWER one knows to leave it alone
    rather than flattening it. That matters as soon as there is more than one
    iPad, because they update independently. */
-const STATE_V = 2;
+const STATE_V = 3;
 
 let state = {v:STATE_V, score:0, best:0, asked:0, cards:{},
-             answerMode:"names", bucket:"all"};
+             answerMode:"names", bucket:"all", labels:"reveal"};
 let current=null, answered=false, hintUsed=false, lastCode=null, advanceTimer=null, streak=0;
 let chosenCode=null;   /* what the player tapped, kept so a resize can repaint it */
 let updateReady=false;
@@ -539,6 +551,10 @@ const MIGRATIONS = {
     blob.answerMode = "names";
     blob.bucket = "all";
     return blob;
+  },
+  2: blob => {                       /* v2 had no map labels */
+    blob.labels = "reveal";
+    return blob;
   }
 };
 
@@ -562,6 +578,7 @@ async function load(){
   Object.assign(state, blob);
   if(!BUCKETS.some(b=>b.id===state.bucket)) state.bucket = "all";
   if(!MODES.some(m=>m.id===state.answerMode)) state.answerMode = "names";
+  if(!LABELS.some(l=>l.id===state.labels)) state.labels = "reveal";
 }
 
 /* ============ helpers ============ */
@@ -600,6 +617,15 @@ const BUCKETS = [
   ...SUBS.map(s=>({id:"s:"+s, label:s, level:"sub"})),
   {id:"rand:r", label:"Surprise me", level:"region", roll:true},
   {id:"rand:s", label:"Surprise me", level:"sub",    roll:true}
+];
+
+/* Naming countries on the map is the fastest way to learn where they are, but
+   a tap on the map IS the answer, so there is no spare click to peek with.
+   These are the three moments a name can appear instead. */
+const LABELS = [
+  {id:"off",    label:"Off"},
+  {id:"reveal", label:"On reveal"},
+  {id:"always", label:"Always"}
 ];
 
 let rolled = null;   /* what "Surprise me" landed on for this session */
@@ -826,6 +852,7 @@ function mapSvg(shifts, f){
        aria-label="World map — tap the country">
     <g class="m-land">${shifts.map(layer).join("")}</g>
     <g class="m-dots" id="mdots"></g>
+    <g class="m-labels" id="mlabels"></g>
   </svg>`;
 }
 
@@ -899,6 +926,64 @@ function applyMapState(){
   mapCache.wrap.querySelector("#mdots").innerHTML = dots.join("");
   /* A re-apply mid-question (rotation, split view) must not erase the reveal. */
   if(answered && current) paintMap(chosenCode, current.answer.code);
+  paintLabels();
+}
+
+const LABEL_PX = 11;      /* on-screen type size, held constant through zoom */
+const LABEL_ALL_MAX = 22; /* above this many countries, name only the big ones */
+
+/* Which countries want a name this question. Separate from drawing them, since
+   the policy is the part worth reasoning about. */
+function labelWant(mode){
+  if(!mapCtx) return [];
+  if(mode === "always"){
+    const dotted = new Set(mapCtx.dotted.map(c=>c.code));
+    /* Big enough to tap is big enough to label. The tiny ones are named too
+       when there are few enough to fit — which is exactly the region rungs. */
+    return mapCtx.live.filter(c => !dotted.has(c.code) || mapCtx.live.length <= LABEL_ALL_MAX);
+  }
+  if(mode === "reveal" && answered && current){
+    const out = [current.answer];
+    if(chosenCode && chosenCode !== current.answer.code && BY_CODE[chosenCode]){
+      out.push(BY_CODE[chosenCode]);   /* name the miss too — that is the lesson */
+    }
+    return out;
+  }
+  return [];
+}
+
+/* Country names on the map. "Always" is thinned to what actually fits: a name
+   is dropped if it would collide with one already placed, biggest country
+   first, so a zoomed region reads fully and the whole world still reads. */
+function paintLabels(){
+  if(!mapCache || !mapCtx) return;
+  const g = mapCache.wrap.querySelector("#mlabels");
+  const mode = state.labels || "reveal";
+  const scale = mapCtx.scale;
+  const f = mapCtx.frame;
+
+  const want = labelWant(mode);
+  if(!want.length){ g.innerHTML = ""; return; }
+
+  const area = c => { const b = MAP.box[c.code]; return b ? (b[2]-b[0])*(b[3]-b[1]) : 0; };
+  const ordered = want.slice().sort((a,b)=>area(b)-area(a));
+  const placed = [], out = [];
+  for(const c of ordered){
+    const p = MAP.pt[c.code];
+    const x = wrapNear(p[0], f.x + f.w/2);
+    const dotted = mapCtx.dotted.some(d=>d.code===c.code);
+    const y = p[1] + (dotted ? (DOT_R + LABEL_PX) * scale : 0);
+    if(x < f.x || x > f.x+f.w || y < f.y || y > f.y+f.h) continue;   /* off view */
+    /* rough text box, in screen pixels */
+    const w = c.name.length * LABEL_PX * 0.52, h = LABEL_PX * 1.2;
+    const sx = (x - f.x)/scale, sy = (y - f.y)/scale;
+    const hit = placed.some(r => Math.abs(r.x-sx) < (r.w+w)/2 && Math.abs(r.y-sy) < (r.h+h)/2);
+    if(hit && mode === "always") continue;
+    placed.push({x:sx, y:sy, w, h});
+    out.push(`<text class="m-label" x="${x}" y="${y}" font-size="${LABEL_PX*scale}"
+      >${c.name.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</text>`);
+  }
+  g.innerHTML = out.join("");
 }
 
 function onMapTap(e){
@@ -959,7 +1044,7 @@ function paintReveal(code){
   const c = current.answer;
   const right = code === c.code;
 
-  if(isMap()) paintMap(code, c.code);
+  if(isMap()){ paintMap(code, c.code); paintLabels(); }
   else document.querySelectorAll(".choice").forEach(b=>{
     b.disabled = true;
     if(b.dataset.code===c.code) b.classList.add("right");
@@ -1069,6 +1154,11 @@ function paintLevels(){
   $("#levelSeg").innerHTML = LEVELS.map(l=>
     `<button class="segb${l.id===level?" sel":""}" data-level="${l.id}">${l.label}</button>`).join("");
 
+  /* Only meaningful when there is a map to write on. */
+  $("#labelRow").hidden = !isMap();
+  $("#labelSeg").innerHTML = LABELS.map(l=>
+    `<button class="segb${l.id===state.labels?" sel":""}" data-labels="${l.id}">${l.label}</button>`).join("");
+
   const pick = $("#bucketPick");
   pick.hidden = level==="world";
   if(!pick.hidden){
@@ -1087,8 +1177,17 @@ function setMode(mode){
   state.answerMode = mode;
   save();
   paintLevels();
-  renderPlate();
+  if(current) renderPlate(); else nextCard();   /* before the first card, draw one */
   paintRail();
+}
+
+/* Naming countries changes nothing about the question — repaint and stay put. */
+function setLabels(mode){
+  if(mode === state.labels) return;
+  state.labels = mode;
+  save();
+  paintLevels();
+  if(isMap() && mapCache && mapCtx) paintLabels();
 }
 
 /* Changing WHICH flags are in play is a different matter — the specimen may not
@@ -1123,6 +1222,10 @@ function wireLevels(){
     setBucket(BUCKETS.some(x=>x.id===want) ? want : "all");
   });
   $("#bucketPick").addEventListener("change", e=>setBucket(e.target.value));
+  $("#labelSeg").addEventListener("click", e=>{
+    const b = e.target.closest("[data-labels]");
+    if(b) setLabels(b.dataset.labels);
+  });
 }
 
 function paintRail(){

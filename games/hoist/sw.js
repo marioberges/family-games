@@ -2,7 +2,7 @@
    Shell: precached, cache-first with a background refresh.
    Flags + fonts: cache-first runtime caches, so a flag you've seen once works offline. */
 
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL  = `hoist-shell-${VERSION}`;
 const FLAGS  = "hoist-flags-v1";   // unversioned on purpose: flag art rarely changes
 const FONTS  = "hoist-fonts-v1";
