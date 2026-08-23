@@ -202,7 +202,15 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
    The aspect-ratio below is only the fallback for the moment before the first
    measure, and for a browser with no ResizeObserver. */
 .dots{
-  display:grid;grid-template-columns:repeat(var(--cols),1fr);
+  display:grid;
+  grid-template-columns:repeat(var(--cols),1fr);
+  grid-template-rows:repeat(var(--rows),1fr);
+  /* min-*:0 is load-bearing, not tidiness. .dots is a flex item and each .dot is
+     a grid item, so both default to min-width:auto — an automatic minimum size
+     taken from content. WebKit lets that minimum win over the width sizeDots
+     sets, and the grid silently inflates to several times its assigned width;
+     Blink does not, which is why this only ever showed up on the iPad. */
+  min-width:0;min-height:0;
   gap:clamp(3px,.9vw,9px);
   /* The fallback shape, and — because max-height computes to a real pixel value
      — also how sizeDots learns the height ceiling without having to re-evaluate
@@ -213,7 +221,12 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   max-width:100%;margin:auto;
 }
 .dot{
-  aspect-ratio:1;border-radius:50%;background:var(--glass-hi);opacity:.92;
+  /* No aspect-ratio here: the rows and columns are both 1fr of a box whose
+     width and height sizeDots keeps in proportion, so a cell is already square
+     and the dot simply fills it. Asking for a ratio as well is what gave the
+     automatic minimum size something to inflate. */
+  min-width:0;min-height:0;
+  border-radius:50%;background:var(--glass-hi);opacity:.92;
   animation:seed .32s cubic-bezier(.16,.84,.44,1) both;
   animation-delay:calc(var(--i) * var(--st, 7ms));
 }
@@ -803,23 +816,40 @@ function boardPitch(){
   return { dot: (w - gap*11) / 12, gap };
 }
 
+/* How tall the array is allowed to get. Computed here rather than read back out
+   of getComputedStyle(.dots).max-height, which is what this used to do: WebKit
+   does not reliably have that resolved at the moment we measure — right after
+   the array is inserted on reveal, or right after a settings re-render — and the
+   resulting NaN silently abandoned the whole measurement and left the CSS
+   fallback to fill the panel. Keep in step with .dots max-height above. */
+function dotCeiling(){
+  const short = window.matchMedia
+    && window.matchMedia("(orientation:landscape) and (max-height:560px)").matches;
+  const W = window.innerWidth, H = window.innerHeight;
+  return short ? Math.max(110, Math.min(0.42*H, 260))
+               : Math.max(200, Math.min(0.66*W, 0.46*H, 520));
+}
+
 /* Draw the array at the pegboard's pitch, shrinking only if this particular fact
    would not otherwise fit the panel. Never grows past it: matching the board is
-   the point, and a 12-wide array at board pitch is exactly the board's width. */
+   the point, and a 12-wide array at board pitch is exactly the board's width.
+   This always sets an explicit size. Bailing out is not a safe failure here —
+   the CSS fallback is width:100%, so anything that stops us halfway shows up as
+   an enormous array rather than as nothing. */
 function sizeDots(){
   const grid = document.querySelector("#mount .dots");
   if(!grid) return;
-  const wrap = grid.parentElement;
   const cols = +grid.style.getPropertyValue("--cols") || 1;
   const rows = +grid.style.getPropertyValue("--rows") || 1;
-  const availW = wrap.clientWidth;
-  const availH = parseFloat(getComputedStyle(grid).maxHeight);
-  if(!(availW > 0) || !(availH > 0)) return;      /* not laid out yet */
   let {dot, gap} = boardPitch();
-  if(!(dot > 0)) return;
+  if(!(dot > 0)) dot = 24;                        /* nothing measurable: still commit */
+  if(!(gap >= 0)) gap = 3;
   const span = (n, d, g) => d*n + g*(n-1);
-  const shrink = Math.min(1, availW / span(cols, dot, gap),
-                             availH / span(rows, dot, gap));
+  const availW = grid.parentElement ? grid.parentElement.clientWidth : 0;
+  const availH = dotCeiling();
+  let shrink = 1;
+  if(availW > 0) shrink = Math.min(shrink, availW / span(cols, dot, gap));
+  if(availH > 0) shrink = Math.min(shrink, availH / span(rows, dot, gap));
   if(shrink < 1){ dot *= shrink; gap *= shrink; }
   grid.style.gap    = gap.toFixed(2) + "px";
   grid.style.width  = span(cols, dot, gap).toFixed(2) + "px";
