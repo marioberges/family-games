@@ -37,10 +37,16 @@ GLASS = (0xD6, 0xDF, 0xDB)   # --glass  house ground, and the splash background
 GLASS_HI = (0xE7, 0xEC, 0xE8)
 GOLD = (0xFF, 0xB6, 0x12)    # --gold
 
-# A game's mark is a background plus a dot lattice: `cols` x `rows` of dots, with
-# the top row picked out in the accent so it reads as "rows of four" rather than
-# as decoration. That is the whole idea of the game in the smallest space it fits.
+# A game's mark is the whole idea of the game in the smallest space it fits.
+# Lattice draws a `cols` x `rows` grid of dots with the top row picked out in the
+# accent, so it reads as "rows of four" rather than as decoration. Agate draws
+# the bands of the stone it is named for, which is also the shape of a target,
+# a ring of seats, and a ball's stitching seen end on.
 SPECS = {
+    "agate": {
+        "icon": dict(bg=INK, band=GLASS_HI, accent=GOLD, mark="bands"),
+        "splash": dict(bg=GLASS, band=INK, accent=GOLD, mark="bands"),
+    },
     "lattice": {
         # on the home screen the icon has to hold its own against everything
         # else, so it is the dark field with light dots
@@ -119,9 +125,27 @@ class Canvas:
                         row[i + k] = int(round(row[i + k] * (1 - a) + rgb[k] * a))
 
 
+def draw_bands(cv, cx, cy, box, spec):
+    """Concentric bands, painted outside in — each circle covers the middle of
+    the one before it, so the rings are what is left over. Cheap, and it means
+    the edge of every band is antialiased by the same code path."""
+    r = box / 2.0
+    rings = [
+        (1.00, spec["band"]),
+        (0.80, spec["bg"]),
+        (0.63, spec["band"]),
+        (0.44, spec["bg"]),
+        (0.26, spec["accent"]),
+    ]
+    for frac, rgb in rings:
+        cv.circle(cx, cy, r * frac, rgb)
+
+
 def draw_mark(cv, cx, cy, box, spec):
     """A cols x rows lattice of dots, centred on (cx, cy) and fitted to `box`
     (the length of the square the mark may occupy)."""
+    if spec.get("mark") == "bands":
+        return draw_bands(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
