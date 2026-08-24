@@ -4,7 +4,7 @@
    Precache it and Agate works offline from the first launch onward.
    Fonts are the one exception, cached at runtime and deliberately unversioned. */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = `agate-shell-${VERSION}`;
 const FONTS = "agate-fonts-v1";   /* unversioned on purpose: an app update
                                        shouldn't re-download the typefaces */

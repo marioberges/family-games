@@ -102,6 +102,31 @@ progress can only be judged on the device, against the Pages URL.
 - **Keep third-party assets to a minimum**, and cache what you use at runtime so
   the first offline launch isn't a surprise.
 
+## Testing
+
+```bash
+./scripts/test.sh           # every game: syntax check, then the real thing in jsdom
+```
+
+First run installs `jsdom` into `~/.local/gametest` — **outside the tree**, so
+that `npm` never gets a reason to write into a directory Pages serves, and so a
+game keeps its "a browser can just open this" property. Suites live in
+`scripts/test/`, one per game.
+
+The rig boots the actual `index.html` and drives it: it catches dead references,
+broken state transitions, settings that do not survive a repaint, and markup
+that never renders. It also checks each game's own invariants — for Agate, that
+all 78 cards multiply out to the fact they are attached to and that no question
+contains its own answer.
+
+To reach a game's internals the rig injects one probe line after `"use strict";`.
+It has to go *inside* the IIFE: everything is function-scoped, so nothing is on
+`window` and a probe appended after the closing `})();` sees an empty room.
+
+**It is not a substitute for the iPad.** Nothing is laid out, so it says nothing
+about how a game looks, and there is no service worker, install or offline. Those
+are still only true on the device, against the Pages URL.
+
 ## Adding a game
 
 1. `games/<name>/` with `index.html`, `sw.js`, `manifest.webmanifest`, `icons/`.

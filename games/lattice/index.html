@@ -62,6 +62,10 @@
   --glass-hi:#E7ECE8;
   --red:#C8102E;
   --gold:#FFB612;
+  --gold-deep:#8A5A00;   /* --gold is a fill colour; on white it is
+                            unreadable. This is the same accent, taken dark
+                            enough to be text. */
+  --paper:#FFFFFF;
   --blue:#005EB8;
   --green:#007A33;
   --rule:rgba(11,30,45,.16);
@@ -159,10 +163,10 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 /* The mount is the specimen panel: the sum, and the dot array when it is shown.
    Ruled like the graph paper the page is drawn on, one square per dot pitch. */
 .mount{
-  position:relative;background:var(--ink);
+  position:relative;background:var(--paper);
   background-image:
-    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    linear-gradient(rgba(11,30,45,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,30,45,.05) 1px, transparent 1px);
   background-size:26px 26px;
   padding:26px;display:flex;align-items:center;justify-content:center;gap:clamp(18px,4vw,44px);
   overflow:hidden;flex-wrap:wrap;
@@ -172,28 +176,27 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
    steps back to a caption over it. */
 .mount.with-dots{flex-direction:column;gap:12px;padding:20px 18px 18px}
 .expr{
-  font-family:"Bodoni Moda",Didot,Georgia,serif;color:var(--glass-hi);
+  font-family:"Bodoni Moda",Didot,Georgia,serif;color:var(--ink);
   font-size:clamp(40px,11vw,104px);line-height:1;letter-spacing:.01em;white-space:nowrap;
-  text-shadow:0 12px 30px rgba(0,0,0,.45);
 }
-.mount.with-dots .expr{font-size:clamp(30px,7vw,64px);text-shadow:0 8px 20px rgba(0,0,0,.4)}
-.expr em{font-style:normal;opacity:.5;margin:0 .16em;font-size:.72em;vertical-align:.06em}
-.expr .eq{opacity:.42}
-.expr .ans{color:var(--gold)}
+.mount.with-dots .expr{font-size:clamp(30px,7vw,64px)}
+.expr em{font-style:normal;opacity:.34;margin:0 .16em;font-size:.72em;vertical-align:.06em}
+.expr .eq{opacity:.3}
+.expr .ans{color:var(--gold-deep)}
 
 .dotwrap{
   flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
   /* height:auto so the panel shrinks to whatever the array actually needs. A
-     fixed height leaves a band of dead navy above and below a wide, short fact
+     fixed height leaves a band of dead panel above and below a wide, short fact
      like 4 x 8, which is most of them. The ceiling lives on .dots instead. */
   height:auto;width:100%;max-width:100%;min-width:0;
 }
 .dotcap{
   margin:0;flex:0 0 auto;font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:clamp(11px,2.5vw,14px);letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.62);text-align:center;
+  color:rgba(11,30,45,.6);text-align:center;
 }
-.dotcap b{color:var(--gold);font-weight:600}
+.dotcap b{color:var(--gold-deep);font-weight:600}
 /* sizeDots() sets width and height on this in pixels. It has to: the wrapper
    centres its children, so the grid is shrink-to-fit across, and 1fr columns
    full of dots with no intrinsic width collapse to nearly nothing — which then
@@ -226,25 +229,26 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
      and the dot simply fills it. Asking for a ratio as well is what gave the
      automatic minimum size something to inflate. */
   min-width:0;min-height:0;
-  border-radius:50%;background:var(--glass-hi);opacity:.92;
+  border-radius:50%;background:var(--ink);opacity:.92;
   animation:seed .32s cubic-bezier(.16,.84,.44,1) both;
   animation-delay:calc(var(--i) * var(--st, 7ms));
 }
-.dot.alt{background:#9fb4c4}       /* row banding, so the eye can count in rows */
+.dot.alt{background:#5C7A93}       /* row banding, so the eye can count in rows */
 @keyframes seed{from{opacity:0;transform:scale(.3)}to{opacity:.92;transform:none}}
 .hint-note{
   position:absolute;left:0;right:0;bottom:0;padding:7px 14px;
-  background:rgba(11,30,45,.55);color:var(--glass-hi);text-align:center;
+  background:rgba(11,30,45,.07);color:rgba(11,30,45,.7);text-align:center;
+  border-top:1px solid var(--rule);
   font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:clamp(11px,2.4vw,14px);
   letter-spacing:.12em;
 }
 
 .stamp{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-11deg);
-  border:3px double var(--red);color:var(--red);background:rgba(233,229,220,.14);
+  border:3px double var(--red);color:var(--red);background:rgba(255,255,255,.82);
   padding:8px 16px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;
   font-size:clamp(13px,2.6vw,20px);letter-spacing:.16em;text-transform:uppercase;
-  text-align:center;pointer-events:none;text-shadow:0 0 12px rgba(200,16,46,.5);
+  text-align:center;pointer-events:none;
   animation:thump .34s cubic-bezier(.2,1.5,.4,1) both;z-index:4;
 }
 .stamp small{display:block;font-size:9px;letter-spacing:.3em;font-weight:400;opacity:.85;margin-top:3px}

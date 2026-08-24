@@ -1,0 +1,21 @@
+import { boot, ok, eq, report } from "./harness.mjs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+const GAMES = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "games");
+const FILE = path.join(GAMES, "lattice", "index.html");
+const g = boot(FILE);
+ok(g.errors.length === 0, "boots without error: " + g.errors.join(" | "));
+ok(!!g.$("#mount"), "mount rendered");
+ok(!!g.$("#expr"), "the sum is on the plate");
+eq(g.ev("FACTS.length"), 78, "deck is 78 facts");
+const p = g.ev("current.fact.p");
+g.ev(`answer_(${p})`);
+ok(/=/.test(g.$("#expr").textContent), "reveal writes the equation");
+ok(!!g.$("#band").classList.contains("show"), "the band reveals");
+g.ev("nextCard()");
+ok(!!g.$("#expr"), "next card draws a fresh sum");
+/* the dot array still builds after the recolour */
+g.ev(`setDots("always")`);
+ok(g.all("#mount .dot").length > 0, "dot array still drawn");
+eq(g.all("#mount .dot").length, g.ev("current.fact.p"), "one dot per unit");
+process.exit(report("lattice") ? 0 : 1);

@@ -219,3 +219,92 @@ Coverage is now **78 of 78**, machine-checked: every story's `n × v` equals the
 fact it is attached to, and every fact draws the same story each time it is
 asked. The check lives in the build session, not in the repo — it reads the
 frame table straight out of `games/agate/index.html`.
+
+---
+
+## Finding 7: the generative frames had to go, and the collection is why
+
+The frames above cover all 78 facts and every number in them is real. They are
+still the wrong answer, and the reason is not accuracy — it is that a sentence
+assembled from a template is *about* nothing.
+
+"Eight touchdowns." is true, it multiplies correctly, and there is no occasion
+in it. Sixty-two of the 78 facts were being asked that way, with the actual
+event arriving only afterwards, in the note. Meanwhile the note was on screen
+for 1100 ms before the game moved on — the one line worth reading was the one
+line nobody had time to read.
+
+Both problems have the same fix and it is the same fix: make the occasion the
+question, and let the card be kept.
+
+**Every fact now has its own hand-written card**, in `CARDS` in
+`games/agate/index.html`. Nothing is generated. A card names a game, a night, or
+a rule and the year it changed, and the multiplication is the shape of what
+happened rather than decoration hung on a sum. A fact answered right for the
+first time is collected and can be read again at any time, so the note is no
+longer something you get 1100 ms of.
+
+### What a card may be built on
+
+Three kinds, all real, in the order they are preferred:
+
+1. **A named performance** — Sobers' six sixes, Klay Thompson's nine-of-nine
+   quarter, Bironas' eight field goals. About forty of the seventy-eight.
+2. **A named occasion with a structure** — the first World Cup final's two
+   elevens, the 1963 netball championships' eleven nations, an Olympic rowing
+   final's six boats.
+3. **A dated rule** — three points for a win (England 1981, the World Cup 1994);
+   the rugby league try going from three points to four in 1983; Australia's
+   eight-ball over, abandoned in 1979.
+
+Type 3 is deliberately included and deliberately last. "Something that happened"
+covers a rule changing: somebody decided, in a particular year, that a try
+should be worth more, and the reason is usually interesting.
+
+### The ones are a special case, and the test says so
+
+For `1 × n` the product **is** `n`. A sentence that lets the card be answered at
+all has therefore named the answer — there is no way to write it otherwise, and
+there is no need to, because the identity property is the whole of what the ones
+table teaches. `scripts/test/agate.mjs` checks every other card for its own
+answer in digits and in words, and exempts exactly these twelve, by rule rather
+than by list.
+
+### Sources for the named performances
+
+| Fact | Card | Checked against |
+|---|---|---|
+| 1×4 | Owens' four golds, Berlin 1936 | Olympic record |
+| 1×6 | Sittler, six goals and ten points, 7 Feb 1976 | NHL record book |
+| 1×7 / 1×8 | Spitz seven (1972), Phelps eight (2008) | Olympic record |
+| 1×11 | Russell's eleven titles, 1957–69 | NBA record book |
+| 2×5 | South Africa's two tries, RWC final, 2 Nov 2019 | match report |
+| 2×6 | the 2019 super over, 14 July 2019 | match report |
+| 2×10 | Laker, 19 of 20 wickets, Old Trafford 1956 | first-class record |
+| 3×4 | Wilkinson's four penalties, RWC final, 22 Nov 2003 | match report |
+| 3×6 | Rice's three TDs, Super Bowl XXIV, 28 Jan 1990 | box score |
+| 3×7 | the Ice Bowl, 21–17, 31 Dec 1967 | box score, AP report |
+| 3×8 | Bironas' eight field goals, 21 Oct 2007 | NFL record |
+| 3×9 | Larsen's perfect game, 8 Oct 1956 | box score |
+| 3×12 | Kobe's twelve threes, 7 Jan 2003 | NBA single-game list |
+| 4×4 | Hamilton's four home runs, 8 May 2012 | box score |
+| 4×5 | Lomu's four tries v England, 18 June 1995 | match report |
+| 4×7 | Atlanta's 28–3, Super Bowl LI, 5 Feb 2017 | box score |
+| 5×5 | Bucks–SuperSonics, 5OT, 9 Nov 1989 | box score |
+| 5×6 | Marc Ellis' six tries v Japan, 4 June 1995 | RWC record |
+| 6×6 | Sobers off Nash, Swansea, 31 Aug 1968 | Wisden, Cricinfo |
+| 6×10 / 7×9 | Washington 72–41, 27 Nov 1966 | box score: 10 TD, 9 converted, 1 FG |
+| 7×8 | O'Sullivan's 147 in 5 min 8 s, 1997 | World Championship record |
+| 7×10 | Comăneci's seven perfect tens, Montreal 1976 | Olympic record |
+| 7×11 | first World Netball Championships, Eastbourne 1963 | eleven nations, round robin |
+
+`7×9` is arithmetic over `6×10`'s box score rather than a separate lookup:
+Washington's ten touchdowns carried nine successful conversions, so 9 × 7 = 63,
+plus 6 for the unconverted one, plus a field goal, is the 72 that stands in the
+record book. The two cards are the same night from two directions.
+
+### What is no longer true above
+
+Findings 1–6 describe a design that has been replaced. They are kept because
+they are the reason the replacement looks the way it does — in particular
+Finding 6's ceilings are still what stops a card claiming eleven touchdowns.

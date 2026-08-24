@@ -4,7 +4,7 @@
    works offline from the first launch onward.
    Fonts are the one exception, cached at runtime and deliberately unversioned. */
 
-const VERSION = "v5";
+const VERSION = "v6";
 const SHELL = `lattice-shell-${VERSION}`;
 const FONTS = "lattice-fonts-v1";   /* unversioned on purpose: an app update
                                        shouldn't re-download the typefaces */

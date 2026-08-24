@@ -62,6 +62,10 @@
   --glass-hi:#E7ECE8;
   --red:#C8102E;
   --gold:#FFB612;
+  --gold-deep:#8A5A00;   /* --gold is a fill colour; on white it is
+                            unreadable. This is the same accent, taken dark
+                            enough to be text. */
+  --paper:#FFFFFF;
   --blue:#005EB8;
   --green:#007A33;
   --rule:rgba(11,30,45,.16);
@@ -156,10 +160,10 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 /* The mount is the specimen panel: the sum, and the story it comes from.
    Ruled like the graph paper the page is drawn on. */
 .mount{
-  position:relative;background:var(--ink);
+  position:relative;background:var(--paper);
   background-image:
-    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    linear-gradient(rgba(11,30,45,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,30,45,.05) 1px, transparent 1px);
   background-size:26px 26px;
   padding:26px;display:flex;align-items:center;justify-content:center;gap:clamp(18px,4vw,44px);
   overflow:hidden;flex-wrap:wrap;
@@ -168,47 +172,47 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
    plate and the sum sits under it as the thing the sentence is asking about. */
 .mount.with-story{flex-direction:column;gap:clamp(9px,2vw,15px);padding:20px 18px 18px}
 .expr{
-  font-family:"Bodoni Moda",Didot,Georgia,serif;color:var(--glass-hi);
+  font-family:"Bodoni Moda",Didot,Georgia,serif;color:var(--ink);
   font-size:clamp(40px,11vw,104px);line-height:1;letter-spacing:.01em;white-space:nowrap;
-  text-shadow:0 12px 30px rgba(0,0,0,.45);
 }
-.mount.with-story .expr{font-size:clamp(30px,7vw,64px);text-shadow:0 8px 20px rgba(0,0,0,.4)}
-.expr em{font-style:normal;opacity:.5;margin:0 .16em;font-size:.72em;vertical-align:.06em}
-.expr .eq{opacity:.42}
-.expr .ans{color:var(--gold)}
+.mount.with-story .expr{font-size:clamp(30px,7vw,64px)}
+.expr em{font-style:normal;opacity:.34;margin:0 .16em;font-size:.72em;vertical-align:.06em}
+.expr .eq{opacity:.3}
+.expr .ans{color:var(--gold-deep)}
 
 /* The story is the question. It sits above the sum in the same panel, so the
    sentence and the numbers are one object and the eye never has to travel. */
 .say{
-  margin:0;max-width:22ch;text-align:center;color:var(--glass-hi);
+  margin:0;max-width:30ch;text-align:center;color:var(--ink);
   font-family:"Bodoni Moda",Didot,Georgia,serif;font-size:clamp(17px,3.6vw,30px);
   line-height:1.25;text-wrap:balance;
 }
 .ask{
   margin:0;font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:clamp(10px,2.3vw,13px);letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(255,255,255,.6);text-align:center;
+  color:rgba(11,30,45,.55);text-align:center;
 }
 /* The payoff line — where the number actually comes from. Only ever shown after
    an answer, because before one it would give the game away. */
 .note{
-  margin:0;max-width:46ch;text-align:center;color:rgba(255,255,255,.78);
+  margin:0;max-width:46ch;text-align:center;color:rgba(11,30,45,.72);
   font-size:clamp(12px,2.6vw,15px);line-height:1.45;text-wrap:pretty;
 }
-.note b{color:var(--gold);font-weight:600}
+.note b{color:var(--gold-deep);font-weight:600}
 .hint-note{
   position:absolute;left:0;right:0;bottom:0;padding:7px 14px;
-  background:rgba(11,30,45,.55);color:var(--glass-hi);text-align:center;
+  background:rgba(11,30,45,.07);color:rgba(11,30,45,.7);text-align:center;
+  border-top:1px solid var(--rule);
   font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:clamp(11px,2.4vw,14px);
   letter-spacing:.12em;
 }
 
 .stamp{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-11deg);
-  border:3px double var(--red);color:var(--red);background:rgba(233,229,220,.14);
+  border:3px double var(--red);color:var(--red);background:rgba(255,255,255,.82);
   padding:8px 16px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;
   font-size:clamp(13px,2.6vw,20px);letter-spacing:.16em;text-transform:uppercase;
-  text-align:center;pointer-events:none;text-shadow:0 0 12px rgba(200,16,46,.5);
+  text-align:center;pointer-events:none;
   animation:thump .34s cubic-bezier(.2,1.5,.4,1) both;z-index:4;
 }
 .stamp small{display:block;font-size:9px;letter-spacing:.3em;font-weight:400;opacity:.85;margin-top:3px}
@@ -332,7 +336,8 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
   text-transform:uppercase;padding:9px 4px;cursor:pointer;min-height:38px;
   touch-action:manipulation;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-@media (hover:hover){.segb:hover:not(.sel){background:#dfe5e0}}
+@media (hover:hover){.segb:hover:not(.sel):not(:disabled){background:#dfe5e0}}
+.segb:disabled{opacity:.4;cursor:default}
 .segb.sel{background:var(--ink);color:var(--glass-hi)}
 .segb:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}
 .pickone{
@@ -378,6 +383,77 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .share{display:inline-block;width:12px;height:12px;vertical-align:-1px;
   border:1px solid currentColor;border-top:0;position:relative;margin:0 2px}
 .share::after{content:"↑";position:absolute;top:-9px;left:2px;font-size:11px;line-height:1}
+/* The badge that says a card has just been earned. Absolute, so arriving does
+   not shove the card it is announcing down the panel. */
+.newcard{
+  position:absolute;top:10px;left:10px;z-index:4;margin:0;
+  background:var(--gold);color:var(--ink);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;font-weight:600;
+  letter-spacing:.2em;text-transform:uppercase;padding:4px 9px;
+  animation:thump .34s cubic-bezier(.2,1.5,.4,1) both;
+}
+
+/* ---------- the collection ---------- */
+/* A full-screen sheet rather than a rail panel: 78 cards want the whole iPad,
+   and the point of the thing is to be browsed, not glanced at. */
+.album{
+  position:fixed;inset:0;z-index:40;background:rgba(11,30,45,.6);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+          calc(28px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+}
+.album[hidden]{display:none}
+.album-in{width:100%;max-width:1100px;margin:0 auto;background:var(--glass);border:1px solid var(--rule-2)}
+.album-head{
+  position:sticky;top:0;z-index:1;background:var(--glass-hi);
+  border-bottom:1px solid var(--rule-2);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;
+}
+.album-head h2{
+  margin:0;font-family:"Bodoni Moda",Didot,Georgia,serif;font-weight:700;
+  font-size:clamp(19px,3.2vw,28px);line-height:1.05;
+}
+.album-head h2 span{
+  display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:400;
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(11,30,45,.55);margin-top:4px;
+}
+.album-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));
+  gap:1px;background:var(--rule);padding:1px;
+}
+.album-empty{margin:0;padding:22px 18px;text-align:center;background:var(--paper);
+  border-bottom:1px solid var(--rule);
+  color:rgba(11,30,45,.65);font-size:14px;line-height:1.5}
+.album-empty[hidden]{display:none}
+.acard{
+  display:flex;flex-direction:column;gap:6px;background:var(--paper);
+  padding:13px 14px 15px;min-height:128px;
+}
+.acard .asum{
+  font-family:"Bodoni Moda",Didot,Georgia,serif;font-size:25px;line-height:1;color:var(--ink);
+}
+.acard .asum em{font-style:normal;opacity:.34;margin:0 .13em;font-size:.72em}
+.acard .asum b{color:var(--gold-deep);font-weight:400}
+.acard .asum i{
+  font-style:italic;font-family:"Archivo",sans-serif;font-size:12px;
+  letter-spacing:.02em;color:rgba(11,30,45,.5);margin-left:.35em;
+}
+.acard .aline{
+  margin:0;font-family:"Bodoni Moda",Didot,Georgia,serif;
+  font-size:16px;line-height:1.25;color:var(--ink);text-wrap:pretty;
+}
+.acard .anote{margin:0;font-size:12.5px;line-height:1.45;color:rgba(11,30,45,.7);text-wrap:pretty}
+.acard .awhen{
+  margin:0 0 -1px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:rgba(11,30,45,.45);
+}
+.acard.locked{background:#dfe4e0;justify-content:center;align-items:center;gap:9px;text-align:center}
+.acard.locked .asum{opacity:.42}
+.acard.locked .alock{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(11,30,45,.45);
+}
 .loading{padding:40px 16px;text-align:center;font-family:"IBM Plex Mono",ui-monospace,monospace;
   font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,30,45,.5)}
 .offline-bar{
@@ -425,7 +501,11 @@ body.is-offline .offline-bar{display:block}
           <select class="pickone" id="bucketPick"></select>
           <p class="tiny" style="margin-top:12px">The story — where
             <b>6 × 7</b> turns up in a real game</p>
-          <div class="seg" id="storySeg" style="margin-bottom:0"></div>
+          <div class="seg" id="storySeg"></div>
+          <p class="tiny" style="margin-top:12px">The sum — <b>6 × 7</b> written
+            out under the story</p>
+          <div class="seg" id="exprSeg" style="margin-bottom:0"></div>
+          <p class="tiny" id="exprNote" style="margin:8px 0 0" hidden></p>
         </div>
       </div>
 
@@ -434,9 +514,13 @@ body.is-offline .offline-bar{display:block}
         <div class="meter">
           <div class="row"><span>Known</span><b><span id="pKnown">0</span> / <span id="pTotal">78</span></b></div>
           <div class="bar"><i id="pBar"></i></div>
-          <p class="tiny" style="margin:10px 0 0">A fact counts as known once you
-            have had it right at least once. There are <b>78</b>, not 144, because
-            <b>6 × 7</b> and <b>7 × 6</b> are the same fact.</p>
+          <p class="tiny" style="margin:10px 0 0">A fact counts as known while it
+            is holding — miss it and it drops out again. There are <b>78</b>, not
+            144, because <b>6 × 7</b> and <b>7 × 6</b> are the same fact.</p>
+          <button class="btn wide" id="albOpen" style="margin-top:12px">The
+            collection · <b id="albN">0</b> / 78</button>
+          <p class="tiny" style="margin:8px 0 0">A card is yours the first time you
+            get its fact right, and stays yours whatever happens afterwards.</p>
         </div>
       </div>
 
@@ -457,6 +541,19 @@ body.is-offline .offline-bar{display:block}
         <button class="linkish" id="reset">Clear progress</button></p>
     </aside>
   </main>
+</div>
+
+<div class="album" id="album" hidden role="dialog" aria-modal="true" aria-label="The collection">
+  <div class="album-in">
+    <div class="album-head">
+      <h2>The collection<span id="albCount">0 of 78</span></h2>
+      <button class="btn" id="albClose">Close</button>
+    </div>
+    <p class="album-empty" id="albIntro" hidden>Nothing here yet. Every fact you
+      get right for the first time leaves its card behind, with the game the
+      number came from.</p>
+    <div class="album-grid" id="albGrid"></div>
+  </div>
 </div>
 
 <script>
@@ -490,16 +587,24 @@ const STATE_V = 1;
 const MIGRATIONS = {};
 const defaults = () => ({
   v:STATE_V, score:0, best:0, asked:0, cards:{},
-  answerMode:"choice", bucket:"f:easy", story:"always"
+  answerMode:"choice", bucket:"f:easy", story:"always", expr:"hide"
 });
 
-/* A card record is {b,d,r,w,f,t}: Leitner box 0-5, due ms, right, wrong,
-   flagged-for-review, and `t` — an EMA of how long recall takes. `t` is read in
+/* A card record is {b,d,r,w,f,t,c}: Leitner box 0-5, due ms, right, wrong,
+   flagged-for-review, `t` — an EMA of how long recall takes — and `c`, the ms
+   timestamp of the first correct answer, which is when the card was collected.
+
+   `c` and the `expr` setting are both new since v1, and both are ADDITIVE: a v1
+   build loads the whole blob, copies the card records wholesale and writes them
+   back, so neither field is destroyed by an iPad that has not updated yet.
+   That is why STATE_V has not moved. The read-only trip in load() is for shape
+   changes a older build would silently flatten; this is not one. `t` is read in
    exactly two places (the fold in answer_, and the box gates beside it) and
    appears in no template string anywhere. That is deliberate: the child never
    sees a clock. The only thing it changes is that easy facts stop coming back. */
 let state = defaults();
 let current=null, answered=false, hintUsed=false, lastKey=null, advanceTimer=null, streak=0;
+let justCollected=false;   /* this answer collected a card for the first time */
 let chosenValue=null;   /* what was answered, kept so a repaint can show it again */
 let buf="";             /* number pad buffer — not an <input>, see padMarkup */
 let shownAt=0, firstAt=0, stale=false;
@@ -546,6 +651,7 @@ function load(){
   if(!MODES.some(m=>m.id===state.answerMode)) state.answerMode = "choice";
   if(!BUCKETS.some(b=>b.id===state.bucket))   state.bucket     = "f:easy";
   if(!STORY.some(d=>d.id===state.story))      state.story      = "always";
+  if(!EXPR.some(d=>d.id===state.expr))        state.expr       = "hide";
   if(!state.cards || typeof state.cards !== "object") state.cards = {};
   streak = 0;
   /* Write the upgraded shape back now rather than waiting for the first answer,
@@ -579,6 +685,15 @@ const STORY = [
   {id:"off",    label:"Off"},
   {id:"reveal", label:"On reveal"},
   {id:"always", label:"Always"}
+];
+/* Whether the sum is written under the sentence before an answer. Hidden is the
+   default: with the numbers on screen the card can be answered without reading
+   a word of it, which is exactly the habit the story is there to break. It is
+   only ever a choice when a sentence is actually up to replace it — see
+   exprShown(). */
+const EXPR = [
+  {id:"hide", label:"Hidden"},
+  {id:"show", label:"Shown"}
 ];
 const TABLES = [1,2,3,4,5,6,7,8,9,10,11,12];
 const FAMILIES = [
@@ -703,135 +818,288 @@ function makeOptions(fact){
   return shuffle([p, ...out]);
 }
 
-/* ============ where the numbers come from ============
-   Every frame's count ceiling and every record quoted below was looked up, and
-   the sources are in notes/agate-coverage.md. Nothing here is invented: if a
-   number could not be checked it is not in the game.
+/* ============ the cards ============
+   Seventy-eight facts, seventy-eight cards, and every one written for its own
+   pair and nobody else's. There is no generator here on purpose: a sentence
+   assembled from a template can be true and still be about nothing, and a card
+   about nothing is not worth collecting. Each one names an occasion — a game, a
+   night, a rule that changed and the year it changed in — and the multiplication
+   is the shape of what happened, not decoration hung on a sum.
 
-   A RATE is generative — "n of these, worth v each" — and covers most of the
-   deck. `max` is the honest ceiling on the count, and it is why this is not
-   simply a list of scoring values: nobody has ever scored eleven touchdowns,
-   so 6 stops being usable at n = 11 and 6 × 11 has to find another frame. */
-const RATE = [
-  {v:1,  max:12, unit:"points", one:"free throw",    many:"free throws",
-   ask:"How many points?",
-   note:"Wilt Chamberlain made 28 free throws in one game. Nobody has beaten it."},
-  {v:2,  max:12, unit:"points", one:"two-pointer",   many:"two-pointers",
-   ask:"How many points?",
-   note:"Chamberlain made 36 two-pointers the night he scored 100."},
-  {v:3,  max:12, unit:"points", one:"three-pointer", many:"three-pointers",
-   ask:"How many points?",
-   note:"Klay Thompson hit 14 threes in a game in 2018 — the record."},
-  {v:4,  max:12, unit:"bases",  one:"home run",      many:"home runs",
-   ask:"How many bases?",
-   note:"Every home run is a lap of all four bases, however far the ball goes."},
-  {v:6,  max:10, unit:"points", one:"touchdown",     many:"touchdowns",
-   ask:"How many points?",
-   note:"Ten touchdowns in one game is the team record — Washington, 1966."},
-  {v:6,  max:12, unit:"balls",  one:"over",          many:"overs",
-   ask:"How many balls?",
-   note:"An over is six balls. A Twenty20 innings is twenty of them."},
-  {v:7,  max:10, unit:"points", one:"converted touchdown", many:"converted touchdowns",
-   ask:"How many points?",
-   note:"A touchdown and the extra point: seven, the commonest score in football."},
-  {v:10, max:12, unit:"yards",  one:"first down",    many:"first downs",
-   ask:"How many yards?",
-   note:"Ten yards is a first down, and the chains come out to prove it."}
-];
+   Every number was looked up; the sources are in ../../notes/agate-coverage.md.
+   Where a line is arithmetic over a rule rather than a quoted statistic, the
+   note says so.
 
-/* The same idea, said differently: here the count is teams and the value is how
-   many each one puts on the field. Kept apart from RATE only because the
-   sentence reads differently — six shapes of question across the deck is what
-   stops the drill sounding like one sentence with the numbers swapped. */
-const SIDE = [
-  {v:5,  max:12, noun:"team", side:"five a side",
-   note:"Futsal is five a side — the indoor game FIFA runs."},
-  {v:7,  max:12, noun:"team", side:"seven a side",
-   note:"Rugby sevens: seven players a side, two halves of seven minutes."},
-  {v:8,  max:12, noun:"heat", side:"eight lanes each", unit:"runners",
-   note:"A championship track has eight lanes, so a heat is eight runners."},
-  {v:9,  max:12, noun:"team", side:"nine a side",
-   note:"Nine in the field, nine in the order, nine innings."},
-  {v:11, max:12, noun:"team", side:"eleven a side",
-   note:"Eleven a side — the same in football, cricket and field hockey."},
-  {v:12, max:12, noun:"team", side:"twelve a side",
-   note:"Canadian football puts twelve on the field, one more than the NFL."}
-];
+   n and v are load-bearing and not interchangeable: the sum is written n x v so
+   that it reads in the same order as the sentence. "Twelve clubs, eleven a side"
+   has to come out 12 x 11 or the sentence and the numbers contradict each other,
+   and a child believes the sentence. See orient().
 
-/* The set pieces. These are the ones worth knowing. */
-const SET = {
-  "4x10": {n:4, v:10, unit:"minutes", say:"Four quarters of ten minutes.",
-    ask:"How long is the game?",
-    note:"Forty minutes. The WNBA and international basketball play a shorter game than the NBA."},
-  "4x12": {n:4, v:12, unit:"minutes", say:"Four quarters of twelve minutes.",
-    ask:"How long is the game?",
-    note:"Forty-eight minutes of NBA basketball, before any overtime."},
-  "5x5":  {n:5, v:5,  unit:"minutes", say:"Five overtimes, five minutes each.",
-    ask:"How much overtime?",
-    note:"Bucks 155, SuperSonics 154, on 9 November 1989 — 73 minutes of basketball, which is 48 plus this."},
-  "5x10": {n:5, v:10, unit:"points", say:"All five starters in double figures.",
-    ask:"At least how many points?",
-    note:"Double figures means ten or more — so five starters is fifty before anyone does anything special."},
-  "5x11": {n:5, v:11, unit:"places", say:"Five Tests, eleven a side.",
-    ask:"How many places in the XI?",
-    note:"An Ashes series is five Tests. Almost nobody plays every one of them."},
-  "5x12": {n:5, v:12, unit:"minutes", say:"Five on the floor, a twelve-minute quarter.",
-    ask:"How many minutes to give out?",
-    note:"A coach has 240 minutes to hand out in a game — five players times forty-eight. This is one quarter of it."},
-  "6x6":  {n:6, v:6,  unit:"points", say:"Six touchdowns by one player.",
-    ask:"How many points?",
-    note:"Four men have done it: Nevers in 1929, Jones in 1951, Sayers in 1965, Kamara in 2020."},
-  "6x10": {n:10, v:6, unit:"points", say:"Ten touchdowns in one game.",
-    ask:"How many points?",
-    note:"Washington 72, New York Giants 41, on 27 November 1966 — the highest-scoring game the NFL has had."},
-  "9x10": {n:10, v:9, unit:"players", say:"Ten clubs, nine a side.",
-    ask:"How many players take the field?",
-    note:"Korea's KBO League has ten clubs."},
-  "9x12": {n:12, v:9, unit:"players", say:"Twelve clubs, nine a side.",
-    ask:"How many players take the field?",
-    note:"Japan's NPB has twelve clubs — and a baseball has 108 stitches, which is the same number."},
-  "10x10":{n:10, v:10, unit:"yards", say:"Ten first downs, ten yards each.",
-    ask:"How far is that?",
-    note:"The length of an NFL field between the goal lines."},
-  "10x11":{n:11, v:10, unit:"yards", say:"Eleven first downs, in Canada.",
-    ask:"How far is that?",
-    note:"The CFL field is 110 yards — ten longer than the NFL's, and they get three downs to gain ten, not four."},
-  "10x12":{n:12, v:10, unit:"yards", say:"Goal post to goal post.",
-    ask:"How far is that?",
-    note:"120 yards: a hundred of field, and two end zones of ten."},
-  "11x11":{n:11, v:11, unit:"matchups", say:"Eleven on offence, eleven on defence.",
-    ask:"How many one-on-one matchups?",
-    note:"Every snap in the NFL is 121 matchups at once, and somebody has to account for each one."},
-  "11x12":{n:12, v:11, unit:"players", say:"A Scottish Premiership matchday.",
-    ask:"How many players are out there?",
-    note:"Twelve clubs, eleven a side, six games kicking off at once."},
-  "12x12":{n:12, v:12, unit:"matchups", say:"Twelve a side, both ways.",
-    ask:"How many one-on-one matchups?",
-    note:"Canadian football adds a twelfth man, which makes every snap 23 matchups busier than the NFL's."}
+   `note` is the payoff and is NEVER shown before an answer — most of them give
+   the number away. `when` is the dateline on the collected card. */
+const CARDS = {
+
+/* ---- ones: things worth one apiece ---- */
+"1x1": {n:1, v:1, unit:"goal", ask:"How many goals win it?",
+  when:"4 July 2004", say:"Greece score once in the final of Euro 2004.",
+  note:"Charisteas headed it. Greece had come in at 150–1, beat the hosts 1–0, and have not won a knockout match at a major tournament since."},
+"1x2": {n:2, v:1, unit:"goals", ask:"How many goals?",
+  when:"12 July 1998", say:"Zidane heads twice in the World Cup final.",
+  note:"Both from corners, both before half-time. France beat Brazil 3–0 in Paris and Zidane had never scored two in a game before."},
+"1x3": {n:3, v:1, unit:"goals", ask:"How many goals?",
+  when:"5 July 2015", say:"Carli Lloyd scores three times inside sixteen minutes.",
+  note:"A hat-trick in a World Cup final, the third of them struck from the halfway line. The United States beat Japan 5–2."},
+"1x4": {n:4, v:1, unit:"gold medals", ask:"How many golds?",
+  when:"Berlin, August 1936", say:"Jesse Owens wins the hundred, the two hundred, the long jump and the relay.",
+  note:"Four golds at the Games Hitler meant as a demonstration of German supremacy."},
+"1x5": {n:5, v:1, unit:"goals", ask:"How many goals?",
+  when:"22 September 2015", say:"Lewandowski comes off the bench and scores five.",
+  note:"All five inside nine minutes against Wolfsburg — the fastest five goals the Bundesliga has recorded, by a substitute who was losing 1–0 when he came on."},
+"1x6": {n:6, v:1, unit:"goals", ask:"How many goals?",
+  when:"7 February 1976", say:"Darryl Sittler scores six in one night.",
+  note:"Six goals and four assists: ten points in a game, which no NHL player has matched in the fifty years since."},
+"1x7": {n:7, v:1, unit:"gold medals", ask:"How many golds?",
+  when:"Munich, September 1972", say:"Mark Spitz swims seven finals and wins all seven.",
+  note:"Seven golds, and a world record in every one of them."},
+"1x8": {n:8, v:1, unit:"gold medals", ask:"How many golds?",
+  when:"Beijing, August 2008", say:"Michael Phelps wins eight golds at one Games.",
+  note:"One of the eight was taken by a hundredth of a second — the length of a fingernail, on the touch."},
+"1x9": {n:9, v:1, unit:"gold medals", ask:"How many golds?",
+  when:"1984–1996", say:"Carl Lewis wins nine Olympic golds.",
+  note:"Across four Games, twelve years apart at the ends. He won the long jump at every one of them."},
+"1x10": {n:10, v:1, unit:"pins", ask:"How many pins?",
+  when:"ten-pin bowling, since 1895", say:"A strike: every pin down, and each pin counts one.",
+  note:"Twelve strikes in a row is a perfect game — three hundred, which is the highest score bowling allows."},
+"1x11": {n:11, v:1, unit:"championships", ask:"How many titles?",
+  when:"1957–1969", say:"Bill Russell wins eleven championships with the Celtics.",
+  note:"In thirteen seasons. No one in North American sport has more rings than Russell has fingers."},
+"1x12": {n:12, v:1, unit:"rounds", ask:"How many rounds?",
+  when:"since 1987", say:"A world title fight goes the full distance.",
+  note:"Championship fights were cut from fifteen rounds to twelve after Duk-koo Kim died from injuries taken in the fourteenth, in 1982."},
+
+/* ---- twos: two of something, and what each is worth ---- */
+"2x2": {n:2, v:2, unit:"players", ask:"How many players on the sand?",
+  when:"Atlanta, 1996", say:"Beach volleyball joins the Olympics: two teams, two a side.",
+  note:"The smallest sides at any Olympic team sport, on a court with no substitutes and nowhere to hide."},
+"2x3": {n:3, v:2, unit:"medallists", ask:"How many medals go round?",
+  when:"two-man bobsleigh", say:"Three crews of two fill a bobsleigh podium.",
+  note:"One steers, one brakes, and both push. The pusher is often a sprinter who took up the sport for the winter."},
+"2x4": {n:4, v:2, unit:"golfers", ask:"How many golfers does a team put out?",
+  when:"Ryder Cup foursomes", say:"Four foursomes matches, two golfers a side.",
+  note:"In foursomes a pair share one ball and hit alternate shots — the format that ends friendships."},
+"2x5": {n:2, v:5, unit:"points", ask:"How many points from the tries?",
+  when:"2 November 2019", say:"South Africa score two tries in the World Cup final.",
+  note:"Mapimpi and Kolbe, in Yokohama. South Africa had won two World Cups before this one without scoring a try in either final."},
+"2x6": {n:2, v:6, unit:"balls", ask:"How many balls in all?",
+  when:"14 July 2019", say:"A super over: one over each, and the World Cup on it.",
+  note:"England and New Zealand tied the match, then tied the super over. England were given it on boundaries scored, a rule that has since been changed."},
+"2x7": {n:2, v:7, unit:"players", ask:"How many are on the pitch?",
+  when:"Rio, 2016", say:"Rugby sevens returns to the Olympics: two teams of seven.",
+  note:"Fiji beat Great Britain in the final for the first Olympic medal of any colour in Fiji's history. The country declared a public holiday."},
+"2x8": {n:2, v:8, unit:"rowers", ask:"How many are rowing?",
+  when:"since 1829", say:"The Boat Race: two crews, eight oars apiece.",
+  note:"Plus a cox in each boat, who does not row, faces the wrong way and is the lightest person aboard."},
+"2x9": {n:2, v:9, unit:"players", ask:"How many take the field?",
+  when:"1903", say:"The first World Series: two teams of nine.",
+  note:"Boston beat Pittsburgh five games to three. It was a best-of-nine then, and there was no World Series at all the following year."},
+"2x10": {n:2, v:10, unit:"wickets", ask:"How many wickets are there to take?",
+  when:"Old Trafford, 1956", say:"A Test match: two innings a side, ten wickets an innings.",
+  note:"Jim Laker took nineteen of the twenty available in that match — the only bowler ever to take that many in a first-class game."},
+"2x11": {n:2, v:11, unit:"players", ask:"How many players?",
+  when:"Montevideo, 30 July 1930", say:"The first World Cup final: two teams of eleven.",
+  note:"Uruguay beat Argentina 4–2. The sides could not agree whose ball to use, so they played one half with each."},
+"2x12": {n:2, v:12, unit:"golfers", ask:"How many golfers in all?",
+  when:"Ryder Cup", say:"The Ryder Cup: two teams, twelve a side.",
+  note:"Great Britain lost so regularly that in 1979 the team was opened up to the rest of Europe, which is why Spaniards and Germans now play in it."},
+
+/* ---- threes: the three-pointer, the penalty, the win ---- */
+"3x3": {n:3, v:3, unit:"points", ask:"How many points?",
+  when:"World Cup, since 1994", say:"Win all three group games, at three points each.",
+  note:"Three points for a win came to the World Cup in 1994 to make attacking pay. For the first sixty years a win had been worth two."},
+"3x4": {n:4, v:3, unit:"points", ask:"How many points from penalties?",
+  when:"22 November 2003", say:"Wilkinson kicks four penalties in the World Cup final.",
+  note:"And then the drop goal, with twenty-six seconds of extra time left, off his weaker right foot. England beat Australia 20–17 in Sydney."},
+"3x5": {n:3, v:5, unit:"points", ask:"How many points from the tries?",
+  when:"31 October 2015", say:"New Zealand score three tries in the World Cup final.",
+  note:"Milner-Skudder, Nonu and Barrett. The All Blacks beat Australia 34–17 at Twickenham and became the first side to retain the cup."},
+"3x6": {n:3, v:6, unit:"points", ask:"How many points from those catches?",
+  when:"28 January 1990", say:"Jerry Rice catches three touchdowns in the Super Bowl.",
+  note:"San Francisco beat Denver 55–10, which is still the widest margin a Super Bowl has had."},
+"3x7": {n:3, v:7, unit:"points", ask:"How many points?",
+  when:"31 December 1967", say:"Green Bay score three converted touchdowns in the Ice Bowl.",
+  note:"Minus thirteen degrees at Lambeau Field, and colder in the wind. Starr scored the winner from a foot out with sixteen seconds left."},
+"3x8": {n:8, v:3, unit:"points", ask:"How many points?",
+  when:"21 October 2007", say:"Rob Bironas kicks eight field goals in one game.",
+  note:"Still the NFL record, and the eighth won it with under a minute to play."},
+"3x9": {n:9, v:3, unit:"outs", ask:"How many outs?",
+  when:"8 October 1956", say:"Nine innings, three outs an innings, and not one man reaches base.",
+  note:"Don Larsen's perfect game — twenty-seven up, twenty-seven down, in a World Series, which nobody has done before or since."},
+"3x10": {n:10, v:3, unit:"points", ask:"How many points?",
+  when:"England, since 1981", say:"Ten wins in the league, three points for each of them.",
+  note:"Three points for a win was England's idea, brought in to stop sides settling for the draw. Most of the world copied it within ten years."},
+"3x11": {n:11, v:3, unit:"points", ask:"How many points from them?",
+  when:"before 1971", say:"Eleven tries, back when a try was worth three.",
+  note:"Rugby union raised the try to four points in 1971 and to five in 1992, both times to make running the ball pay better than kicking it."},
+"3x12": {n:12, v:3, unit:"points", ask:"How many points from them?",
+  when:"7 January 2003", say:"Kobe Bryant makes twelve three-pointers.",
+  note:"Against Seattle, in a game the Lakers still needed overtime to win. Only Klay Thompson, with fourteen, has made more in one night."},
+
+/* ---- fours: bases, tries, quarters, groups ---- */
+"4x4": {n:4, v:4, unit:"bases", ask:"How many bases are run?",
+  when:"8 May 2012", say:"Four home runs in one game, and four bases to every one.",
+  note:"Josh Hamilton did it that night in Baltimore. Only eighteen players in the history of the majors have hit four in a game."},
+"4x5": {n:4, v:5, unit:"points", ask:"How many points from the tries?",
+  when:"18 June 1995", say:"Jonah Lomu scores four tries against England.",
+  note:"In a World Cup semi-final, at twenty years old and nineteen stone. England lost 45–29 and their full-back later said he was still having nightmares."},
+"4x6": {n:4, v:6, unit:"balls", ask:"How many balls does he get?",
+  when:"Twenty20, since 2003", say:"A Twenty20 bowler's whole spell: four overs.",
+  note:"Twenty overs a side, and no bowler may send down more than four of them, so a captain needs at least five bowlers."},
+"4x7": {n:4, v:7, unit:"points", ask:"How many points?",
+  when:"5 February 2017", say:"Atlanta score four converted touchdowns in the Super Bowl.",
+  note:"It made it 28–3. New England won it 34–28 in overtime — the largest comeback a Super Bowl has seen, by twenty-five points."},
+"4x8": {n:8, v:4, unit:"teams", ask:"How many teams are in it?",
+  when:"1998–2022", say:"The World Cup draw: eight groups of four.",
+  note:"Thirty-two teams, from France in 1998 until Qatar in 2022. The 2026 tournament has forty-eight and twelve groups."},
+"4x9": {n:9, v:4, unit:"points", ask:"How many points from them?",
+  when:"rugby league, since 1983", say:"Nine tries, and a league try is worth four.",
+  note:"Rugby league raised the try from three points to four in 1983, so that scoring one paid better than kicking two penalties."},
+"4x10": {n:4, v:10, unit:"minutes", ask:"How long is the game?",
+  when:"FIBA and the WNBA", say:"Four quarters of ten minutes.",
+  note:"Forty minutes. The NBA plays twelve-minute quarters and college basketball plays two halves of twenty — three different lengths for the same game."},
+"4x11": {n:4, v:11, unit:"players", ask:"How many players in the group?",
+  when:"World Cup group stage", say:"One World Cup group: four teams, eleven a side.",
+  note:"Four teams, six matches, and two of them go through. The last two group games kick off at the same time so nobody can play to a known result."},
+"4x12": {n:4, v:12, unit:"minutes", ask:"How long is the game?",
+  when:"NBA", say:"Four quarters of twelve minutes.",
+  note:"Forty-eight minutes before any overtime, and overtime is five more. The 1989 Bucks and SuperSonics needed five lots of it."},
+
+/* ---- fives: the try, the five a side, the five-minute overtime ---- */
+"5x5": {n:5, v:5, unit:"minutes", ask:"How much overtime?",
+  when:"9 November 1989", say:"Five overtimes, five minutes each.",
+  note:"Bucks 155, SuperSonics 154 — seventy-three minutes of basketball, which is the regulation forty-eight plus this."},
+"5x6": {n:6, v:5, unit:"points", ask:"How many points from the tries?",
+  when:"4 June 1995", say:"Marc Ellis scores six tries in one Test match.",
+  note:"New Zealand beat Japan 145–17 and scored twenty-one tries in all. Ellis had come on as a replacement."},
+"5x7": {n:5, v:7, unit:"points", ask:"How many points?",
+  when:"the touchdown, since 1912", say:"Five converted touchdowns.",
+  note:"The touchdown has been worth six since 1912 — it was five before that, and the kick after it was the bigger prize."},
+"5x8": {n:8, v:5, unit:"points", ask:"How many points from them?",
+  when:"rugby union, since 1992", say:"Eight tries, at five points apiece.",
+  note:"Four tries in a match now wins a bonus point as well, whether the side wins or loses. Eight is a rout."},
+"5x9": {n:5, v:9, unit:"players", ask:"How many take the field?",
+  when:"since 1994", say:"One division of Major League Baseball: five clubs, nine a side.",
+  note:"Six divisions of five make the thirty clubs. Before 1994 there were four divisions, no wild card and no play-off for anyone who finished second."},
+"5x10": {n:5, v:10, unit:"overs", ask:"How many overs?",
+  when:"one-day internationals, since 1987", say:"Five bowlers, ten overs each.",
+  note:"Fifty overs an innings, and no bowler may send down more than ten — which is exactly why a captain needs five of them."},
+"5x11": {n:5, v:11, unit:"places", ask:"How many places in the XI?",
+  when:"an Ashes series", say:"Five Tests, eleven a side.",
+  note:"Almost nobody plays all five. The urn itself is six inches high, has never been won by anybody, and lives at Lord's whoever wins."},
+"5x12": {n:5, v:12, unit:"minutes", ask:"How many minutes are there to give out?",
+  when:"an NBA quarter", say:"Five on the floor, and a quarter lasts twelve minutes.",
+  note:"A coach has two hundred and forty minutes to hand out over a whole game. This is one quarter of them."},
+
+/* ---- sixes: the touchdown, the over, the six ---- */
+"6x6": {n:6, v:6, unit:"runs", ask:"How many runs off the over?",
+  when:"Swansea, 31 August 1968", say:"Garry Sobers hits six sixes in one over.",
+  note:"Off Malcolm Nash, who had taken four wickets already that innings and was trying left-arm spin for the first time. Nobody had ever hit the maximum before."},
+"6x7": {n:7, v:6, unit:"points", ask:"How many points?",
+  when:"Australian rules", say:"Seven goals, and a goal is worth six.",
+  note:"Miss the goal and hit between the outer posts and you get one instead — a behind. Fred Fanning kicked eighteen goals in a game in 1947 and the record has stood since."},
+"6x8": {n:6, v:8, unit:"rowers", ask:"How many are rowing?",
+  when:"an Olympic rowing final", say:"Six boats in the final, eight rowers to a boat.",
+  note:"Plus a cox in each, who steers and shouts and does not pull an oar. The eight is the fastest boat on the water."},
+"6x9": {n:6, v:9, unit:"players", ask:"How many take the field?",
+  when:"Japan's Central League", say:"Six clubs, nine a side.",
+  note:"Japanese baseball runs two leagues of six. A tied game is allowed to stand there, which the American major leagues will not permit."},
+"6x10": {n:10, v:6, unit:"points", ask:"How many points from them?",
+  when:"27 November 1966", say:"Ten touchdowns in one game.",
+  note:"Washington 72, New York Giants 41 — the highest-scoring game the NFL has ever had, and the team record for touchdowns."},
+"6x11": {n:11, v:6, unit:"balls", ask:"How many balls is that?",
+  when:"a one-day innings", say:"Eleven overs, six balls to each of them.",
+  note:"No bowler may send down more than ten overs in a one-day international, so eleven always takes at least two of them."},
+"6x12": {n:12, v:6, unit:"players", ask:"How many players are in it?",
+  when:"Olympic volleyball", say:"Twelve nations, six on court apiece.",
+  note:"Six on court and six more on the bench, and the whole side rotates one place clockwise every time it wins back the serve."},
+
+/* ---- sevens: the converted touchdown, the seven a side ---- */
+"7x7": {n:7, v:7, unit:"points", ask:"How many points?",
+  when:"29 January 1995", say:"Seven converted touchdowns.",
+  note:"San Francisco scored exactly this in Super Bowl XXIX, beating San Diego 49–26. The 49ers are named for the men who went west after gold in 1849."},
+"7x8": {n:7, v:8, unit:"points", ask:"How many points?",
+  when:"snooker", say:"Seven reds, and the black taken after every one.",
+  note:"A red is one and the black is seven, so the pair are worth eight. Ronnie O'Sullivan cleared fifteen of them and all the colours in five minutes and eight seconds in 1997."},
+"7x9": {n:9, v:7, unit:"points", ask:"How many points from those nine?",
+  when:"27 November 1966", say:"Nine of Washington's ten touchdowns were converted.",
+  note:"Sixty-three, plus six for the one they missed the kick on, plus a field goal: seventy-two, and no NFL team has scored more."},
+"7x10": {n:7, v:10, unit:"marks", ask:"How much did the seven add up to?",
+  when:"Montreal, July 1976", say:"Nadia Comăneci is given seven perfect tens.",
+  note:"She was fourteen. The scoreboard had not been built to show a ten and flashed 1.00 instead, so nobody in the arena knew what had happened."},
+"7x11": {n:11, v:7, unit:"players", ask:"How many players in the tournament?",
+  when:"Eastbourne, August 1963", say:"The first World Netball Championships: eleven nations, seven a side.",
+  note:"A round robin, every team playing every other, and Australia won the lot. No netballer may run with the ball or hold it more than three seconds."},
+"7x12": {n:12, v:7, unit:"players", ask:"How many players are in it?",
+  when:"Olympic rugby sevens", say:"Twelve nations, seven a side.",
+  note:"Seven minutes each way instead of forty, on a full-sized pitch — which is why sevens players cover more ground per minute than anyone in rugby."},
+
+/* ---- eights: the ends, the boat, the chains ---- */
+"8x8": {n:8, v:8, unit:"stones", ask:"How many stones does a rink throw?",
+  when:"curling", say:"Eight ends, and a rink throws eight stones in each.",
+  note:"Sixteen stones go down the ice every end. They are cut from the granite of one uninhabited Scottish island, Ailsa Craig, and nowhere else."},
+"8x9": {n:8, v:9, unit:"people", ask:"How many are in the boats?",
+  when:"a regatta of eights", say:"Eight boats, and nine aboard each — eight rowing and one steering.",
+  note:"The cox is chosen for being light and loud. In the eight the rowers face backwards and only the cox can see where the race is going."},
+"8x10": {n:8, v:10, unit:"yards", ask:"How far has the ball come?",
+  when:"American football", say:"Eight first downs, ten yards a time.",
+  note:"Four downs to make ten yards, and the chains are carried out to settle it whenever it looks close."},
+"8x11": {n:8, v:11, unit:"players", ask:"How many players are left in?",
+  when:"World Cup quarter-finals", say:"The last eight of the World Cup: eight teams, eleven a side.",
+  note:"Only eight nations have ever won it, and no team from outside Europe or South America has reached a final."},
+"8x12": {n:12, v:8, unit:"balls", ask:"How many balls is that?",
+  when:"Australia, until 1979", say:"Twelve overs, back when an Australian over was eight balls.",
+  note:"Australia bowled eight-ball overs for most of a century while the rest of the world used six, and gave them up only in 1979."},
+
+/* ---- nines: the innings, the nine a side ---- */
+"9x9": {n:9, v:9, unit:"fielding turns", ask:"How many turns in the field?",
+  when:"a nine-inning game", say:"Nine innings, and nine fielders out there for every one.",
+  note:"Baseball has no clock — the innings are the whole of the length of the game, and a team must be got out twenty-seven times to end it."},
+"9x10": {n:10, v:9, unit:"players", ask:"How many players take the field?",
+  when:"Korea's KBO League", say:"Ten clubs, nine a side.",
+  note:"The KBO began with six clubs in 1982 and grew to ten. Its crowds bring their own drums, and every batter has a song."},
+"9x11": {n:11, v:9, unit:"fielding turns", ask:"How many turns in the field?",
+  when:"extra innings", say:"Eleven innings, and still nine in the field.",
+  note:"A tie has to be broken, however long it takes. The longest game in the majors ran twenty-six innings in 1920 and was called for darkness, still level."},
+"9x12": {n:12, v:9, unit:"players", ask:"How many players take the field?",
+  when:"Japan's NPB", say:"Twelve clubs, nine a side.",
+  note:"A hundred and eight — which is also the number of stitches on a baseball, and the number of times a Japanese temple bell is rung at new year."},
+
+/* ---- the tail: both numbers are counts ---- */
+"10x10": {n:10, v:10, unit:"yards", ask:"How far is that?",
+  when:"the American football field", say:"Ten first downs, ten yards each.",
+  note:"A hundred yards between the goal lines, and two end zones of ten more on top."},
+"10x11": {n:11, v:10, unit:"yards", ask:"How far is that?",
+  when:"the Canadian field", say:"Eleven first downs, in Canada.",
+  note:"The CFL field is a hundred and ten yards long, and Canadian teams get three downs to make ten yards rather than four."},
+"10x12": {n:12, v:10, unit:"yards", ask:"How far is that?",
+  when:"goal post to goal post", say:"Twelve tens, from one goal post to the other.",
+  note:"A hundred and twenty yards: a hundred of field and two end zones of ten. The posts stand on the back line, not the goal line."},
+"11x11": {n:11, v:11, unit:"matchups", ask:"How many one-on-one matchups?",
+  when:"every snap", say:"Eleven on offence, eleven on defence.",
+  note:"Every play in the NFL is this many matchups at once, and somebody on the coaching staff has to account for each one."},
+"11x12": {n:12, v:11, unit:"players", ask:"How many players are out there?",
+  when:"a Scottish Premiership matchday", say:"Twelve clubs, eleven a side.",
+  note:"Six games kicking off together. The league splits in two after thirty-three matches, which no other major league does."},
+"12x12": {n:12, v:12, unit:"matchups", ask:"How many one-on-one matchups?",
+  when:"Canadian football", say:"Twelve a side, and twelve the other way.",
+  note:"Canada puts a twelfth man on the field, which makes every snap twenty-three matchups busier than an NFL one."}
 };
 
-/* Stable per fact, deliberately: 7 × 8 is always the touchdown card. A story
-   that changed on every showing would be a new question every time, and the
-   point of the story is that it is the handle you remember the fact by. */
-function hashKey(k){ let h=0; for(let i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))|0; return Math.abs(h); }
-
+/* The card is a property of the fact, not of the moment: 7 x 8 is always the
+   snooker card. A story that changed on every showing would be a new question
+   every time, and the point of the story is that it is the handle the fact is
+   remembered by. */
 function storyFor(fact){
-  const s = SET[fact.key];
-  if(s) return {...s, kind:"set"};
-  const out = [];
-  const take = (list, side) => { for(const r of list){
-    if(r.v===fact.a && fact.b<=r.max) out.push({r, n:fact.b, side});
-    if(r.v===fact.b && fact.a<=r.max && fact.a!==fact.b) out.push({r, n:fact.a, side});
-  }};
-  take(RATE, false); take(SIDE, true);
-  if(!out.length) return null;          /* the deck is covered, but never assume it */
-  const c = out[hashKey(fact.key) % out.length], r = c.r, n = c.n;
-  const unit = r.unit || (c.side ? "players" : "points");
-  return c.side
-    ? {kind:"side", n, v:r.v, unit, note:r.note,
-       say:`${n} ${r.noun}${n===1?"":"s"}, ${r.side}.`, ask:`How many ${unit}?`}
-    : {kind:"rate", n, v:r.v, unit, note:r.note,
-       say:`${n} ${n===1?r.one:r.many}.`, ask:r.ask};
+  return CARDS[fact.key] || null;
 }
 
 /* ============ the plate ============ */
@@ -844,6 +1112,30 @@ function orient(){
   const {fact, flip, story} = current;
   if(story && state.story!=="off") return {rows:story.n, cols:story.v};
   return {rows: flip?fact.b:fact.a, cols: flip?fact.a:fact.b};
+}
+
+/* Can the sum be hidden right now? Only when a sentence is standing in its
+   place. With the story off, or set to "on reveal" and not out yet, taking the
+   numbers away would leave an empty panel and no question at all — so the
+   setting quietly yields rather than producing a card nobody can answer. */
+function exprShown(){
+  if(state.expr === "show") return true;
+  return !(current && current.story && state.story === "always");
+}
+function exprMarkup(rows, cols){
+  return `<div class="expr" id="expr">${rows}<em>×</em>${cols}</div>`;
+}
+/* The reveal always writes the sum, hidden or not — that is the payoff, and the
+   one moment the numbers are worth more than the sentence. Put it back where
+   renderPlate would have left it: under the story, above the ask. */
+function ensureExpr(){
+  const found = $("#expr");
+  if(found) return found;
+  const mount = $("#mount"), say = mount.querySelector(".say");
+  const empty = `<div class="expr" id="expr"></div>`;   /* the caller fills it */
+  if(say) say.insertAdjacentHTML("afterend", empty);
+  else    mount.insertAdjacentHTML("afterbegin", empty);
+  return $("#expr");
 }
 
 function sayMarkup(story){
@@ -875,6 +1167,7 @@ function renderPlate(){
   const {rows, cols} = orient();
   const rec = state.cards[fact.key];
   const told = story && state.story==="always";
+  const showExpr = exprShown();
 
   $("#plate").innerHTML = `
     <div class="plate-head">
@@ -885,11 +1178,11 @@ function renderPlate(){
     </div>
     <div class="mount${told?" with-story":""}" id="mount">
       ${told ? sayMarkup(story) : ""}
-      <div class="expr" id="expr">${rows}<em>×</em>${cols}</div>
+      ${showExpr ? exprMarkup(rows, cols) : ""}
       ${told ? askMarkup(story) : ""}
     </div>
     <div class="band" id="band">
-      <span class="prompt" id="prompt">${rows} × ${cols} = ?<b>${
+      <span class="prompt" id="prompt">${showExpr ? `${rows} × ${cols} = ?` : "From the card"}<b>${
         state.answerMode==="keypad" ? "Type the answer, then ↵" : "Tap the answer"}</b></span>
       <span class="name" id="name"></span>
       <span class="verdict" id="verdict"></span>
@@ -975,6 +1268,10 @@ function paintHint(){
      sentence now would mean swapping the numbers round mid-question to keep it
      true, and a sum that renumbers itself while you are looking at it is worse
      than a plainer hint. */
+  /* Note what this does with the sum hidden: it hands it over. That is the
+     right trade at half points — it turns "read the card" into "do the
+     arithmetic", which is a real fallback for a child who has read the sentence
+     and still cannot see the numbers in it. */
   const useStory = story && state.story==="reveal";
   if(useStory && !$("#mount .say")){
     $("#mount").insertAdjacentHTML("afterbegin", sayMarkup(story));
@@ -1005,7 +1302,7 @@ function paintReveal(value){
   v.className = "verdict " + (right ? "ok" : "no");
   band.classList.add("show");
 
-  $("#expr").innerHTML =
+  ensureExpr().innerHTML =
     `${rows}<em>×</em>${cols}<span class="eq"> = </span><span class="ans">${fact.p}</span>`;
 
   /* The note is the payoff and the reason the game exists: the answer stops
@@ -1035,6 +1332,10 @@ function paintReveal(value){
       else btn.classList.add("muted");
     });
   }
+  if(justCollected && !$("#mount .newcard")){
+    $("#mount").insertAdjacentHTML("beforeend",
+      `<p class="newcard">New card · ${collectedCount()} of ${FACTS.length}</p>`);
+  }
   if(!right && !$("#mount .stamp")){
     $("#mount").insertAdjacentHTML("beforeend",
       `<div class="stamp">Flagged<small>for review</small></div>`);
@@ -1051,6 +1352,7 @@ function grade(rec, right, dt, fresh, now){
     return rec;
   }
   if(dt) rec.t = rec.t ? Math.round(rec.t*0.7 + dt*0.3) : Math.round(dt);
+  if(!rec.r) rec.c = now;          /* right for the first time: card collected */
   rec.r++;
   if(fresh && dt && dt < FAST) rec.b = 2;            /* known cold — retire it sooner */
   else if(dt && dt > SLOW && rec.b >= 3) { /* still counting on fingers — hold */ }
@@ -1067,20 +1369,36 @@ function answer_(value){
   if(answered) return;
   answered = true;
   chosenValue = value;
-  paintReveal(value);
 
-  const {fact} = current;
+  const {fact, story} = current;
   const right = value === fact.p;
-  const rec = state.cards[fact.key] || {b:0, d:0, r:0, w:0, f:false, t:0};
-  const fresh = !state.cards[fact.key];
+  const prev = state.cards[fact.key];
+  const fresh = !prev;
+  /* Computed before grade(), which is the thing that increments `r`. A card is
+     collected the first time its fact is answered right, EVER — deliberately a
+     different bar from the Known meter, which reads the Leitner box and so
+     drops a fact again the moment it is missed. A collection you can lose is
+     not a collection. */
+  justCollected = right && !(prev && prev.r > 0);
+
+  const rec = prev || {b:0, d:0, r:0, w:0, f:false, t:0};
 
   /* Only correct, un-hinted answers are timed — and not one taken across a
      backgrounding, because performance.now() keeps running while iOS has the app
-     suspended and would record an hour. */
+     suspended and would record an hour. Read the clock BEFORE painting, so the
+     recall time is not charged for the repaint. */
   const dt = (right && !hintUsed && !stale)
     ? Math.min(30000, Math.max(300, (firstAt || performance.now()) - shownAt))
     : 0;
   grade(rec, right, dt, fresh, Date.now());
+  state.cards[fact.key] = rec;
+  state.asked++;
+
+  /* Painted AFTER grading, not before. The badge on a newly collected card
+     names its number in the collection, and before grade() that number is still
+     one short — the first card you ever earn announced itself as "0 of 78".
+     paintReveal scores nothing, so it is safe either side; the count is not. */
+  paintReveal(value);
 
   if(right){
     streak++;
@@ -1092,14 +1410,19 @@ function answer_(value){
     pop.className = "pop"; pop.textContent = "+"+pts;
     $("#plate").appendChild(pop);
     setTimeout(()=>pop.remove(), 1000);
-    advanceTimer = setTimeout(nextCard, 1100);
+    /* A card just collected is an event and holds until Next is tapped — it is
+       the whole payout, and 1100ms was not long enough to read it, which is
+       what made the game feel like it was taking the prize back. A card already
+       in the collection still advances on its own, but at a pace that leaves
+       time to read the line; with the story off there is nothing to read and
+       the old snap is right. */
+    if(!justCollected)
+      advanceTimer = setTimeout(nextCard, (story && state.story!=="off") ? 2600 : 1100);
   } else {
     streak = 0;
     try{ navigator.vibrate && navigator.vibrate(18); }catch(e){}
   }
 
-  state.cards[fact.key] = rec;
-  state.asked++;
   $("#next").disabled = false;
   paintRail(); paintTally(); save();
 }
@@ -1111,7 +1434,7 @@ function nextCard(){
      perceive — and it is the only moment in the drill where that is true. */
   if(updateReady){ updateReady = false; location.reload(); return; }
   lastKey = current ? current.fact.key : null;
-  answered = false; hintUsed = false; buf = "";
+  answered = false; hintUsed = false; buf = ""; justCollected = false;
   chosenValue = null;
   current = pick();
   /* Stamped here and NOT in renderPlate: setMode() re-renders mid-question, and
@@ -1133,6 +1456,7 @@ function paintTally(){
   $("#pKnown").textContent = known;
   $("#pTotal").textContent = live.length;
   $("#pBar").style.width = live.length ? (known/live.length*100)+"%" : "0%";
+  paintAlbum();
 }
 
 function paintRail(){
@@ -1154,6 +1478,63 @@ function paintRail(){
     you have had it right twice.</li>`;
 }
 
+/* ============ the collection ============ */
+/* Every fact ever answered right, whatever has happened to it since. */
+function collectedCount(){
+  return FACTS.reduce((n,f)=>{
+    const r = state.cards[f.key];
+    return n + (r && r.r > 0 ? 1 : 0);
+  }, 0);
+}
+/* One tile. Collected tiles carry the whole card — the sentence, the number it
+   came from and where it came from — because that is the thing being collected,
+   and a tile you have to tap to read is a tile nobody reads. */
+function albumCard(fact){
+  const rec = state.cards[fact.key];
+  const story = storyFor(fact);
+  const rows = story ? story.n : fact.a;
+  const cols = story ? story.v : fact.b;
+  if(!(rec && rec.r > 0))
+    return `<div class="acard locked">
+      <span class="asum">${rows}<em>×</em>${cols}</span>
+      <span class="alock">Not collected</span>
+    </div>`;
+  return `<div class="acard">
+    ${story && story.when ? `<p class="awhen">${story.when}</p>` : ""}
+    <span class="asum">${rows}<em>×</em>${cols} = <b>${fact.p}</b>${
+      story ? `<i>${story.unit}</i>` : ""}</span>
+    ${story ? `<p class="aline">${story.say}</p>
+               <p class="anote">${story.note}</p>` : ""}
+  </div>`;
+}
+/* Called on every answer, so the count in the rail is always live; the grid
+   itself is only built while the sheet is actually open. */
+function paintAlbum(){
+  const n = collectedCount();
+  $("#albN").textContent = n;
+  $("#albCount").textContent = `${n} of ${FACTS.length}`;
+  if($("#album").hidden) return;
+  /* Always all 78, locked ones included. An empty collection that shows nothing
+     is just a blank screen; an empty collection that shows 78 closed doors is
+     the reason to go and open one. */
+  const order = FACTS.slice().sort((x,y)=> x.p - y.p || x.a - y.a);
+  $("#albGrid").innerHTML = order.map(albumCard).join("");
+  $("#albIntro").hidden = n > 0;
+}
+function openAlbum(){
+  clearTimeout(advanceTimer);   /* do not let the drill move on behind the sheet */
+  $("#album").hidden = false;
+  document.body.style.overflow = "hidden";
+  paintAlbum();
+  $("#albClose").focus();
+}
+function closeAlbum(){
+  if($("#album").hidden) return;
+  $("#album").hidden = true;
+  document.body.style.overflow = "";
+}
+function albumOpen(){ return !$("#album").hidden; }
+
 /* ============ settings ============ */
 function paintLevels(){
   const level = levelOf(state.bucket);
@@ -1164,6 +1545,19 @@ function paintLevels(){
     `<button class="segb${l.id===level?" sel":""}" data-level="${l.id}">${l.label}</button>`).join("");
   $("#storySeg").innerHTML = STORY.map(d=>
     `<button class="segb${d.id===state.story?" sel":""}" data-story="${d.id}">${d.label}</button>`).join("");
+
+  /* The sum can only be hidden when the story is always up. Anywhere else it is
+     the whole question, so the segment says so rather than silently doing
+     nothing when tapped. */
+  const canHide = state.story === "always";
+  $("#exprSeg").innerHTML = EXPR.map(d=>
+    `<button class="segb${(canHide ? d.id===state.expr : d.id==="show")?" sel":""}"
+       data-expr="${d.id}"${canHide?"":" disabled"}>${d.label}</button>`).join("");
+  const en = $("#exprNote");
+  en.hidden = canHide;
+  if(!canHide) en.textContent = state.story==="off"
+    ? "With the story off the sum is the only question there is, so it stays."
+    : "On reveal, the sum is the question until the story arrives — so it stays.";
 
   const p = $("#bucketPick");
   p.hidden = level==="all";
@@ -1194,6 +1588,15 @@ function setStory(mode){
 }
 /* Changing WHICH facts are in play is a different matter — the current fact may
    not belong to the new bucket at all, so this one does start a fresh question. */
+/* Same repaint-don't-repick rule as the story: the fact, the options, the hint
+   and any reveal all survive. Nothing about which question was asked changes —
+   only whether its numbers are written down. */
+function setExpr(mode){
+  if(mode === state.expr) return;
+  state.expr = mode;
+  save(); paintLevels();
+  if(current) renderPlate(); else nextCard();
+}
 function setBucket(bucket){
   if(bucket === state.bucket) return;
   state.bucket = bucket;
@@ -1207,6 +1610,10 @@ function wireLevels(){
   });
   $("#storySeg").addEventListener("click", e=>{
     const b = e.target.closest("[data-story]"); if(b) setStory(b.dataset.story);
+  });
+  $("#exprSeg").addEventListener("click", e=>{
+    const b = e.target.closest("[data-expr]");
+    if(b && !b.disabled) setExpr(b.dataset.expr);
   });
   $("#levelSeg").addEventListener("click", e=>{
     const b = e.target.closest("[data-level]");
@@ -1225,6 +1632,10 @@ function wireLevels(){
     setBucket(BUCKETS.some(x=>x.id===want) ? want : "all");
   });
   $("#bucketPick").addEventListener("change", e=>setBucket(e.target.value));
+  $("#albOpen").addEventListener("click", openAlbum);
+  $("#albClose").addEventListener("click", closeAlbum);
+  /* Tapping the backdrop closes; tapping a card must not. */
+  $("#album").addEventListener("click", e=>{ if(e.target.id === "album") closeAlbum(); });
 }
 
 /* ============ boot ============ */
@@ -1239,6 +1650,13 @@ paintLevels(); wireLevels(); paintRail(); nextCard();
 document.addEventListener("keydown", e=>{
   if(e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key;
+  /* With the collection open the drill is not what the keyboard is aimed at:
+     a stray "3" behind the sheet would answer the question underneath it. */
+  if(albumOpen()){
+    if(k==="Escape"){ e.preventDefault(); closeAlbum(); }
+    return;
+  }
+  if(k==="c" || k==="C"){ openAlbum(); return; }
   if(k==="Enter" || k===" "){
     e.preventDefault();
     if(answered) nextCard();

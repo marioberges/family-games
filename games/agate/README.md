@@ -13,14 +13,27 @@ icons/                   192, 512, maskable, apple-touch, 28 launch screens
 
 ## What it is for
 
-`7 × 8` is a string to memorise. *Eight converted touchdowns — how many points?*
-is a question with an answer somebody once cared about. Agate never shows a sum
-without saying where the number comes from, and the answer carries its unit:
-not 56 but **56 points**, not 110 but **110 yards**.
+`7 × 8` is a string to memorise. *Seven reds, and the black taken after every
+one — how many points?* is a question with an answer somebody once cared about.
+Agate never shows a sum without saying where the number comes from, and the
+answer carries its unit: not 56 but **56 points**, not 110 but **110 yards**.
 
 Every number in the game is real and was looked up. Nothing is invented, and
 where a line is arithmetic over a rule rather than a quoted statistic, that is
 said. The sources are in `../../notes/agate-coverage.md`.
+
+## Seventy-eight facts, seventy-eight cards
+
+Nothing here is generated. Every fact has a card written for it and for nothing
+else — Garry Sobers hitting six sixes off one over at Swansea in 1968; Nadia
+Comăneci given seven perfect tens in Montreal; Australia bowling eight-ball
+overs until 1979 because the rest of the world had settled on six. A card is
+built on one of three things, in this order of preference: a named performance,
+a named occasion with a structure in it, or a rule and the year it changed.
+
+That last one counts. Somebody decided, in 1983, that a rugby league try should
+be worth four points rather than three, and the reason — that scoring one ought
+to pay better than kicking two penalties — is the sort of thing worth knowing.
 
 ## The deck is 78 facts, not 144
 
@@ -34,30 +47,25 @@ sentence and the numbers disagree — and a child believes the sentence. So the
 story fixes the orientation, and only with the story switched **off** does the
 coin get tossed and both directions get drilled.
 
-## Where the questions come from
+## The collection
 
-Three kinds of frame, in the order they are preferred:
+Get a fact right for the **first time** and its card is yours. The game stops
+and shows it to you properly — the sentence, the sum, the answer with its unit,
+and the line saying where the number came from — and waits for you to tap Next
+rather than moving on by itself. A fact you already have moves on after a couple
+of seconds, which is long enough to read the line and short enough to keep a
+drill feeling like a drill.
 
-- **Set pieces** — written for one fact and one fact only. Ten touchdowns in the
-  1966 Washington–Giants game (`6 × 10`). Five overtimes of five minutes,
-  Bucks–SuperSonics, 9 November 1989 (`5 × 5`). The NFL field, ten first downs
-  long (`10 × 10`); the CFL's, eleven (`10 × 11`). Sixteen of them.
-- **Rates** — generative: *n of these, worth v each*. Three-pointers, free
-  throws, touchdowns, overs, first downs, the four bases of a home run.
-- **Sides** — *n teams, so many a side*: futsal's five, rugby sevens' seven, a
-  heat's eight lanes, baseball's nine, football's eleven, Canadian football's
-  twelve.
+**The collection** button in the rail opens all 78 at once, in order of their
+answers, cards you have face up and cards you have not still closed. A card is
+yours the first time you get its fact right and stays yours whatever happens
+afterwards — deliberately a different bar from the **Known** meter beside it,
+which reads the spaced-repetition box and so drops a fact again the moment you
+miss it. A collection you can lose is not a collection.
 
-Each rate carries a **ceiling on the count**, and that ceiling is the reason the
-table is not just a list of scoring values. Nobody has ever scored eleven
-touchdowns, so 6 stops being usable at `n = 11` and `6 × 11` has to find another
-frame — it becomes eleven overs, sixty-six balls. The ceilings come from records
-that were looked up: 28 free throws and 36 field goals by Chamberlain, 14 threes
-by Klay Thompson, ten touchdowns by a team.
-
-A fact keeps its story. `7 × 8` is always the touchdown card, because a story
-that changed on every showing would be a new question every time, and the point
-of the story is that it is the handle you remember the fact by.
+A fact keeps its card. `7 × 8` is always the snooker card, because a card that
+changed on every showing would be a new question every time, and the point of it
+is that it is the handle you remember the fact by.
 
 ## How it drills
 
@@ -71,7 +79,7 @@ working a fact out on their fingers does not need to be hurried. What the timing
 decides is when a fact is genuinely finished: correct but slow stops short of the
 three-day box; instantly right the first time skips ahead.
 
-## Three settings
+## Four settings
 
 - **How you answer** — four choices, or type it on a number pad. The wrong
   answers are the mistakes children actually make: one row off, one column off,
@@ -81,15 +89,30 @@ three-day box; instantly right the first time skips ahead.
   changes which wrong answers are offered.
 - **The story** — always, on reveal, or off. **Always** is the default and is the
   game: the sentence is the question. **On reveal** makes it a plain drill that
-  pays out a fact afterwards. **Off** is the drill with nothing round it, which
+  pays out a card afterwards. **Off** is the drill with nothing round it, which
   is what you want on the fifth pass through a table. On **reveal**, the **Hint**
   button is what brings the story out early, for half points; where the story is
   already up or switched off, Hint gives the arithmetic instead — leaning on the
   row below.
+- **The sum** — hidden or shown. **Hidden** is the default, and it is what makes
+  the sentence load-bearing: with `7 × 8` sitting under the card there is no
+  reason to read a word of it, which is exactly the habit the card is there to
+  break. The sum is always written out on the reveal, next to the answer.
 
-The line that explains the number — *"The length of an NFL field between the goal
-lines"* — is only ever shown **after** an answer. Most of them give the number
-away.
+  The sum can only be hidden when the story is set to **always**. With the story
+  off, or not out yet on **on reveal**, the numbers are the only question there
+  is — so the setting yields, greys itself out, and says why, rather than
+  producing a card nobody can answer.
+
+The line that explains the number — *"Off Malcolm Nash, who had taken four
+wickets already that innings"* — is only ever shown **after** an answer. Most of
+them give the number away.
+
+The **question** never does, and that is checked rather than hoped for: the test
+suite reads every card and looks for its own answer in the sentence, in digits
+and in words. The twelve `1 × n` facts are exempt by rule, because `1 × n` **is**
+`n` — a sentence that can be answered has named the answer, and the identity
+property is the whole of what the ones table has to teach.
 
 ## Put it on an HTTPS host
 
@@ -109,7 +132,7 @@ python3 -m http.server 8000
 2. Tap **Share** → **Add to Home Screen** → **Add**.
 3. Launch it from the home screen. It opens full screen with no browser chrome.
 
-There is nothing to download afterwards. Every story is a string in
+There is nothing to download afterwards. Every card is a string in
 `index.html` — there are no images and no data file — so the app shell is the
 entire game, and once it has loaded once it runs in airplane mode. The only
 thing that comes off the network is the three fonts, cached as they are used,
@@ -137,8 +160,8 @@ by a *newer* version plays read-only and says so in the rail, rather than saving
 over fields it has never heard of — which is what two iPads updating a week apart
 looks like.
 
-**Clear progress** wipes the score and every fact learned but keeps the three
-settings.
+**Clear progress** wipes the score, the collection and every fact learned, but
+keeps the four settings.
 
 iOS may evict data from web apps that go unused for several weeks; opening it
 occasionally is enough to keep it.
