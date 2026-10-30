@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Generate Hoist's inline world map from Natural Earth, and splice it into
-games/hoist/index.html between the GENERATED markers.
+"""Generate a game's inline map and splice it into its index.html between the
+GENERATED markers.
 
-    ./scripts/build-map.py
+    ./scripts/build-map.py          Hoist's world map (the default)
+    ./scripts/build-map.py oath     Oath's map of the fifty states
+
+The world map is described first and at length below; the states map reuses its
+idea — one topology, decoded here, asserted against the game's own deck — and is
+described at build_us().
 
 Why the map is generated rather than pasted: the geometry, the sub-region
 table, the framing boxes and the marker list all have to agree with the game's
@@ -277,7 +282,15 @@ def deck(html):
     return {c: (n, r, s) for c, n, r, s in rows}
 
 
-def main():
+def splice(target, block):
+    """Replace the GENERATED block in `target` with `block`."""
+    html = open(target).read()
+    start = html.index("/* ==BEGIN GENERATED MAP DATA==")
+    end = html.index("/* ==END GENERATED MAP DATA== */") + len("/* ==END GENERATED MAP DATA== */")
+    open(target, "w").write(html[:start] + block + html[end:])
+
+
+def build_world():
     html = open(TARGET).read()
     countries = deck(html)
     geo = decode(source())
@@ -314,15 +327,208 @@ def main():
              "   re-run the script instead, it is idempotent. */\n"
              "const MAP = %s;\n"
              "/* ==END GENERATED MAP DATA== */" % body)
-
-    start = html.index("/* ==BEGIN GENERATED MAP DATA==")
-    end = html.index("/* ==END GENERATED MAP DATA== */") + len("/* ==END GENERATED MAP DATA== */")
-    open(TARGET, "w").write(html[:start] + block + html[end:])
+    splice(TARGET, block)
 
     with_poly = len(set(countries) & set(paths))
     print("map: %d polygons (%d deck, %d inert), %d marker points, %d KB of data"
           % (len(paths), with_poly, len(payload["inert"]), len(pts), len(body) // 1024))
     print("     %d deck countries are marker-only" % (len(countries) - with_poly))
+
+
+# ------------------------------------------------------------------ the fifty states
+
+US_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json"
+US_TARGET = os.path.join(ROOT, "games", "oath", "index.html")
+
+# FIPS state code -> postal code. The atlas carries FIPS ids and full names only.
+FIPS = {
+    "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE",
+    "11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA",
+    "20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN",
+    "28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM",
+    "36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI",
+    "45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA",
+    "54":"WV","55":"WI","56":"WY"
+}
+# Drawn, so the capital is not a hole in Maryland, but never an answer.
+US_INERT = {"DC"}
+US_PREC = 0     # whole units. The map is never zoomed past the 975-wide frame it
+                # was projected into, so a unit is at most a pixel or so on screen,
+                # and halving the precision halves the data.
+
+
+def build_us():
+    """The fifty states, from us-atlas's pre-projected Albers USA topology —
+    US Census Bureau boundaries, public domain. Pre-projected is the point:
+    Alaska and Hawaii arrive already moved and scaled into insets under the
+    lower forty-eight, so this is the map a child has seen on a classroom wall,
+    and no projection code is needed at runtime or here.
+
+    Besides the paths it derives what the game needs from the same topology:
+    a box per state (to decide which are too small to tap and get a dot), an
+    interior label point, the frames of the two insets, and which states border
+    which — read straight off the shared arcs, since two states that share an
+    arc share a border. Neighbours are the game's wrong answers."""
+    os.makedirs(CACHE, exist_ok=True)
+    path = os.path.join(CACHE, "states-albers-10m.json")
+    if not os.path.exists(path):
+        sys.stderr.write("fetching %s\n" % US_URL)
+        with urllib.request.urlopen(US_URL, timeout=60) as r:
+            open(path, "wb").write(r.read())
+    topo = json.load(open(path))
+
+    sc, tr = topo["transform"]["scale"], topo["transform"]["translate"]
+    arcs = []
+    for a in topo["arcs"]:
+        x = y = 0
+        pts = []
+        for dx, dy in a:
+            x += dx; y += dy
+            pts.append((x * sc[0] + tr[0], y * sc[1] + tr[1]))
+        arcs.append(pts)
+
+    def ring(idxs):
+        pts = []
+        for i in idxs:
+            a = arcs[~i][::-1] if i < 0 else arcs[i]
+            pts += a[1:] if pts else a
+        return pts
+
+    paths, boxes, pts, names, users = {}, {}, {}, {}, {}
+    for g in topo["objects"]["states"]["geometries"]:
+        code = FIPS[g["id"]]
+        names[code] = g["properties"]["name"]
+        polys = [g["arcs"]] if g["type"] == "Polygon" else g["arcs"]
+        d, best, best_area = "", None, -1.0
+        xs, ys = [], []
+        for poly in polys:
+            for k, r in enumerate(poly):
+                for i in r:
+                    users.setdefault(i if i >= 0 else ~i, set()).add(code)
+                p = ring(r)
+                seg, prev = [], None
+                for x, y in p:
+                    q = (round(x, US_PREC), round(y, US_PREC))
+                    if q == prev:
+                        continue
+                    seg.append(("M" if not seg else "L") + fmt_us(q[0]) + " " + fmt_us(q[1]))
+                    prev = q
+                if len(seg) >= 3:
+                    d += "".join(seg) + "Z"
+                xs += [x for x, _ in p]; ys += [y for _, y in p]
+                if k == 0:              # the outer ring; holes never hold a label
+                    area = abs(sum(p[i][0] * p[i + 1][1] - p[i + 1][0] * p[i][1]
+                                   for i in range(len(p) - 1))) / 2
+                    if area > best_area:
+                        best_area, best = area, p
+        paths[code] = d
+        boxes[code] = [round(min(xs), 1), round(min(ys), 1), round(max(xs), 1), round(max(ys), 1)]
+        pts[code] = interior(best)
+
+    adj = {c: set() for c in paths}
+    for codes in users.values():
+        for a in codes:
+            adj[a] |= codes - {a}
+
+    # The deck, read back out of the game so the two cannot drift: every state a
+    # president was born in has to be a tappable region on this map.
+    html = open(US_TARGET).read()
+    block = html[html.index("const PRESIDENTS"):html.index("/* ==end PRESIDENTS== */")]
+    born = set(re.findall(r'\bst:"([A-Z]{2})"', block))
+    for extra in re.findall(r'alsoSt:\[([^\]]*)\]', block):
+        born |= set(re.findall(r'"([A-Z]{2})"', extra))
+    if not born:
+        sys.exit("could not parse birth states out of PRESIDENTS")
+    missing = sorted(born - set(paths) | born & US_INERT)
+    if missing:
+        sys.exit("birth states with no answerable region: %s" % missing)
+    if len(set(paths) - US_INERT) != 50:
+        sys.exit("expected fifty states, got %d" % len(set(paths) - US_INERT))
+
+    pad = 6
+    insets = {c: [boxes[c][0] - pad, boxes[c][1] - pad,
+                  boxes[c][2] - boxes[c][0] + 2 * pad, boxes[c][3] - boxes[c][1] + 2 * pad]
+              for c in ("AK", "HI")}
+    payload = {
+        "paths": paths,
+        "box": boxes,
+        "pt": pts,
+        "adj": {c: sorted(v) for c, v in adj.items()},
+        "name": names,
+        "inset": insets,
+        "inert": sorted(US_INERT),
+        # The frame comes from the topology's own bounds, not the nominal
+        # 975x610 it was projected into: the Aleutians run off its left edge,
+        # and a frame that clips them is a map with part of Alaska missing.
+        "view": [round(topo["bbox"][0] - 4), round(topo["bbox"][1] - 4),
+                 round(topo["bbox"][2] - topo["bbox"][0] + 8),
+                 round(topo["bbox"][3] - topo["bbox"][1] + 8)],
+    }
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+    splice(US_TARGET,
+           "/* ==BEGIN GENERATED MAP DATA== built by scripts/build-map.py oath\n"
+           "   us-atlas states-albers-10m: US Census Bureau boundaries, public domain.\n"
+           "   Do not hand-edit: re-run the script instead, it is idempotent. */\n"
+           "const MAP = %s;\n"
+           "/* ==END GENERATED MAP DATA== */" % body)
+    print("map: %d regions (%d inert), %d birth states, %d KB of data"
+          % (len(paths), len(US_INERT), len(born), len(body) // 1024))
+
+
+def fmt_us(v):
+    if not US_PREC:
+        return str(int(v))
+    return ("%.*f" % (US_PREC, v)).rstrip("0").rstrip(".")
+
+
+def interior(poly, n=24):
+    """A point well inside a polygon: the best of an n x n grid by distance to
+    the nearest edge, then refined once around the winner. A centroid would do
+    for most states and fall outside Maryland, Michigan and Florida — the
+    marker for a state has to land on that state, or the tap misses it."""
+    xs = [p[0] for p in poly]; ys = [p[1] for p in poly]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    edges = list(zip(poly, poly[1:] + poly[:1]))
+
+    def inside(x, y):
+        c = False
+        for (ax, ay), (bx, by) in edges:
+            if (ay > y) != (by > y) and x < (bx - ax) * (y - ay) / (by - ay) + ax:
+                c = not c
+        return c
+
+    def clearance(x, y):
+        best = float("inf")
+        for (ax, ay), (bx, by) in edges:
+            dx, dy = bx - ax, by - ay
+            t = max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy or 1)))
+            best = min(best, (x - ax - t * dx) ** 2 + (y - ay - t * dy) ** 2)
+        return best
+
+    def search(cx0, cx1, cy0, cy1):
+        win, win_d = None, -1.0
+        for i in range(n):
+            for j in range(n):
+                x = cx0 + (cx1 - cx0) * (i + 0.5) / n
+                y = cy0 + (cy1 - cy0) * (j + 0.5) / n
+                if inside(x, y):
+                    d = clearance(x, y)
+                    if d > win_d:
+                        win, win_d = (x, y), d
+        return win
+
+    p = search(x0, x1, y0, y1) or (sum(xs) / len(xs), sum(ys) / len(ys))
+    sx, sy = (x1 - x0) / n, (y1 - y0) / n
+    p = search(p[0] - sx, p[0] + sx, p[1] - sy, p[1] + sy) or p
+    return [round(p[0], 1), round(p[1], 1)]
+
+
+def main():
+    target = sys.argv[1] if len(sys.argv) > 1 else "hoist"
+    builders = {"hoist": build_world, "oath": build_us}
+    if target not in builders:
+        sys.exit("usage: %s [%s]" % (sys.argv[0], "|".join(builders)))
+    builders[target]()
 
 
 if __name__ == "__main__":

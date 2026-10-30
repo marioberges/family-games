@@ -22,6 +22,7 @@ committed as binaries; a different rasterizer cannot reproduce them byte for
 byte, and rewriting them would churn the file for no gain. New games use this.
 """
 
+import math
 import os
 import re
 import struct
@@ -36,13 +37,23 @@ INK = (0x0B, 0x1E, 0x2D)     # --ink    house dark
 GLASS = (0xD6, 0xDF, 0xDB)   # --glass  house ground, and the splash background
 GLASS_HI = (0xE7, 0xEC, 0xE8)
 GOLD = (0xFF, 0xB6, 0x12)    # --gold
+SEAL = (0xA5, 0x0E, 0x26)    # wax: --red taken a shade deeper, as the wall's seal is
+PRESSED = (0xD5, 0x4A, 0x5E) # the same wax where the stamp pressed it — a real
+                             # seal is one colour, and a gold star on red reads
+                             # as somebody's flag
 
 # A game's mark is the whole idea of the game in the smallest space it fits.
 # Lattice draws a `cols` x `rows` grid of dots with the top row picked out in the
 # accent, so it reads as "rows of four" rather than as decoration. Agate draws
 # the bands of the stone it is named for, which is also the shape of a target,
-# a ring of seats, and a ball's stitching seen end on.
+# a ring of seats, and a ball's stitching seen end on. Oath draws a wax seal
+# with a star on it — the same seal a president's portrait gets on the wall
+# once all seven of their cards are won.
 SPECS = {
+    "oath": {
+        "icon": dict(bg=INK, wax=SEAL, accent=PRESSED, mark="seal"),
+        "splash": dict(bg=GLASS, wax=SEAL, accent=PRESSED, mark="seal"),
+    },
     "agate": {
         "icon": dict(bg=INK, band=GLASS_HI, accent=GOLD, mark="bands"),
         "splash": dict(bg=GLASS, band=INK, accent=GOLD, mark="bands"),
@@ -116,13 +127,67 @@ class Canvas:
                             hits += 1
                 if not hits:
                     continue
-                i = x * 3
-                if hits == n:
-                    row[i:i + 3] = bytes(rgb)
-                else:
-                    a = hits / n
-                    for k in range(3):
-                        row[i + k] = int(round(row[i + k] * (1 - a) + rgb[k] * a))
+                self._blend(row, x, rgb, hits / n)
+
+    def polygon(self, pts, rgb):
+        """Filled polygon, even-odd, supersampled inside its bounding box like
+        circle(). Only Oath's star uses it, so it favours plain over fast."""
+        xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+        x0, x1 = max(0, int(min(xs)) - 1), min(self.w - 1, int(max(xs)) + 1)
+        y0, y1 = max(0, int(min(ys)) - 1), min(self.h - 1, int(max(ys)) + 1)
+        edges = list(zip(pts, pts[1:] + pts[:1]))
+        step = 1.0 / SS
+        half = step / 2.0
+        n = SS * SS
+        for y in range(y0, y1 + 1):
+            row = self.rows[y]
+            for x in range(x0, x1 + 1):
+                hits = 0
+                for sy in range(SS):
+                    py = y + half + sy * step
+                    for sx in range(SS):
+                        px = x + half + sx * step
+                        inside = False
+                        for (ax, ay), (bx, by) in edges:
+                            if (ay > py) != (by > py) and px < (bx - ax) * (py - ay) / (by - ay) + ax:
+                                inside = not inside
+                        hits += inside
+                if hits:
+                    self._blend(row, x, rgb, hits / n)
+
+    @staticmethod
+    def _blend(row, x, rgb, a):
+        i = x * 3
+        if a >= 1:
+            row[i:i + 3] = bytes(rgb)
+        else:
+            for k in range(3):
+                row[i + k] = int(round(row[i + k] * (1 - a) + rgb[k] * a))
+
+
+def star(cx, cy, r_out, r_in, points=5):
+    """The vertices of a star, first point straight up."""
+    out = []
+    for i in range(points * 2):
+        a = -math.pi / 2 + i * math.pi / points
+        r = r_in if i % 2 else r_out
+        out.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    return out
+
+
+def draw_seal(cv, cx, cy, box, spec):
+    """A wax seal: a disc with a scalloped rim, a thin ring pressed into it, and
+    a star in the middle. The scallops are just circles round the edge — the
+    disc painted over them is what turns them into a rim."""
+    r = box / 2.0
+    lobes = 12
+    for i in range(lobes):
+        a = i / lobes * 2 * math.pi
+        cv.circle(cx + 0.76 * r * math.cos(a), cy + 0.76 * r * math.sin(a), 0.26 * r, spec["wax"])
+    cv.circle(cx, cy, 0.80 * r, spec["wax"])
+    cv.circle(cx, cy, 0.64 * r, spec["accent"])
+    cv.circle(cx, cy, 0.585 * r, spec["wax"])
+    cv.polygon(star(cx, cy, 0.46 * r, 0.19 * r), spec["accent"])
 
 
 def draw_bands(cv, cx, cy, box, spec):
@@ -146,6 +211,8 @@ def draw_mark(cv, cx, cy, box, spec):
     (the length of the square the mark may occupy)."""
     if spec.get("mark") == "bands":
         return draw_bands(cv, cx, cy, box, spec)
+    if spec.get("mark") == "seal":
+        return draw_seal(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32

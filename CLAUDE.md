@@ -117,7 +117,13 @@ The rig boots the actual `index.html` and drives it: it catches dead references,
 broken state transitions, settings that do not survive a repaint, and markup
 that never renders. It also checks each game's own invariants — for Agate, that
 all 78 cards multiply out to the fact they are attached to and that no question
-contains its own answer.
+contains its own answer; for Oath, that the 45 people cover numbers 1–47 exactly,
+that no clue names its own president, and that every birth state is a region on
+the map.
+
+`./scripts/build-map.py` takes a target — `hoist` (the default, the world) or
+`oath` (the fifty states). Both read their deck back out of the game's
+`index.html`, so run it again after changing countries or birthplaces.
 
 To reach a game's internals the rig injects one probe line after `"use strict";`.
 It has to go *inside* the IIFE: everything is function-scoped, so nothing is on
