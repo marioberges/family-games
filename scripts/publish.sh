@@ -4,6 +4,7 @@
 # straight out of its source directory at /games/<name>/.
 #
 #   ./index.html           catalog for GitHub Pages   (the installable origin)
+#   ./in-development.html  the games not ready yet — same template, DEV block
 #   ./artifacts/           mirror for the Sprite's read-only preview browser
 #
 # The Sprite mirror has to be a copy: its server refuses symlinks that leave the
@@ -18,7 +19,7 @@ render() {  # render <out> <base> <cta> <footer> <blocks-to-keep...>
 import re, sys
 out, base, cta, footer, *keep = sys.argv[1:]
 s = open('templates/catalog.html').read()
-for block in ('PREVIEW', 'LIVE', 'ZIP'):
+for block in ('PREVIEW', 'LIVE', 'ZIP', 'MAIN', 'DEV'):
     if block in keep:
         # unwrap: drop a marker that owns its line outright, else just the marker
         s = re.sub(r'(?m)^[ \t]*<!--/?%s-->[ \t]*\n' % block, '', s)
@@ -38,7 +39,11 @@ for dir in games/*/; do
   ( cd games && zip -qr "$root/artifacts/$game/$game-pwa.zip" "$game" )
 done
 
-render index.html           'games/'      'Play'         'Built at home. Add to Home Screen in Safari.'         LIVE
-render artifacts/index.html '/artifacts/' 'Open preview' 'Source of truth: <code>~/family-games/games/</code>'  PREVIEW ZIP
+# One template, two pages: MAIN is the catalog, DEV the games still in development.
+for page in MAIN DEV; do
+  out=index.html; [ "$page" = DEV ] && out=in-development.html
+  render "$out"           'games/'      'Play'         'Built at home. Add to Home Screen in Safari.'         LIVE "$page"
+  render "artifacts/$out" '/artifacts/' 'Open preview' 'Source of truth: <code>~/family-games/games/</code>'  PREVIEW ZIP "$page"
+done
 
-echo "published $(ls -d games/*/ | wc -l) game(s): ./index.html (Pages) + artifacts/ (Sprite preview)"
+echo "published $(ls -d games/*/ | wc -l) game(s): ./index.html + ./in-development.html (Pages) + artifacts/ (Sprite preview)"

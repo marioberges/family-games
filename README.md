@@ -11,6 +11,7 @@ Live site: <https://marioberges.github.io/family-games/>
 ```
 games/<name>/        one game, self-contained and served as-is
 index.html           catalog, generated — do not hand-edit
+in-development.html  games not ready yet, generated from the same template
 templates/catalog.html   the catalog source, with per-target blocks
 scripts/publish.sh   renders the catalogs and the Sprite mirror
 artifacts/           generated mirror for the Sprite preview (gitignored)

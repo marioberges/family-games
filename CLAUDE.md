@@ -25,7 +25,8 @@ deploy key scoped to this repository — see Credentials.
 ```
 games/<name>/            one game, self-contained, served as-is
 index.html               catalog for Pages — GENERATED, do not hand-edit
-templates/catalog.html   the catalog source; per-target blocks below
+in-development.html      games not ready yet — GENERATED, same template
+templates/catalog.html   the source of both pages; per-target blocks below
 scripts/publish.sh       renders both catalogs + the Sprite mirror
 artifacts/               Sprite preview mirror — GENERATED, gitignored
 ```
@@ -36,7 +37,12 @@ nothing can drift. Do not introduce a `docs/` or `dist/` copy.
 
 `templates/catalog.html` carries three conditional blocks — `<!--LIVE-->`,
 `<!--PREVIEW-->`, `<!--ZIP-->` — plus `{{BASE}}`, `{{CTA}}`, `{{FOOTER}}`.
-`publish.sh` keeps `LIVE` for Pages and `PREVIEW ZIP` for the Sprite.
+`publish.sh` keeps `LIVE` for Pages and `PREVIEW ZIP` for the Sprite. Two more,
+`<!--MAIN-->` and `<!--DEV-->`, split it into two pages: the catalog
+(`index.html`) holds the finished games, and `in-development.html` holds the
+ones still being worked on. A game moves between them by moving its card
+from one block to the other; its own URL never changes, so installed copies
+keep working.
 
 ## Two places a game runs, and only one of them is real
 
@@ -137,7 +143,8 @@ are still only true on the device, against the Pages URL.
 
 1. `games/<name>/` with `index.html`, `sw.js`, `manifest.webmanifest`, `icons/`.
 2. Add a card to `templates/catalog.html` — copy Hoist's block, change the
-   `{{BASE}}<name>/` hrefs and the blurb.
+   `{{BASE}}<name>/` hrefs and the blurb. Put it inside `<!--DEV-->` until it is
+   ready, and inside `<!--MAIN-->` once it is.
 3. `./scripts/publish.sh && git add -A && git commit && git push`
 4. Test the install on the actual iPad before telling anyone it works.
 

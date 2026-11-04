@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Family Games</title>
+<!--MAIN--><title>Family Games</title><!--/MAIN--><!--DEV--><title>Family Games · In development</title><!--/DEV-->
 <style>
   :root{
     --bg:#f7f6f3; --panel:#fff; --ink:#1b1a17; --muted:#6b6862; --line:#e2ded6;
@@ -50,13 +50,22 @@
     background:rgba(128,128,128,.16); padding:1px 5px; border-radius:5px;
   }
   footer{color:var(--muted);font-size:.82rem;margin:26px 0 0;text-align:center}
+  .more{color:var(--muted);font-size:.92rem;margin:4px 2px 0}
+  .more a{color:var(--accent);font-weight:600}
 </style>
 <div class="wrap">
   <header>
+    <!--MAIN-->
     <h1>Family Games</h1>
     <p class="sub">Offline-first web apps, built to live on the home screen.</p>
+    <!--/MAIN-->
+    <!--DEV-->
+    <h1>In development</h1>
+    <p class="sub">Games that work but aren't finished yet. Expect them to change.</p>
+    <!--/DEV-->
   </header>
 
+  <!--MAIN-->
   <div class="card">
     <h2>Hoist</h2>
     <p class="tag">Flag recognition drill</p>
@@ -68,41 +77,6 @@
       <a class="btn primary" href="{{BASE}}hoist/" target="_blank" rel="noopener">{{CTA}}</a>
       <!--ZIP--><a class="btn" href="{{BASE}}hoist/hoist-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
       <a class="btn" href="{{BASE}}hoist/README.md" target="_blank" rel="noopener">README</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Lattice</h2>
-    <p class="tag">Times tables drill</p>
-    <p>The times tables to 12, drilled with spaced repetition. Answer from four
-       numbers or type it on a keypad, one table at a time or all 78 facts at
-       once — and see 6&nbsp;×&nbsp;7 drawn as six rows of seven dots, which is
-       what it actually means — and a pegboard underneath to build your own array
-       with a finger. It times how long recall takes and never shows a clock: all
-       that does is decide when a fact is finished with. Nothing to download, so
-       it works offline from the first launch.</p>
-    <div class="row">
-      <a class="btn primary" href="{{BASE}}lattice/" target="_blank" rel="noopener">{{CTA}}</a>
-      <!--ZIP--><a class="btn" href="{{BASE}}lattice/lattice-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
-      <a class="btn" href="{{BASE}}lattice/README.md" target="_blank" rel="noopener">README</a>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Agate</h2>
-    <p class="tag">Times tables, out of real games</p>
-    <p>The same 78 facts as Lattice, asked a different way: never a bare sum, always
-       a real number out of a real game. Garry Sobers hits six sixes in one over —
-       how many runs? Nadia Comăneci is given seven perfect tens — how much is
-       that? Seventy-eight facts and seventy-eight cards, one written for each,
-       every one of them a night somebody remembers. Get a fact right for the
-       first time and its card is yours to keep and read again. The sum can be
-       hidden, so the only way to the answer is to read what happened.
-       Everything in it was looked up. Works offline from the first launch.</p>
-    <div class="row">
-      <a class="btn primary" href="{{BASE}}agate/" target="_blank" rel="noopener">{{CTA}}</a>
-      <!--ZIP--><a class="btn" href="{{BASE}}agate/agate-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
-      <a class="btn" href="{{BASE}}agate/README.md" target="_blank" rel="noopener">README</a>
     </div>
   </div>
 
@@ -142,6 +116,48 @@
     </div>
   </div>
 
+  <p class="more"><a href="in-development.html">In development</a> · Lattice and Agate,
+     still being worked on</p>
+  <!--/MAIN-->
+  <!--DEV-->
+  <div class="card">
+    <h2>Lattice</h2>
+    <p class="tag">Times tables drill</p>
+    <p>The times tables to 12, drilled with spaced repetition. Answer from four
+       numbers or type it on a keypad, one table at a time or all 78 facts at
+       once — and see 6&nbsp;×&nbsp;7 drawn as six rows of seven dots, which is
+       what it actually means — and a pegboard underneath to build your own array
+       with a finger. It times how long recall takes and never shows a clock: all
+       that does is decide when a fact is finished with. Nothing to download, so
+       it works offline from the first launch.</p>
+    <div class="row">
+      <a class="btn primary" href="{{BASE}}lattice/" target="_blank" rel="noopener">{{CTA}}</a>
+      <!--ZIP--><a class="btn" href="{{BASE}}lattice/lattice-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
+      <a class="btn" href="{{BASE}}lattice/README.md" target="_blank" rel="noopener">README</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Agate</h2>
+    <p class="tag">Times tables, out of real games</p>
+    <p>The same 78 facts as Lattice, asked a different way: never a bare sum, always
+       a real number out of a real game. Garry Sobers hits six sixes in one over —
+       how many runs? Nadia Comăneci is given seven perfect tens — how much is
+       that? Seventy-eight facts and seventy-eight cards, one written for each,
+       every one of them a night somebody remembers. Get a fact right for the
+       first time and its card is yours to keep and read again. The sum can be
+       hidden, so the only way to the answer is to read what happened.
+       Everything in it was looked up. Works offline from the first launch.</p>
+    <div class="row">
+      <a class="btn primary" href="{{BASE}}agate/" target="_blank" rel="noopener">{{CTA}}</a>
+      <!--ZIP--><a class="btn" href="{{BASE}}agate/agate-pwa.zip" target="_blank" rel="noopener">Download .zip</a><!--/ZIP-->
+      <a class="btn" href="{{BASE}}agate/README.md" target="_blank" rel="noopener">README</a>
+    </div>
+  </div>
+
+  <p class="more"><a href="./">← All games</a></p>
+  <!--/DEV-->
+
   <!--PREVIEW-->
   <div class="note">
     <h3>About the preview</h3>
@@ -165,7 +181,7 @@
       <li>Tap the game, then <b>Share</b> → <b>Add to Home Screen</b> → <b>Add</b>.</li>
       <li>Launch it from the home screen. It opens full screen, no browser chrome.</li>
       <li>Do any one-time downloads while you still have signal. Hoist needs
-          <b>Save all flags</b>; Lattice needs nothing.</li>
+          <b>Save all flags</b>; the others need nothing.</li>
     </ol>
   </div>
   <!--/LIVE-->
