@@ -1,0 +1,1290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hopper — guess the rule</title>
+<meta name="description" content="A machine with a secret rule. Feed it numbers, watch what comes out, and work out what it does.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#D6DFDB">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Hopper">
+
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<!-- launch screens: without these iOS shows a white flash on every cold start -->
+<link rel="apple-touch-startup-image" href="icons/splash/320x568@2x.png" media="screen and (device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x667@2x.png" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x736@3x.png" media="screen and (device-width:414px) and (device-height:736px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x812@3x.png" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/390x844@3x.png" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/393x852@3x.png" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/402x874@3x.png" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@2x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@3x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/428x926@3x.png" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/430x932@3x.png" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/440x956@3x.png" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/744x1133@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1133x744@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/768x1024@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x768@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/810x1080@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1080x810@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/820x1180@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1180x820@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1112@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1112x834@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1194@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1194x834@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x1366@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1366x1024@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1032x1376@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1376x1032@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ink:#0B1E2D;
+  --glass:#D6DFDB;
+  --glass-hi:#E7ECE8;
+  --glass-lo:#dfe5e0;
+  --red:#C8102E;
+  --gold:#FFB612;
+  --gold-deep:#8A5A00;   /* --gold is a fill; this is the same accent dark enough to be text */
+  --paper:#FFFFFF;
+  --blue:#005EB8;
+  --green:#007A33;
+  --rule:rgba(11,30,45,.16);
+  --rule-2:rgba(11,30,45,.32);
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --serif:"Bodoni Moda",Didot,Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--glass)}
+body{
+  background:var(--glass);
+  background-image:
+    linear-gradient(rgba(11,30,45,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,30,45,.045) 1px, transparent 1px);
+  background-size:28px 28px;
+  color:var(--ink);
+  font-family:"Archivo", system-ui, -apple-system, sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;min-height:100vh;
+}
+button{font:inherit;color:inherit}
+.case{
+  max-width:1180px;margin:0 auto;
+  padding:calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right))
+          calc(48px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left));
+}
+
+/* ---------- masthead ---------- */
+.masthead{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
+  border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:22px;flex-wrap:wrap;
+}
+.wordmark{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wordmark b{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5vw,46px);letter-spacing:.02em;line-height:1}
+.wordmark span{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,30,45,.6)}
+.tally{display:flex;gap:26px;font-family:var(--mono)}
+.tally div{text-align:right}
+.tally .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(11,30,45,.55)}
+.tally .v{font-size:26px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.tally .v.gold{color:var(--gold-deep)}
+
+/* ---------- layout ---------- */
+main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:start}
+.rail{display:flex;flex-direction:column;gap:16px}
+@media (max-width:880px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .rail{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  #wallCard{grid-row:1 / span 4}
+  .footnote{grid-column:1 / -1}
+}
+@media (max-width:600px){
+  .rail{grid-template-columns:1fr}
+  #wallCard{grid-row:auto}
+}
+
+/* ---------- the plate ---------- */
+.plate{background:var(--glass-hi);border:1px solid var(--rule-2);position:relative}
+.plate-head{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:9px 14px;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(11,30,45,.62);
+}
+.tag{color:var(--ink);border:1px solid var(--rule-2);padding:2px 7px;white-space:nowrap}
+.tag.dark{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+
+.mount{
+  position:relative;background:var(--paper);
+  background-image:
+    linear-gradient(rgba(11,30,45,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,30,45,.05) 1px, transparent 1px);
+  background-size:26px 26px;
+  padding:18px;display:flex;gap:18px;flex-wrap:wrap;align-items:stretch;
+}
+
+/* the machine and the two numbers either side of it */
+.rig{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative}
+.innum{
+  font-family:var(--serif);font-size:clamp(44px,9vw,76px);line-height:1;min-height:1em;
+  font-variant-numeric:lining-nums tabular-nums;color:var(--blue);position:relative;z-index:2;
+  display:flex;align-items:center;gap:4px;
+}
+.innum .ph{color:rgba(11,30,45,.2)}
+.innum .caret{width:3px;height:.8em;background:var(--blue);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.innum.drop{animation:drop .62s cubic-bezier(.5,0,.8,.4) both}
+@keyframes drop{
+  0%{transform:none;opacity:1}
+  70%{opacity:1}
+  100%{transform:translateY(clamp(60px,12vw,92px)) scale(.35);opacity:0}
+}
+.machine{width:min(100%,360px);height:auto;display:block;margin-top:-4px;cursor:pointer;touch-action:manipulation}
+.machine .gear{transform-box:fill-box;transform-origin:center}
+.machine .arm{transform-box:fill-box;transform-origin:center}
+.machine.run .gear.a{animation:spin .9s cubic-bezier(.45,0,.3,1)}
+.machine.run .gear.b{animation:spinb .9s cubic-bezier(.45,0,.3,1)}
+.machine.run .arm{animation:spin .9s cubic-bezier(.45,0,.3,1)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinb{to{transform:rotate(-480deg)}}
+.machine.jam{animation:shake .45s .55s both}
+@keyframes shake{
+  0%,100%{transform:none}20%{transform:translateX(-5px) rotate(-1deg)}
+  40%{transform:translateX(5px) rotate(1deg)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}
+}
+.machine .lamp{transition:fill .2s}
+.outbox{
+  align-self:flex-end;margin-top:-10px;margin-right:clamp(0px,4vw,30px);
+  display:flex;flex-direction:column;align-items:flex-end;min-height:1em;
+}
+.outnum{
+  font-family:var(--serif);font-size:clamp(44px,9vw,76px);line-height:1;color:var(--green);
+  font-variant-numeric:lining-nums tabular-nums;min-height:1em;
+}
+.outnum.jammed{color:var(--red);font-family:var(--mono);font-weight:600;font-size:clamp(26px,5vw,40px);letter-spacing:.12em}
+.outnum.pop{animation:pop .5s .58s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{opacity:0;transform:translate(-24px,-30px) scale(.4)}to{opacity:1;transform:none}}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,30,45,.5)}
+
+/* the paper tape: every try, kept */
+.tape{flex:1 1 210px;min-width:0;display:flex;flex-direction:column;border:1px solid var(--rule-2);background:#fffdf6}
+.tape-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px dashed var(--rule-2)}
+.tape-head .lbl{color:var(--ink);font-weight:600}
+.tseg{display:flex;gap:1px;background:var(--rule-2);border:1px solid var(--rule-2)}
+.tseg button{appearance:none;border:0;background:#fffdf6;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;padding:5px 7px;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.tseg button.sel{background:var(--ink);color:var(--glass-hi)}
+.tape-body{overflow:auto;-webkit-overflow-scrolling:touch;max-height:clamp(180px,34vh,330px);flex:1}
+.trow{display:grid;grid-template-columns:1fr 18px 1fr;align-items:center;padding:5px 10px;
+  border-bottom:1px dashed var(--rule);font-family:var(--mono);font-size:19px;font-weight:500;
+  font-variant-numeric:tabular-nums}
+.tape.with-yours .trow{grid-template-columns:1fr 18px 1fr 1fr}
+.trow .x{color:var(--blue);text-align:right}
+.trow .arr{text-align:center;color:rgba(11,30,45,.45);font-size:17px}
+.trow .y{color:var(--green)}
+.trow .y.jam{color:var(--red);font-size:13px;letter-spacing:.12em}
+.trow .yo{font-size:16px;color:rgba(11,30,45,.55);text-align:right}
+.trow .yo.same{color:var(--green)}
+.trow .yo.diff{color:var(--red)}
+.trow .src{display:inline-block;margin-left:6px;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
+  vertical-align:3px;padding:1px 4px;border:1px solid currentColor;color:var(--gold-deep);font-weight:600}
+.trow.cols{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(11,30,45,.5);font-weight:500;padding:4px 10px}
+.trow.cols span{color:inherit;font-size:inherit}
+.trow.fresh{animation:fresh .9s .55s both}
+@keyframes fresh{from{background:rgba(255,182,18,.55)}to{background:transparent}}
+.gap{display:grid;grid-template-columns:1fr 18px 1fr;padding:0 10px;margin:-1px 0;font-family:var(--mono);
+  font-size:11px;font-weight:600;color:var(--gold-deep);letter-spacing:.06em}
+.tape.with-yours .gap{grid-template-columns:1fr 18px 1fr 1fr}
+.gap span:nth-child(3){padding-left:2px}
+.gap span:nth-child(3)::before{content:"↕ ";color:rgba(138,90,0,.6)}
+.tape-empty{padding:16px 12px;font-size:13px;color:rgba(11,30,45,.5);line-height:1.4}
+
+/* ---------- the band: what the machine says ---------- */
+.band{min-height:62px;padding:12px 16px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;gap:12px;font-size:clamp(15px,2.4vw,18px);line-height:1.35}
+.band b{font-weight:600}
+.band .num{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.band .num.in{color:var(--blue)}
+.band .num.out{color:var(--green)}
+.band .num.no{color:var(--red)}
+.band.good{background:rgba(0,122,51,.08)}
+.band.nudge{background:rgba(255,182,18,.16)}
+.band.hint{background:rgba(0,94,184,.07)}
+
+/* ---------- controls ---------- */
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule)}
+.padk{
+  appearance:none;border:0;background:var(--glass-hi);color:var(--ink);
+  font-family:var(--mono);font-size:24px;font-weight:500;
+  min-height:clamp(48px,8.5vh,70px);cursor:pointer;touch-action:manipulation;transition:background .14s,color .14s;
+}
+@media (hover:hover){.padk:hover:not(:disabled){background:var(--glass-lo)}}
+.padk:focus-visible,.btn:focus-visible,.segb:focus-visible,.act:focus-visible,.slot:focus-visible,.self:focus-visible{outline:2px solid var(--blue);outline-offset:-3px}
+.padk:disabled{opacity:.35;cursor:default}
+.padk.go{background:var(--ink);color:var(--glass-hi);font-size:16px;letter-spacing:.14em;text-transform:uppercase}
+.padk.go:disabled{background:var(--glass-hi);color:var(--ink)}
+.padk.wide{grid-column:1 / -1}
+.padk.small{font-size:15px;letter-spacing:.08em}
+.padk.flash{animation:nope .3s}
+@keyframes nope{50%{background:rgba(200,16,46,.18)}}
+
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;flex-wrap:wrap}
+.foot .grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--rule-2);color:var(--ink);padding:10px 13px;cursor:pointer;
+  transition:background .14s,color .14s;touch-action:manipulation;min-height:42px;
+}
+@media (hover:hover){.btn:hover:not([disabled]){background:var(--ink);color:var(--glass-hi)}}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.solid{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+.btn.big{font-size:13px;padding:13px 18px}
+.btn.wide{width:100%;text-align:center}
+.linkish{background:none;border:0;padding:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(11,30,45,.55);text-decoration:underline;cursor:pointer;touch-action:manipulation}
+.linkish.armed{color:var(--red)}
+
+/* ---- the rule builder ---- */
+.builder{padding:12px 14px 4px;background:var(--glass-lo);border-bottom:1px solid var(--rule)}
+.build-say{margin:0 0 10px;font-size:14px;color:rgba(11,30,45,.75)}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--glass-hi);border:1px solid var(--rule-2);padding:8px}
+.step.on{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.stepno{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(11,30,45,.55);min-width:44px}
+.acts,.amt{display:flex;gap:6px;flex-wrap:wrap}
+.act,.self,.slot{
+  appearance:none;border:1px solid var(--rule-2);background:var(--paper);cursor:pointer;touch-action:manipulation;
+  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.04em;padding:9px 11px;min-height:42px;
+}
+.act.sel,.self.sel{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+.slot{min-width:58px;font-size:20px;text-align:center;color:var(--blue)}
+.slot.sel{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.slot .ph{color:rgba(11,30,45,.25)}
+.or{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(11,30,45,.45);align-self:center}
+.drop2{margin-left:auto;appearance:none;border:0;background:none;font-family:var(--mono);font-size:18px;
+  color:rgba(11,30,45,.5);cursor:pointer;padding:4px 8px}
+.addstep{align-self:flex-start;margin-top:2px}
+.readback{margin:10px 0 8px;font-family:var(--serif);font-size:clamp(20px,3.4vw,28px);line-height:1.2;min-height:1.2em}
+.readback .ph{color:rgba(11,30,45,.35);font-family:"Archivo",sans-serif;font-size:15px}
+
+/* ---- predict ---- */
+.ask{padding:14px 16px 10px;background:var(--glass-lo);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ask .q{font-family:var(--serif);font-size:clamp(22px,4vw,32px);line-height:1.15}
+.ask .q .in{color:var(--blue);font-family:var(--mono);font-weight:600}
+.ask .ans{font-family:var(--mono);font-weight:600;font-size:clamp(30px,6vw,44px);color:var(--green);min-width:2.5em;text-align:right;font-variant-numeric:tabular-nums}
+.ask .ans .ph{color:rgba(11,30,45,.25)}
+.pips{display:flex;gap:6px}
+.pip{width:14px;height:14px;border-radius:50%;border:2px solid var(--rule-2)}
+.pip.on{background:var(--green);border-color:var(--green)}
+
+/* ---- the verdict ---- */
+.verdict{padding:20px 16px 8px;text-align:center;position:relative}
+.stamp{
+  display:inline-block;border:3px double var(--green);color:var(--green);background:rgba(255,255,255,.85);
+  padding:7px 18px;font-family:var(--mono);font-weight:600;font-size:clamp(16px,3vw,22px);letter-spacing:.2em;
+  text-transform:uppercase;transform:rotate(-6deg);animation:thump .34s cubic-bezier(.2,1.5,.4,1) both;
+}
+.stamp.shown{border-color:var(--gold-deep);color:var(--gold-deep)}
+@keyframes thump{0%{opacity:0;transform:rotate(-6deg) scale(2)}60%{opacity:1;transform:rotate(-6deg) scale(.95)}100%{transform:rotate(-6deg)}}
+.was{font-family:var(--serif);font-size:clamp(24px,4.4vw,38px);line-height:1.15;margin:14px 0 6px}
+.was small{display:block;font-family:"Archivo",sans-serif;font-size:14px;color:rgba(11,30,45,.6);margin-bottom:4px}
+.facts{list-style:none;margin:8px auto 4px;padding:0;max-width:440px;font-size:15px;line-height:1.5}
+.facts li{padding:3px 0}
+.facts .g{color:var(--gold-deep);font-weight:600}
+.facts .u{color:var(--blue);font-weight:600}
+
+/* ---------- rail ---------- */
+.card{background:var(--glass-hi);border:1px solid var(--rule-2)}
+.card h2{margin:0;padding:9px 12px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:11px;
+  font-weight:600;letter-spacing:.18em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.count{background:var(--ink);color:var(--glass-hi);padding:1px 6px;font-size:10px;letter-spacing:.1em}
+.meter{padding:12px}
+.tiny{font-size:12px;line-height:1.4;color:rgba(11,30,45,.62);margin:0 0 7px}
+.tiny b{font-weight:600;color:var(--ink)}
+.seg{display:flex;gap:1px;background:var(--rule-2);border:1px solid var(--rule-2);margin:0 0 12px}
+.seg:last-child{margin-bottom:0}
+.segb{appearance:none;border:0;flex:1;min-width:0;background:var(--glass-hi);color:var(--ink);font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:9px 4px;cursor:pointer;min-height:40px;
+  touch-action:manipulation;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover){.segb:hover:not(.sel):not(:disabled){background:var(--glass-lo)}}
+.segb.sel{background:var(--ink);color:var(--glass-hi)}
+.segb:disabled{color:rgba(11,30,45,.3);cursor:default}
+.levels .segb{font-size:15px;font-weight:600;letter-spacing:0}
+
+.wall{max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch}
+.wlevel{padding:8px 12px 4px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(11,30,45,.55);border-bottom:1px solid var(--rule);background:var(--glass-lo);display:flex;justify-content:space-between}
+.blue{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--rule);
+  background:#123a5c;color:#e6eef5;
+  background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:12px 12px}
+.blue .rule{flex:1;min-width:0;font-family:var(--serif);font-size:17px;line-height:1.15}
+.blue .rule small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(230,238,245,.6);margin-top:3px}
+.blue svg{flex:0 0 auto}
+.empty{padding:14px 12px;font-size:13px;color:rgba(11,30,45,.55);line-height:1.4}
+.warn{margin:0;padding:10px 12px;background:var(--gold);color:var(--ink);font-size:12px;line-height:1.4}
+.footnote{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(11,30,45,.45);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 2px}
+.share{display:inline-block;width:12px;height:12px;vertical-align:-1px;border:1px solid currentColor;border-top:0;position:relative;margin:0 2px}
+.share::after{content:"↑";position:absolute;top:-9px;left:2px;font-size:11px;line-height:1}
+.offline-bar{display:none;background:var(--ink);color:var(--glass-hi);text-align:center;font-family:var(--mono);font-size:10px;
+  letter-spacing:.2em;text-transform:uppercase;padding:6px;margin-bottom:14px}
+body.is-offline .offline-bar{display:block}
+
+/* short landscape viewports: a whole turn has to fit on the screen */
+@media (orientation:landscape) and (max-height:560px){
+  .case{padding-top:calc(12px + env(safe-area-inset-top))}
+  .masthead{margin-bottom:14px;padding-bottom:7px}
+  .mount{padding:12px}
+  .machine{width:min(100%,250px)}
+  .innum,.outnum{font-size:44px}
+  .padk{min-height:44px}
+  .band{min-height:50px;padding:8px 14px}
+}
+@media (max-width:600px){
+  .mount{padding:12px;gap:12px}
+  .machine{width:min(100%,240px)}
+  .innum,.outnum{font-size:46px}
+  .outbox{margin-top:-28px}
+  .tape-body{max-height:160px}
+  .step{gap:6px}
+  .stepno{min-width:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important;animation-delay:0s!important;transition-duration:.001s!important}
+}
+</style>
+</head>
+<body>
+<div class="case">
+
+  <div class="offline-bar">No network — running from this device</div>
+
+  <header class="masthead">
+    <div class="wordmark"><b>Hopper</b><span>Guess the rule</span></div>
+    <div class="tally">
+      <div><div class="k">Level</div><div class="v" id="tLevel">1</div></div>
+      <div><div class="k">Cracked</div><div class="v" id="tCracked">0</div></div>
+      <div><div class="k">Gold gears</div><div class="v gold" id="tGold">0</div></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="plate" id="plate">
+      <div class="plate-head">
+        <span id="machineNo">Machine</span>
+        <span><span class="tag" id="crankTag">0 cranks</span></span>
+      </div>
+      <div class="mount">
+        <div class="rig">
+          <span class="lbl">In</span>
+          <div class="innum" id="inNum"></div>
+          <svg class="machine" id="machine" viewBox="0 0 300 236" role="img" aria-label="The number machine. Tap it to turn the crank.">
+            <!-- hopper -->
+            <polygon points="96,6 204,6 170,58 130,58" fill="#E7ECE8" stroke="#0B1E2D" stroke-width="2.5" stroke-linejoin="round"/>
+            <line x1="104" y1="16" x2="196" y2="16" stroke="rgba(11,30,45,.2)" stroke-width="1.5"/>
+            <!-- body -->
+            <rect x="34" y="56" width="214" height="136" rx="14" fill="#FFFFFF" stroke="#0B1E2D" stroke-width="2.5"/>
+            <rect x="52" y="74" width="146" height="100" rx="8" fill="#D6DFDB" stroke="rgba(11,30,45,.32)" stroke-width="1.5"/>
+            <g id="gearA" class="gear a"></g>
+            <g id="gearB" class="gear b"></g>
+            <circle cx="224" cy="92" r="8" class="lamp" id="lamp" fill="#E7ECE8" stroke="#0B1E2D" stroke-width="2"/>
+            <text x="223" y="134" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill="rgba(11,30,45,.55)">No.</text>
+            <text x="223" y="152" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="15" font-weight="600" fill="#0B1E2D" id="plateNo">1</text>
+            <!-- crank, on its axle; the clear disc centres the group on the axle so it turns about it -->
+            <g class="arm" id="arm">
+              <circle cx="262" cy="124" r="36" fill="none"/>
+              <line x1="262" y1="124" x2="286" y2="96" stroke="#0B1E2D" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="286" cy="96" r="8" fill="#C8102E" stroke="#0B1E2D" stroke-width="2"/>
+            </g>
+            <circle cx="262" cy="124" r="7" fill="#E7ECE8" stroke="#0B1E2D" stroke-width="2.5"/>
+            <!-- chute -->
+            <polygon points="176,192 222,192 258,232 212,232" fill="#E7ECE8" stroke="#0B1E2D" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- feet -->
+            <rect x="52" y="192" width="22" height="10" rx="2" fill="#0B1E2D"/>
+            <rect x="140" y="192" width="22" height="10" rx="2" fill="#0B1E2D"/>
+          </svg>
+          <div class="outbox"><span class="lbl">Out</span><div class="outnum" id="outNum"></div></div>
+        </div>
+        <div class="tape" id="tape">
+          <div class="tape-head"><span class="lbl">Tape</span><div class="tseg" id="tapeSeg"></div></div>
+          <div class="tape-body" id="tapeBody"></div>
+        </div>
+      </div>
+      <div class="band" id="band"></div>
+      <div id="controls"></div>
+    </section>
+
+    <aside class="rail">
+      <div class="card" id="wallCard">
+        <h2>Workshop <span class="count" id="wallCount">0</span></h2>
+        <div class="wall" id="wall"></div>
+      </div>
+
+      <div class="card">
+        <h2>Settings</h2>
+        <div class="meter">
+          <p class="tiny">Level — crack <b>3</b> rules to open the next</p>
+          <div class="seg levels" id="levelSeg"></div>
+          <p class="tiny">How you prove it</p>
+          <div class="seg" id="proveSeg"></div>
+          <p class="tiny">Biggest number you can feed it</p>
+          <div class="seg" id="maxSeg"></div>
+          <p class="tiny">Sounds</p>
+          <div class="seg" id="soundSeg"></div>
+        </div>
+      </div>
+
+      <div class="card" id="roCard" hidden>
+        <h2>Read only</h2>
+        <p class="warn" id="roNote"></p>
+      </div>
+
+      <div class="card" id="installCard" hidden>
+        <h2>Add to Home Screen</h2>
+        <div class="meter">
+          <p class="tiny" id="installNote"></p>
+          <button class="btn wide" id="install" hidden>Install</button>
+        </div>
+      </div>
+
+      <p class="footnote"><span id="fnMachines">0 machines</span>
+        <button class="linkish" id="reset">Clear progress</button></p>
+    </aside>
+  </main>
+</div>
+
+<script>
+(async function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const MIN = 60000;
+const range = (a, b) => Array.from({length:b - a + 1}, (_, i) => a + i);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ============ rules ============
+   A rule is a list of steps done in order; a step is an action and an amount.
+   The amount is a number, or SELF — "the number you put in". That one idea is
+   all an eight-year-old needs for squares: "times itself".
+
+   The same shape is used for the machine's secret and for the rule the player
+   builds out of tiles, so the two are compared by running them, never by how
+   they are spelled. */
+const SELF = "self";
+const OPS = {
+  add: {word:"add",       tile:"Add",       f:(v, a) => v + a},
+  sub: {word:"take away", tile:"Take away", f:(v, a) => v - a},
+  mul: {word:"times",     tile:"Times",     f:(v, a) => v * a}
+};
+const step = (op, n) => ({op, n});
+
+/* Run a rule. With `jam` on, a step that would go below zero jams the machine
+   and the answer is null: level 2 is take-away without negative numbers. */
+function run(rule, x, jam){
+  let v = x;
+  for(const s of rule){
+    v = OPS[s.op].f(v, s.n === SELF ? x : s.n);
+    if(jam && v < 0) return null;
+  }
+  return v;
+}
+function ruleKey(rule){ return rule.map(s => s.op + (s.n === SELF ? "S" : s.n)).join(","); }
+function parseKey(k){
+  return String(k).split(",").map(t => {
+    const op = t.slice(0, 3), r = t.slice(3);
+    if(!OPS[op]) throw new Error("bad rule " + k);
+    const n = r === "S" ? SELF : Number(r);
+    if(n !== SELF && !Number.isInteger(n)) throw new Error("bad rule " + k);
+    return {op, n};
+  });
+}
+const fmt = n => n === null ? "jam" : n < 0 ? "−" + (-n) : String(n);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function sentence(rule){
+  return rule.map((s, i) => {
+    const w = OPS[s.op].word + " " + (s.n === SELF ? "itself" : fmt(s.n));
+    return i ? w : cap(w);
+  }).join(", then ") + ".";
+}
+/* The fewest numbers that can pin a rule down: two for a straight-line rule,
+   three once something is times itself. Crack it in that many and the card
+   gets a gold gear. */
+const par = rule => rule.some(s => s.op === "mul" && s.n === SELF) ? 3 : 2;
+
+/* ============ the ladder ============
+   Seven levels, numbered and never described on screen: saying what kind of
+   rule a level holds would give the answer away. */
+const L1 = range(1, 10).map(k => [step("add", k)]);
+const L2 = range(1, 9).map(k => [step("sub", k)]);
+const L3 = range(1, 12).map(k => [step("sub", k)]);
+const L4 = range(2, 10).map(k => [step("mul", k)]);
+const L5 = range(2, 5).flatMap(a => range(1, 9).flatMap(b =>
+  [[step("mul", a), step("add", b)], [step("mul", a), step("sub", b)]]));
+const L6 = [[step("mul", SELF)], ...range(1, 5).flatMap(b =>
+  [[step("mul", SELF), step("add", b)], [step("mul", SELF), step("sub", b)]])];
+const FIRST = range(1, 9).flatMap(a => range(2, 5).flatMap(b =>
+  [[step("add", a), step("mul", b)], [step("sub", a), step("mul", b)]]));
+const LEVELS = [
+  {n:1, rules:L1, jam:false},
+  {n:2, rules:L2, jam:true},
+  {n:3, rules:L3, jam:false},
+  {n:4, rules:L4, jam:false},
+  {n:5, rules:L5, jam:false},
+  {n:6, rules:L6, jam:false},
+  {n:7, rules:[...L1, ...L3, ...L4, ...L5, ...L6, ...FIRST], jam:false}
+].map(l => ({...l, keys:l.rules.map(ruleKey)}));
+const UNLOCK = 3;            /* rules cracked in a level before the next opens */
+const CHECK_TO = 100;        /* the behaviour check runs every number 0..100 */
+const minusFrom = 3;         /* the pad grows a minus key from level 3 on */
+const lvl = n => LEVELS[n - 1];
+
+/* The verdict. Both rules are run on every number from 0 to 100. Every rule a
+   player can build here is a polynomial of degree three at most, and two of
+   those that agree on more than three numbers agree on all of them, so this is
+   a proof, not a sample. Returns null when they match, or the number to show
+   as a counter-example: the smallest one the player can feed in that is not
+   already on the tape, since a small number is the easiest one to check. */
+function compare(secret, guess, jam, tried, maxIn){
+  const bad = [];
+  for(let x = 0; x <= CHECK_TO; x++) if(run(secret, x, jam) !== run(guess, x, jam)) bad.push(x);
+  if(!bad.length) return null;
+  const seen = new Set(tried);
+  const fresh = bad.find(x => x <= maxIn && !seen.has(x));
+  if(fresh !== undefined) return fresh;
+  const inRange = bad.find(x => x <= maxIn);
+  return inRange !== undefined ? inRange : bad[0];
+}
+
+/* ============ storage ============ */
+const KEY = "hopper:state:v1";   /* namespaced: the origin is shared by every game */
+const STATE_V = 1;
+const MIGRATIONS = {};           /* v -> fn(blob) returning the v+1 shape */
+const PROVES = [{id:"build", label:"Build it"}, {id:"predict", label:"Predict"}];
+const MAXES = [{id:20, label:"Up to 20"}, {id:100, label:"Up to 100"}];
+const SOUNDS = [{id:true, label:"On"}, {id:false, label:"Off"}];
+const defaults = () => ({
+  v:STATE_V, level:1, open:1, prove:"build", maxIn:20, sound:true,
+  machines:0, met:{}, wall:{}, round:null
+});
+/* wall: "level|ruleKey" -> {level, rule, best, gold, times, first}
+   round: {level, key, no, tape:[{x, y, src}], cranks, wrong, hint, done}
+          y is null for a jam; src is "crank", "clue" (the machine's
+          counter-example) or "test" (a number it asked the player about). */
+let state = defaults();
+let readOnly = false, updateReady = false;
+let mode = "feed";              /* feed | build | predict | verdict */
+let buf = "";                   /* what is typed on the pad, not an <input> */
+let message = null;             /* {html, kind} for the band, or null for the default line */
+let builder = {steps:[{op:null, n:null}], active:0};
+let predict = null;             /* {x, buf, right, asked:[]} */
+let verdict = null;             /* what the verdict panel shows */
+let tapeView = "new";           /* new | order | gaps */
+let freshAt = -1;               /* tape index that just arrived, for its highlight */
+let lastKey = null;
+
+const store = (() => {
+  try{ if(window.storage && window.storage.getItem) return window.storage; }catch(e){}
+  try{ localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return localStorage; }catch(e){}
+  return null;
+})();
+function save(){
+  if(readOnly || !store) return;
+  try{ store.setItem(KEY, JSON.stringify(state)); }catch(e){ console.warn("save failed:", e); }
+}
+function loadRaw(){
+  if(!store) return null;
+  try{ const s = store.getItem(KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; }
+}
+function load(){
+  const blob = loadRaw();
+  if(!blob || typeof blob !== "object") return;
+  let v = blob.v || 1;
+  if(v > STATE_V){
+    /* Written by a newer build: play, but never write over fields we don't know. */
+    readOnly = true;
+    console.warn(`saved data is v${v}, this build speaks v${STATE_V} — running read-only`);
+  }
+  let b = blob, moved = false;
+  if(!readOnly){
+    while(v < STATE_V && MIGRATIONS[v]){ b = MIGRATIONS[v](b); v++; moved = true; }
+    b.v = STATE_V;
+  }
+  Object.assign(state, b);
+  state.v = readOnly ? blob.v : STATE_V;
+  /* Anything the code no longer knows must not wedge the game. */
+  state.open = Math.min(LEVELS.length, Math.max(1, state.open | 0));
+  state.level = Math.min(state.open, Math.max(1, state.level | 0));
+  if(!PROVES.some(p => p.id === state.prove)) state.prove = "build";
+  if(!MAXES.some(m => m.id === state.maxIn)) state.maxIn = 20;
+  state.sound = state.sound !== false;
+  if(!state.met || typeof state.met !== "object") state.met = {};
+  if(!state.wall || typeof state.wall !== "object") state.wall = {};
+  state.machines = state.machines | 0;
+  if(!validRound(state.round)) state.round = null;
+  if(moved) save();
+}
+function validRound(r){
+  if(!r || typeof r !== "object" || r.done) return false;
+  if(!lvl(r.level) || !lvl(r.level).keys.includes(r.key)) return false;
+  if(!Array.isArray(r.tape)) return false;
+  r.tape = r.tape.filter(t => t && Number.isInteger(t.x));
+  r.cranks = r.cranks | 0; r.wrong = r.wrong | 0; r.hint = Math.min(3, r.hint | 0);
+  return true;
+}
+
+/* ============ the round ============ */
+const secret = () => parseKey(state.round.key);
+const level = () => lvl(state.round.level);
+const tried = () => state.round.tape.map(t => t.x);
+const cardKey = (l, k) => l + "|" + k;
+const crackedIn = l => Object.values(state.wall).filter(c => c.level === l).length;
+
+function pickRule(n){
+  const L = lvl(n);
+  let met = (state.met[n] || []).filter(k => L.keys.includes(k));
+  let pool = L.keys.filter(k => !met.includes(k) && k !== lastKey);
+  if(!pool.length){ met = []; pool = L.keys.filter(k => k !== lastKey); }
+  const k = pool[Math.random() * pool.length | 0];
+  state.met[n] = [...met, k];
+  return k;
+}
+function newRound(n){
+  /* An unfinished rule goes back in the pool, so it comes round again. */
+  forgetUnfinished();
+  state.level = n;
+  state.machines++;
+  const key = pickRule(n);
+  lastKey = key;
+  state.round = {level:n, key, no:state.machines, tape:[], cranks:0, wrong:0, hint:0, done:false};
+  mode = "feed"; buf = ""; message = null; verdict = null; predict = null; freshAt = -1;
+  builder = {steps:[{op:null, n:null}], active:0};
+  tapeView = "new";
+  save(); paintAll(); setOut(null, true);
+  /* A new build is waiting: this is the round boundary, everything is saved
+     and the new machine has not been touched, so switch to it now, silently. */
+  if(updateReady){ try{ location.reload(); }catch(e){} }
+}
+function forgetUnfinished(){
+  const r = state.round;
+  if(!r || r.done) return;
+  const met = state.met[r.level];
+  if(met) state.met[r.level] = met.filter(k => k !== r.key);
+}
+
+/* Feed one number through. State is updated at once; the animation only
+   decorates it, so nothing depends on a timer. */
+function crank(x){
+  const r = state.round;
+  if(!r || r.done || mode !== "feed") return false;
+  if(!Number.isInteger(x) || x < 0 || x > state.maxIn) return false;
+  const y = run(secret(), x, level().jam);
+  r.tape.push({x, y, src:"crank"});
+  r.cranks++;
+  freshAt = r.tape.length - 1;
+  buf = "";
+  message = null;
+  save();
+  animateCrank(x, y);
+  sfx(y === null ? "jam" : "crank");
+  paintAll();
+  return true;
+}
+
+/* ---- proving it: building ---- */
+const complete = steps => steps.every(s => s.op && s.n !== null && s.n !== "");
+function guessRule(){
+  return complete(builder.steps) ? builder.steps.map(s => ({op:s.op, n:s.n === SELF ? SELF : Number(s.n)})) : null;
+}
+function checkGuess(guess){
+  const r = state.round;
+  if(!r || r.done) return null;
+  const bad = compare(secret(), guess, level().jam, tried(), state.maxIn);
+  if(bad === null){ crack(guess); return true; }
+  r.wrong++;
+  const mine = run(secret(), bad, level().jam), yours = run(guess, bad, level().jam);
+  const agree = [...new Set(tried())].filter(x => run(guess, x, level().jam) === run(secret(), x, level().jam)).slice(0, 3);
+  if(!r.tape.some(t => t.x === bad)){ r.tape.push({x:bad, y:mine, src:"clue"}); freshAt = r.tape.length - 1; }
+  const says = v => v === null ? `<span class="num no">jams</span>` : `makes <span class="num ${v === mine ? "out" : "no"}">${fmt(v)}</span>`;
+  const lead = agree.length
+    ? `Your rule works for ${listNums(agree)}! But try <span class="num in">${bad}</span>:`
+    : `Not this one. Try <span class="num in">${bad}</span>:`;
+  message = {kind:"nudge", html:`${lead} mine ${says(mine)}, yours ${says(yours)}.`};
+  mode = "feed";
+  save(); sfx("nope"); paintAll();
+  return false;
+}
+function listNums(xs){
+  const s = xs.map(x => `<span class="num in">${x}</span>`);
+  return s.length < 2 ? s.join("") : s.slice(0, -1).join(", ") + " and " + s.at(-1);
+}
+
+/* ---- proving it: predicting ---- */
+function startPredict(keep){
+  const r = state.round, jam = level().jam;
+  const asked = predict ? predict.asked : [];
+  const ok = x => run(secret(), x, jam) !== null;
+  const all = range(0, state.maxIn).filter(ok);
+  let pool = all.filter(x => !tried().includes(x) && !asked.includes(x));
+  if(!pool.length) pool = all.filter(x => !asked.includes(x));
+  if(!pool.length) pool = all;
+  const x = pool[Math.random() * pool.length | 0];
+  predict = {x, buf:"", neg:false, right:predict ? predict.right : 0, asked:[...asked, x]};
+  mode = "predict"; if(!keep) message = null;
+  if(!r.done) paintAll();
+}
+function answerPredict(val){
+  const r = state.round;
+  if(!predict || r.done) return null;
+  const x = predict.x, actual = run(secret(), x, level().jam);
+  r.tape.push({x, y:actual, src:"test"}); freshAt = r.tape.length - 1;
+  if(val === actual){
+    predict.right++;
+    if(predict.right >= 3){ predict = null; crack(null); return true; }
+    sfx("ding");
+    message = {kind:"good", html:`Yes! <span class="num in">${x}</span> makes <span class="num out">${fmt(actual)}</span>. ${3 - predict.right === 1 ? "One more." : "Two more."}`};
+    save(); startPredict(true);
+    return true;
+  }
+  r.wrong++;
+  predict = null; mode = "feed";
+  message = {kind:"nudge", html:`Not quite: <span class="num in">${x}</span> makes <span class="num out">${fmt(actual)}</span>, not <span class="num no">${fmt(val)}</span>. Keep cranking, and try again when you're ready.`};
+  save(); sfx("nope"); paintAll();
+  return false;
+}
+
+/* ---- the end of a round ---- */
+function crack(guess){
+  const r = state.round, s = secret();
+  r.done = true;
+  const k = cardKey(r.level, r.key);
+  const before = state.wall[k];
+  const gold = r.cranks <= par(s) && r.wrong === 0;
+  const card = before
+    ? {...before, best:Math.min(before.best, r.cranks), gold:before.gold || gold, times:(before.times | 0) + 1}
+    : {level:r.level, rule:r.key, best:r.cranks, gold, times:1, first:Date.now()};
+  state.wall[k] = card;
+  let opened = 0;
+  if(r.level === state.open && state.open < LEVELS.length && crackedIn(r.level) >= UNLOCK){
+    state.open++; opened = state.open;
+  }
+  const spelled = guess && ruleKey(guess) !== r.key ? guess : null;
+  verdict = {kind:"cracked", rule:r.key, spelled, cranks:r.cranks, gold, newCard:!before,
+             record:!!before && r.cranks < before.best, firstGold:gold && !(before && before.gold), opened};
+  mode = "verdict"; message = null;
+  save(); sfx("cracked"); paintAll();
+}
+function showMe(){
+  const r = state.round;
+  if(!r || r.done) return;
+  forgetUnfinished();
+  r.done = true;
+  verdict = {kind:"shown", rule:r.key};
+  mode = "verdict"; message = null;
+  save(); paintAll();
+}
+
+/* ---- hints: how to hunt for a rule, never what it is ---- */
+function hintText(n){
+  const t = new Set(tried()), max = state.maxIn;
+  if(n === 1){
+    if(!t.has(0)) return `Try <span class="num in">0</span>. Zero shows what the machine adds on its own.`;
+    if(!t.has(1)) return `Try <span class="num in">1</span>. It's the next best number after zero.`;
+    const free = range(0, max).find(x => !t.has(x));
+    return free === undefined ? `You've tried every number! Look closely at the tape.` :
+      `Try <span class="num in">${free}</span>, the smallest number you haven't fed it yet.`;
+  }
+  if(n === 2){
+    const xs = [...t].sort((a, b) => a - b);
+    const pair = xs.find(x => t.has(x + 1));
+    if(pair !== undefined) return `Look at <span class="num in">${pair}</span> and <span class="num in">${pair + 1}</span>, next to each other. How far apart are the numbers that came out? That's the times part.`;
+    const x = xs.find(x => x + 1 <= max);
+    const a = x === undefined ? 3 : x;
+    return `Try two numbers next to each other, like <span class="num in">${a}</span> and <span class="num in">${a + 1}</span>. How far apart are the numbers that come out? That's the times part.`;
+  }
+  return `Look at the gaps on the tape, between numbers next to each other. If the gap stays the same, it tells you the times part (a gap of 1 means no times at all). If the gap keeps growing, the number is being multiplied by itself.`;
+}
+function hint(){
+  const r = state.round;
+  if(!r || r.done) return;
+  r.hint = Math.min(3, r.hint + 1);
+  if(r.hint >= 3) tapeView = "gaps";
+  message = {kind:"hint", html:hintText(r.hint)};
+  save(); paintAll();
+}
+
+/* ============ painting ============ */
+function paintAll(){ paintTally(); paintHead(); paintTape(); paintBand(); paintControls(); paintRail(); }
+
+function paintTally(){
+  $("#tLevel").textContent = state.round ? state.round.level : state.level;
+  $("#tCracked").textContent = Object.keys(state.wall).length;
+  $("#tGold").textContent = Object.values(state.wall).filter(c => c.gold).length;
+}
+function paintHead(){
+  const r = state.round;
+  if(!r) return;
+  $("#machineNo").textContent = `Machine No. ${r.no} · Level ${r.level}`;
+  $("#plateNo").textContent = r.no;
+  $("#crankTag").textContent = r.cranks === 1 ? "1 crank" : `${r.cranks} cranks`;
+  paintIn();
+}
+function paintIn(){
+  const el = $("#inNum");
+  if(el.classList.contains("drop")) return;
+  el.innerHTML = mode === "feed" && !state.round.done
+    ? (buf ? esc(buf) : `<span class="ph">?</span>`) + `<span class="caret"></span>`
+    : `<span class="ph">·</span>`;
+}
+
+function paintTape(){
+  const r = state.round, body = $("#tapeBody");
+  const seg = $("#tapeSeg");
+  seg.innerHTML = [["new", "Newest"], ["order", "In order"], ["gaps", "Gaps"]].map(([id, l]) =>
+    `<button data-v="${id}" class="${tapeView === id ? "sel" : ""}">${l}</button>`).join("");
+  if(!r) return;
+  const yours = mode === "build" && !!guessRule();
+  $("#tape").classList.toggle("with-yours", yours);
+  if(!r.tape.length){
+    body.innerHTML = `<div class="tape-empty">Every number you feed in is written down here, with what came out.</div>`;
+    return;
+  }
+  let rows = r.tape.map((t, i) => ({...t, i}));
+  if(tapeView === "new") rows.reverse();
+  else {
+    const seen = new Map();
+    for(const t of rows) if(!seen.has(t.x)) seen.set(t.x, t);
+    rows = [...seen.values()].sort((a, b) => a.x - b.x);
+  }
+  const jam = level().jam;
+  const row = t => {
+    const g = yours ? run(guessRule(), t.x, jam) : undefined;
+    const tag = t.src === "clue" ? `<span class="src">clue</span>` : t.src === "test" ? `<span class="src">asked</span>` : "";
+    return `<div class="trow${t.i === freshAt ? " fresh" : ""}"><span class="x">${t.x}</span><span class="arr">→</span>`
+      + `<span class="y${t.y === null ? " jam" : ""}">${t.y === null ? "JAM" : fmt(t.y)}${tag}</span>`
+      + (yours ? `<span class="yo ${g === t.y ? "same" : "diff"}">${g === null ? "jam" : fmt(g)}</span>` : "")
+      + `</div>`;
+  };
+  let html = `<div class="trow cols"><span class="x">in</span><span></span><span>out</span>${yours ? `<span class="yo">yours</span>` : ""}</div>`;
+  rows.forEach((t, j) => {
+    const prev = rows[j - 1];
+    if(tapeView === "gaps" && prev && t.x === prev.x + 1 && t.y !== null && prev.y !== null){
+      const d = t.y - prev.y;
+      html += `<div class="gap"><span></span><span></span><span>${d >= 0 ? "+" + d : "−" + (-d)}</span>${yours ? "<span></span>" : ""}</div>`;
+    }
+    html += row(t);
+  });
+  body.innerHTML = html;
+  if(tapeView === "new") body.scrollTop = 0;
+}
+
+function paintBand(){
+  const band = $("#band"), r = state.round;
+  band.className = "band" + (message ? " " + message.kind : "");
+  const put = html => band.innerHTML = `<span>${html}</span>`;
+  if(message){ put(message.html); return; }
+  if(!r) return;
+  if(mode === "build") put(`Show the machine how it works. Pick what it does, then how much.`);
+  else if(mode === "predict") put(`Prove it! Say what comes out, three in a row.`);
+  else if(mode === "verdict") put(verdict.kind === "cracked" ? `You worked it out.` : `Here's what it was doing.`);
+  else if(!r.cranks) put(`The machine has a secret rule. Type a number from <b>0</b> to <b>${state.maxIn}</b>, then turn the crank.`);
+  else if(r.cranks < 2) put(`Feed it more numbers. When you think you know the rule, tap <b>I think I know</b>.`);
+  else put(`Keep going, or tap <b>I think I know</b>.`);
+}
+
+function padMarkup(goLabel, goOn, extra){
+  const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => `<button class="padk" data-k="${k}">${k}</button>`).join("");
+  return `<div class="pad">${keys}${extra || `<button class="padk small" data-k="del" aria-label="Delete">⌫</button>`}`
+    + `<button class="padk" data-k="0">0</button>`
+    + (goLabel ? `<button class="padk go" data-k="go"${goOn ? "" : " disabled"}>${goLabel}</button>` : `<button class="padk small" data-k="clr">Clear</button>`)
+    + `</div>`;
+}
+
+function paintControls(){
+  const c = $("#controls"), r = state.round;
+  if(!r) return;
+  if(mode === "feed"){
+    c.innerHTML = padMarkup("Crank", buf !== "")
+      + `<div class="foot"><div class="grp"><button class="btn" id="hintBtn"${r.hint >= 3 ? " disabled" : ""}>Hint${r.hint ? ` ${r.hint}/3` : ""}</button>`
+      + `<button class="linkish" id="showMe">Show me the rule</button></div>`
+      + `<button class="btn solid big" id="know"${r.cranks ? "" : " disabled"}>I think I know</button></div>`;
+  } else if(mode === "build"){
+    c.innerHTML = builderMarkup() + padMarkup(null, false)
+      + `<div class="foot"><button class="btn" id="backBtn">Back to cranking</button>`
+      + `<button class="btn solid big" id="checkBtn"${guessRule() ? "" : " disabled"}>Check my rule</button></div>`;
+  } else if(mode === "predict"){
+    const p = predict;
+    const minus = r.level >= minusFrom ? `<button class="padk small" data-k="neg" aria-label="Minus">−</button>` : null;
+    c.innerHTML = `<div class="ask"><div><div class="q">What will <span class="in">${p.x}</span> make?</div>`
+      + `<div class="pips" style="margin-top:8px">${[0, 1, 2].map(i => `<span class="pip${i < p.right ? " on" : ""}"></span>`).join("")}</div></div>`
+      + `<div class="ans">${p.buf ? (p.neg ? "−" : "") + esc(p.buf) : `<span class="ph">?</span>`}</div></div>`
+      + padMarkup("That's it", p.buf !== "", minus)
+      + `<div class="foot"><button class="btn" id="backBtn">Back to cranking</button><span></span></div>`;
+  } else {
+    c.innerHTML = verdictMarkup();
+  }
+}
+
+function builderMarkup(){
+  const st = builder.steps;
+  const stepHtml = (s, i) => {
+    const acts = Object.keys(OPS).map(op => `<button class="act${s.op === op ? " sel" : ""}" data-op="${op}" data-i="${i}">${OPS[op].tile}</button>`).join("");
+    const isSelf = s.n === SELF;
+    const slot = `<button class="slot${builder.active === i && !isSelf ? " sel" : ""}" data-slot="${i}" aria-label="How much">${s.n !== null && s.n !== "" && !isSelf ? esc(s.n) : `<span class="ph">?</span>`}</button>`;
+    return `<div class="step${builder.active === i ? " on" : ""}" data-step="${i}">`
+      + `<span class="stepno">${i ? "Then" : "First"}</span><div class="acts">${acts}</div>`
+      + `<div class="amt">${slot}<span class="or">or</span><button class="self${isSelf ? " sel" : ""}" data-self="${i}">itself</button></div>`
+      + (i ? `<button class="drop2" data-drop="${i}" aria-label="Remove this step">×</button>` : "")
+      + `</div>`;
+  };
+  const g = guessRule();
+  return `<div class="builder"><div class="steps">${st.map(stepHtml).join("")}</div>`
+    + (st.length < 2 ? `<button class="btn addstep" id="addStep">+ Then another step</button>` : "")
+    + `<p class="readback">${g ? esc(sentence(g)) : `<span class="ph">Your rule will be read out here.</span>`}</p></div>`;
+}
+
+function gearIcon(size, on){
+  return `<svg width="${size}" height="${size}" viewBox="-12 -12 24 24" aria-hidden="true"><path d="${gearPath(0, 0, 10, 8)}" fill="${on ? "#FFB612" : "none"}" stroke="${on ? "#8A5A00" : "rgba(230,238,245,.35)"}" stroke-width="1.4"/><circle r="3" fill="${on ? "#123a5c" : "none"}" stroke="${on ? "#8A5A00" : "rgba(230,238,245,.35)"}" stroke-width="1.2"/></svg>`;
+}
+
+function verdictMarkup(){
+  const v = verdict;
+  const rule = parseKey(v.rule);
+  if(v.kind === "shown"){
+    return `<div class="verdict"><span class="stamp shown">Revealed</span>`
+      + `<p class="was"><small>The machine's rule was</small>${esc(sentence(rule))}</p>`
+      + `<ul class="facts"><li>No card this time. This machine will come back another day.</li></ul></div>`
+      + `<div class="foot"><span></span><button class="btn solid big" id="nextBtn">Next machine</button></div>`;
+  }
+  const facts = [];
+  if(v.spelled) facts.push(`Your rule, <b>${esc(sentence(v.spelled).slice(0, -1).toLowerCase())}</b>, does exactly the same thing.`);
+  facts.push(`Cracked in <b>${v.cranks} ${v.cranks === 1 ? "crank" : "cranks"}</b>.`);
+  if(v.gold) facts.push(`<span class="g">Gold gear!</span> You used just enough clues${v.firstGold ? "" : " again"}.`);
+  if(v.newCard) facts.push(`A new blueprint for the workshop.`);
+  else if(v.record) facts.push(`A new record for this rule.`);
+  if(v.opened) facts.push(`<span class="u">Level ${v.opened} is open!</span>`);
+  return `<div class="verdict"><span class="stamp">Cracked</span>`
+    + `<p class="was"><small>The machine's rule was</small>${esc(sentence(rule))}</p>`
+    + `<ul class="facts">${facts.map(f => `<li>${f}</li>`).join("")}</ul></div>`
+    + `<div class="foot"><span>${v.opened ? `<button class="btn" id="goLevel" data-l="${v.opened}">Try level ${v.opened}</button>` : ""}</span>`
+    + `<button class="btn solid big" id="nextBtn">Next machine</button></div>`;
+}
+
+function paintRail(){
+  /* the wall, grouped by level, newest level first */
+  const cards = Object.values(state.wall);
+  $("#wallCount").textContent = cards.length;
+  if(!cards.length){
+    $("#wall").innerHTML = `<p class="empty">Crack a machine's rule and its blueprint goes up here.</p>`;
+  } else {
+    let html = "";
+    for(let l = LEVELS.length; l >= 1; l--){
+      const here = cards.filter(c => c.level === l).sort((a, b) => b.first - a.first);
+      if(!here.length) continue;
+      html += `<div class="wlevel"><span>Level ${l}</span><span>${here.length} cracked</span></div>`;
+      html += here.map(c => {
+        let rule; try{ rule = parseKey(c.rule); }catch(e){ return ""; }
+        return `<div class="blue">${gearIcon(26, c.gold)}<div class="rule">${esc(sentence(rule))}`
+          + `<small>Best: ${c.best} ${c.best === 1 ? "crank" : "cranks"}${c.times > 1 ? ` · cracked ${c.times} times` : ""}</small></div></div>`;
+      }).join("");
+    }
+    $("#wall").innerHTML = html;
+  }
+  $("#levelSeg").innerHTML = LEVELS.map(l => {
+    const locked = l.n > state.open, cur = state.round && state.round.level === l.n;
+    return `<button class="segb${cur ? " sel" : ""}" data-l="${l.n}"${locked ? ` disabled aria-label="Level ${l.n}, locked"` : ` aria-label="Level ${l.n}"`}>${locked ? "·" : l.n}</button>`;
+  }).join("");
+  const seg = (id, opts, cur) => $(id).innerHTML = opts.map(o =>
+    `<button class="segb${o.id === cur ? " sel" : ""}" data-v="${o.id}">${o.label}</button>`).join("");
+  seg("#proveSeg", PROVES, state.prove);
+  seg("#maxSeg", MAXES, state.maxIn);
+  seg("#soundSeg", SOUNDS, state.sound);
+  $("#fnMachines").textContent = state.machines === 1 ? "1 machine" : `${state.machines} machines`;
+}
+
+/* ============ the machine's moving parts ============ */
+function gearPath(cx, cy, r, teeth){
+  const ri = r * 0.78, pts = [];
+  for(let i = 0; i < teeth; i++){
+    const a = i / teeth * Math.PI * 2, w = Math.PI / teeth;
+    for(const [ang, rad] of [[a - w * .55, ri], [a - w * .3, r], [a + w * .3, r], [a + w * .55, ri]])
+      pts.push((cx + rad * Math.cos(ang)).toFixed(2) + "," + (cy + rad * Math.sin(ang)).toFixed(2));
+  }
+  return "M" + pts.join("L") + "Z";
+}
+function drawGears(){
+  const g = (id, cx, cy, r, t) => {
+    $(id).innerHTML = `<path d="${gearPath(cx, cy, r, t)}" fill="#FFB612" stroke="#0B1E2D" stroke-width="2" stroke-linejoin="round"/>`
+      + `<circle cx="${cx}" cy="${cy}" r="${r * .42}" fill="#FFFFFF" stroke="#0B1E2D" stroke-width="2"/>`
+      + `<circle cx="${cx}" cy="${cy}" r="${r * .12}" fill="#0B1E2D"/>`;
+  };
+  g("#gearA", 100, 122, 32, 11);
+  g("#gearB", 154, 138, 21, 8);
+}
+let animTimer = null;
+function restart(el, cls){ el.classList.remove(cls); void el.getBoundingClientRect(); el.classList.add(cls); }
+function animateCrank(x, y){
+  const m = $("#machine"), inEl = $("#inNum");
+  clearTimeout(animTimer);
+  m.classList.remove("jam");
+  restart(m, "run");
+  if(y === null) restart(m, "jam");
+  inEl.innerHTML = String(x);
+  restart(inEl, "drop");
+  setOut(y, false);
+  $("#lamp").setAttribute("fill", "#E7ECE8");
+  setTimeout(() => $("#lamp").setAttribute("fill", y === null ? "#C8102E" : "#007A33"), reduced() ? 0 : 600);
+  animTimer = setTimeout(() => {
+    m.classList.remove("run"); inEl.classList.remove("drop"); paintIn();
+  }, reduced() ? 0 : 900);
+}
+function setOut(y, blank){
+  const o = $("#outNum");
+  o.classList.remove("pop", "jammed");
+  if(blank){ o.textContent = ""; $("#lamp").setAttribute("fill", "#E7ECE8"); return; }
+  o.textContent = y === null ? "JAM" : fmt(y);
+  if(y === null) o.classList.add("jammed");
+  restart(o, "pop");
+}
+const reduced = () => { try{ return matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){ return false; } };
+
+/* ---- sound: made in code, no files to fetch or cache ---- */
+let actx = null;
+function audio(){
+  if(!state.sound) return null;
+  try{
+    if(!actx){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; actx = new C(); }
+    if(actx.state === "suspended") actx.resume();
+    return actx;
+  }catch(e){ return null; }
+}
+function tone(a, f, dur, {type = "sine", vol = .12, at = 0, to = null} = {}){
+  const t = a.currentTime + at, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if(to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + .015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .02);
+}
+function thud(a, at, vol){
+  const len = a.sampleRate * .09 | 0, b = a.createBuffer(1, len, a.sampleRate), d = b.getChannelData(0);
+  for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = b; f.type = "lowpass"; f.frequency.value = 700; g.gain.value = vol;
+  s.connect(f).connect(g).connect(a.destination); s.start(a.currentTime + at);
+}
+function sfx(kind){
+  const a = audio(); if(!a) return;
+  try{
+    if(kind === "crank"){ tone(a, 70, .55, {type:"sawtooth", vol:.04, to:150}); thud(a, .56, .5); tone(a, 660, .22, {at:.6, vol:.07}); }
+    else if(kind === "jam"){ tone(a, 70, .45, {type:"sawtooth", vol:.04, to:110}); thud(a, .5, .9); tone(a, 92, .3, {type:"square", at:.52, vol:.05}); }
+    else if(kind === "ding"){ tone(a, 880, .45, {vol:.12}); tone(a, 1320, .35, {at:.07, vol:.07}); }
+    else if(kind === "nope"){ tone(a, 330, .3, {vol:.08, to:240}); }
+    else if(kind === "cracked"){ [523, 659, 784, 1047].forEach((f, i) => tone(a, f, .4, {at:i * .1, vol:.11})); }
+  }catch(e){}
+}
+
+/* ============ input ============ */
+function flash(k){ const el = document.querySelector(`.padk[data-k="${k}"]`); if(el) restart(el, "flash"); }
+function feedKey(k){
+  if(k === "go"){ if(buf !== "") crank(Number(buf)); return; }
+  if(k === "del"){ buf = buf.slice(0, -1); paintIn(); paintControls(); return; }
+  const next = buf === "0" ? k : buf + k;
+  if(Number(next) > state.maxIn){ flash(k); return; }
+  buf = next; paintIn(); paintControls();
+}
+function buildKey(k){
+  const s = builder.steps[builder.active];
+  if(!s) return;
+  let cur = s.n === SELF || s.n === null ? "" : String(s.n);
+  if(k === "del") cur = cur.slice(0, -1);
+  else if(k === "clr") cur = "";
+  else { cur = cur === "0" ? k : cur + k; if(cur.length > 2){ flash(k); return; } }
+  s.n = cur === "" ? null : cur;
+  paintControls(); paintTape();
+}
+function predictKey(k){
+  const p = predict;
+  if(k === "go"){ if(p.buf !== "") answerPredict((p.neg ? -1 : 1) * Number(p.buf)); return; }
+  if(k === "neg"){ p.neg = !p.neg; paintControls(); return; }
+  if(k === "del"){ p.buf = p.buf.slice(0, -1); if(!p.buf) p.neg = false; paintControls(); return; }
+  const next = p.buf === "0" ? k : p.buf + k;
+  if(next.length > 7){ flash(k); return; }
+  p.buf = next; paintControls();
+}
+function padKey(k){
+  if(mode === "feed") feedKey(k);
+  else if(mode === "build") buildKey(k);
+  else if(mode === "predict") predictKey(k);
+}
+function iThinkIKnow(){
+  const r = state.round;
+  if(!r || r.done || !r.cranks) return;
+  message = null;
+  if(state.prove === "predict"){ predict = null; startPredict(); return; }
+  mode = "build"; paintAll();
+}
+
+$("#controls").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if(!b || b.disabled) return;
+  audio();      /* iOS only lets sound start inside a tap */
+  if(b.dataset.k){ padKey(b.dataset.k); return; }
+  if(b.id === "know") return iThinkIKnow();
+  if(b.id === "hintBtn") return hint();
+  if(b.id === "showMe"){
+    /* two taps, no dialog: a stray tap should not throw a machine away */
+    if(b.classList.contains("armed")) return showMe();
+    b.classList.add("armed"); b.textContent = "Sure? Tap again";
+    setTimeout(() => { if(b.isConnected){ b.classList.remove("armed"); b.textContent = "Show me the rule"; } }, 3500);
+    return;
+  }
+  if(b.id === "backBtn"){ mode = "feed"; predict = null; message = null; paintAll(); return; }
+  if(b.id === "checkBtn"){ const g = guessRule(); if(g) checkGuess(g); return; }
+  if(b.id === "addStep"){ builder.steps.push({op:null, n:null}); builder.active = builder.steps.length - 1; paintControls(); paintTape(); return; }
+  if(b.id === "nextBtn") return newRound(state.level);
+  if(b.id === "goLevel") return newRound(Number(b.dataset.l));
+  if(b.dataset.op){ const i = +b.dataset.i; builder.steps[i].op = b.dataset.op; builder.active = i; paintControls(); paintTape(); return; }
+  if(b.dataset.slot !== undefined){ const i = +b.dataset.slot; builder.active = i; if(builder.steps[i].n === SELF) builder.steps[i].n = null; paintControls(); paintTape(); return; }
+  if(b.dataset.self !== undefined){ const i = +b.dataset.self; builder.steps[i].n = SELF; builder.active = i; paintControls(); paintTape(); return; }
+  if(b.dataset.drop !== undefined){ builder.steps.splice(+b.dataset.drop, 1); builder.active = 0; paintControls(); paintTape(); return; }
+});
+$("#machine").addEventListener("click", () => { audio(); if(mode === "feed" && buf !== "") crank(Number(buf)); });
+$("#tapeSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  tapeView = b.dataset.v; paintTape();
+});
+$("#levelSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b || b.disabled) return;
+  const n = Number(b.dataset.l);
+  if(state.round && state.round.level === n && !state.round.done) return;
+  newRound(n);
+});
+function setSetting(key, v){
+  state[key] = v;
+  if(key === "maxIn" && Number(buf) > v) buf = "";
+  if(key === "prove" && (mode === "build" || mode === "predict")){ mode = "feed"; predict = null; }
+  save(); paintAll();
+}
+$("#proveSeg").addEventListener("click", e => { const b = e.target.closest("button"); if(b) setSetting("prove", b.dataset.v); });
+$("#maxSeg").addEventListener("click", e => { const b = e.target.closest("button"); if(b) setSetting("maxIn", Number(b.dataset.v)); });
+$("#soundSeg").addEventListener("click", e => { const b = e.target.closest("button"); if(b) setSetting("sound", b.dataset.v === "true"); });
+
+document.addEventListener("keydown", e => {
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if(mode === "verdict"){ if(k === "Enter"){ e.preventDefault(); newRound(state.level); } return; }
+  if(k >= "0" && k <= "9"){ padKey(k); return; }
+  if(k === "Backspace"){ e.preventDefault(); padKey("del"); return; }
+  if(k === "-" && mode === "predict" && state.round.level >= minusFrom){ padKey("neg"); return; }
+  if(k === "Enter"){
+    e.preventDefault();
+    if(mode === "feed") padKey("go");
+    else if(mode === "predict") padKey("go");
+    else if(mode === "build"){ const g = guessRule(); if(g) checkGuess(g); }
+  }
+});
+
+$("#reset").addEventListener("click", () => {
+  if(!confirm("Clear all progress? Every blueprint, record and opened level.")) return;
+  /* settings stay: clearing progress should not also change how the game plays */
+  state = Object.assign(defaults(), {prove:state.prove, maxIn:state.maxIn, sound:state.sound});
+  lastKey = null;
+  save(); newRound(1);
+});
+
+/* ============ boot ============ */
+drawGears();
+load();
+if(readOnly){
+  $("#roCard").hidden = false;
+  $("#roNote").textContent = "This device has progress saved by a newer version of "
+    + "Hopper. You can play, but nothing will be saved until this copy updates.";
+}
+if(state.round){
+  lastKey = state.round.key;
+  const t = state.round.tape, last = t.at(-1);
+  paintAll();
+  if(last) setOut(last.y, false); else setOut(null, true);
+} else newRound(state.level);
+
+const bar = () => document.body.classList.toggle("is-offline", !navigator.onLine);
+window.addEventListener("online", bar); window.addEventListener("offline", bar); bar();
+
+/* ---- install hint ---- */
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault(); deferredPrompt = e;
+  $("#installCard").hidden = false;
+  $("#installNote").textContent = "Install Hopper so it opens full screen and works offline.";
+  const b = $("#install"); b.hidden = false;
+  b.addEventListener("click", async () => {
+    b.hidden = true;
+    try{ deferredPrompt.prompt(); await deferredPrompt.userChoice; }catch(err){}
+    deferredPrompt = null;
+  });
+});
+(function maybeShowIOSInstall(){
+ try{
+  const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+    || window.navigator.standalone === true;
+  if(standalone) return;
+  const touch = navigator.maxTouchPoints > 1;
+  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && touch);
+  if(!iOS) return;
+  const iPad = touch && (navigator.platform === "MacIntel" || /iPad/.test(navigator.userAgent))
+    && Math.min(screen.width, screen.height) >= 744;
+  $("#installCard").hidden = false;
+  $("#installNote").innerHTML = "In <b>Safari</b>, tap <span class=\"share\"></span> Share "
+    + (iPad ? "in the top toolbar" : "in the bottom bar")
+    + " → <b>Add to Home Screen</b>. It then opens full screen and plays with no network.";
+ }catch(e){ console.warn("install hint skipped:", e); }
+})();
+
+/* ---- update delivery ----
+   Cache-first shell, and iOS freezes rather than relaunches a home-screen app,
+   so check for a new worker when the app comes back, and switch to it at the
+   next round boundary (newRound), where everything is saved. */
+if("serviceWorker" in navigator){
+  try{
+    const reg = await navigator.serviceWorker.register("sw.js", {updateViaCache:"none"});
+    reg.addEventListener("updatefound", () => {
+      const sw = reg.installing;
+      if(!sw) return;
+      sw.addEventListener("statechange", () => {
+        if(sw.state === "installed" && navigator.serviceWorker.controller) updateReady = true;
+      });
+    });
+    let lastCheck = 0;
+    const maybeCheck = () => {
+      if(document.visibilityState !== "visible") return;
+      if(Date.now() - lastCheck < 15 * MIN) return;
+      lastCheck = Date.now();
+      reg.update().catch(() => {});
+    };
+    document.addEventListener("visibilitychange", maybeCheck);
+    window.addEventListener("pageshow", maybeCheck);
+    maybeCheck();
+  }
+  catch(e){ console.warn("Service worker didn't register:", e); }
+}
+})();
+</script>
+</body>
+</html>

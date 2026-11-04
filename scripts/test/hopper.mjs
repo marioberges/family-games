@@ -1,0 +1,197 @@
+import { boot, ok, eq, report } from "./harness.mjs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+const GAMES = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "games");
+const FILE = path.join(GAMES, "hopper", "index.html");
+const KEY = "hopper:state:v1";
+
+/* ---- boot ---- */
+let g = boot(FILE);
+ok(g.errors.length === 0, "boots without error: " + g.errors.join(" | "));
+ok(!!g.$("#machine") && !!g.$("#tapeBody") && !!g.$(".pad"), "machine, tape and pad rendered");
+ok(g.ev("!!state.round && state.round.level === 1"), "a level-1 machine is waiting");
+ok(!/\b(add|take away|times|itself)\b/i.test(["#levelSeg", ".plate-head", ".tally", "#wall", "#band"].map(s => g.$(s).textContent).join(" ")),
+   "nothing on screen says what kind of rule a level holds");
+
+/* ---- the ladder ---- */
+eq(g.ev("LEVELS.map(l => l.rules.length)"), [10, 9, 12, 9, 72, 11, 186], "rules per level");
+eq(g.ev("LEVELS.filter(l => new Set(l.keys).size !== l.keys.length).length"), 0, "no rule twice in a level");
+eq(g.ev(`LEVELS.flatMap(l => l.rules).filter(r => r.some(s =>
+   (s.op === "add" || s.op === "sub") && s.n === 0 || s.op === "mul" && (s.n === 0 || s.n === 1))).length`),
+   0, "no dull rules: never add 0, take away 0, times 0 or times 1");
+eq(g.ev("LEVELS.map(l => l.jam)"), [false, true, false, false, false, false, false], "only level 2 jams");
+
+/* ---- running rules ---- */
+eq(g.ev(`run(parseKey("mul2,add1"), 10, false)`), 21, "times 2 then add 1: 10 makes 21 (today's game)");
+eq(g.ev(`run(parseKey("mulS,add1"), 8, false)`), 65, "times itself then add 1: 8 makes 65 (today's game)");
+eq(g.ev(`run(parseKey("sub3"), 2, true)`), null, "take away 3 jams on 2 in level 2");
+eq(g.ev(`run(parseKey("sub5"), 2, false)`), -3, "take away 5 makes -3 from 2 once negatives are in");
+eq(g.ev(`LEVELS[1].rules.flatMap(r => Array.from({length:101}, (_, x) => run(r, x, true))).filter(y => y !== null && y < 0).length`),
+   0, "a jamming machine never puts out a negative number");
+eq(g.ev(`fmt(-3)`), "−3", "negatives print with a real minus sign");
+eq(g.ev(`sentence(parseKey("mul2,add1"))`), "Times 2, then add 1.", "a rule reads back as a sentence");
+eq(g.ev(`sentence(parseKey("mulS"))`), "Times itself.", "the square is 'times itself'");
+eq(g.ev(`LEVELS.flatMap(l => l.keys).filter(k => ruleKey(parseKey(k)) !== k).length`), 0, "rule keys round-trip");
+
+/* ---- the behaviour check ---- */
+eq(g.ev(`compare(parseKey("mul2"), parseKey("addS"), false, [3], 20)`), null, "'add itself' is accepted for times 2");
+eq(g.ev(`compare(parseKey("mulS,add1"), parseKey("mulS,add1"), false, [], 20)`),
+   null, "a rule matches itself");
+eq(g.ev(`compare(parseKey("mul2"), parseKey("add2"), false, [2], 20)`), 0,
+   "'add 2' is refused for times 2 after only 2 → 4, and the counter-example is 0");
+eq(g.ev(`compare(parseKey("mul2"), parseKey("add2"), false, [0, 1, 2], 20)`), 3,
+   "the counter-example is the smallest untried number where they differ");
+ok(g.ev(`compare(parseKey("add1,mul2"), parseKey("mul2,add1"), false, [], 20) !== null`), "order matters: add then times is not times then add");
+eq(g.ev(`compare(parseKey("sub3"), parseKey("add1,sub4"), true, [], 20)`), null, "jams are compared too: add 1 take away 4 jams exactly where take away 3 does");
+eq(g.ev(`compare(parseKey("sub3"), parseKey("sub4,add1"), true, [], 20)`), 3, "...but take away 4 then add 1 jams on 3, where take away 3 does not");
+/* a cubic built from tiles can't sneak past: agree on 0, 1, 2 but not 3 */
+ok(g.ev(`compare(parseKey("mulS"), parseKey("mulS,mulS"), false, [0, 1], 20) !== null`), "x² vs x³ are told apart");
+
+/* ---- a round, through the real buttons ---- */
+g.ev(`state.round.key = "add4"; state.round.tape = []; state.round.cranks = 0; paintAll()`);
+ok(g.$("#know").disabled, "can't guess before the first crank");
+g.click('.padk[data-k="3"]');
+eq(g.$("#inNum").textContent.replace(/\D/g, ""), "3", "the pad types into the machine's In window");
+g.click('.padk[data-k="go"]');
+eq(g.ev("state.round.tape"), [{x:3, y:7, src:"crank"}], "3 goes in, 7 comes out, and the tape has it");
+eq(g.ev("state.round.cranks"), 1, "one crank counted");
+ok(/3/.test(g.$("#tapeBody").textContent) && /7/.test(g.$("#tapeBody").textContent), "the tape shows 3 → 7");
+g.click('.padk[data-k="2"]'); g.click('.padk[data-k="5"]');
+eq(g.ev("buf"), "2", "can't type past the biggest number (20)");
+g.click('.padk[data-k="del"]');
+eq(g.ev("crank(25)"), false, "the machine refuses a number over the limit");
+
+/* a wrong guess that fits the tape: 3 → 7 is also "times 2, then add 1" */
+g.click("#know");
+eq(g.ev("mode"), "build", "I think I know opens the builder");
+ok(g.$("#checkBtn").disabled, "can't check a rule that isn't finished");
+g.click('.act[data-op="mul"][data-i="0"]');
+g.click('.padk[data-k="2"]');
+g.click("#addStep");
+g.click('.act[data-op="add"][data-i="1"]');
+g.click('.padk[data-k="1"]');
+ok(g.$("#tape").classList.contains("with-yours"), "the tape grows a 'yours' column while building");
+eq(g.$(".readback").textContent, "Times 2, then add 1.", "the builder reads the rule back");
+ok(g.$("#tapeBody .yo.same"), "the 'yours' column shows the guess fits 3 → 7");
+g.click("#checkBtn");
+eq(g.ev("mode"), "feed", "a wrong guess goes back to cranking");
+eq(g.ev("state.round.wrong"), 1, "the wrong guess is counted");
+eq(g.ev("state.round.tape.at(-1)"), {x:0, y:4, src:"clue"}, "the machine adds its counter-example, 0 → 4, to the tape");
+ok(/Your rule works for 3! But try 0: mine makes 4, yours makes 1\./.test(g.$("#band").textContent),
+   "one clue isn't enough, and the band says why: " + g.$("#band").textContent);
+
+/* the right guess */
+g.click("#know");
+g.click('.drop2[data-drop="1"]');
+g.click('.act[data-op="add"][data-i="0"]');
+g.click('.slot[data-slot="0"]'); g.click('.padk[data-k="clr"]'); g.click('.padk[data-k="4"]');
+eq(g.$(".readback").textContent, "Add 4.", "the builder keeps the last guess to edit");
+g.click("#checkBtn");
+eq(g.ev("mode"), "verdict", "the right rule cracks it");
+ok(g.ev(`!!state.wall["1|add4"]`), "its blueprint goes on the wall");
+eq(g.ev(`state.wall["1|add4"].gold`), false, "no gold gear after a wrong guess");
+ok(/Add 4\./.test(g.$("#wall").textContent), "the wall shows the cracked rule");
+eq(g.ev("state.round.done"), true, "the round is over");
+
+/* gold gear: cracked with just enough clues */
+g.ev(`newRound(1); state.round.key = "add2"`);
+g.ev("crank(5)"); g.ev("crank(6)");
+g.ev(`checkGuess(parseKey("add2"))`);
+eq(g.ev(`state.wall["1|add2"].gold`), true, "two cranks, no wrong guesses: gold gear");
+g.ev(`newRound(1); state.round.key = "add1"; crank(0); checkGuess(parseKey("add1"))`);
+eq(g.ev("state.open"), 2, "three cracked rules open level 2");
+ok(/Level 2 is open/.test(g.$("#controls").textContent), "the verdict says so");
+ok(!g.$('#levelSeg .segb[data-l="2"]').disabled && g.$('#levelSeg .segb[data-l="3"]').disabled, "level 2 opens, level 3 stays locked");
+
+/* equivalent spelling is accepted and named */
+g.ev(`newRound(1); state.round.key = "add5"; crank(1)`);
+g.ev(`checkGuess(parseKey("add2,add3"))`);
+eq(g.ev("mode"), "verdict", "'add 2, then add 3' cracks an add-5 machine");
+ok(/does exactly the same thing/.test(g.$("#controls").textContent), "and the verdict says the two do the same thing");
+
+/* jams in level 2 */
+g.ev(`newRound(2); state.round.key = "sub3"`);
+g.ev("crank(2)");
+eq(g.ev("state.round.tape.at(-1).y"), null, "2 jams a take-away-3 machine");
+ok(/JAM/.test(g.$("#tapeBody").textContent), "the tape says JAM");
+
+/* hints */
+g.ev(`newRound(1); state.round.key = "add7"`);
+g.click("#hintBtn");
+ok(/Try 0/.test(g.$("#band").textContent), "hint 1 says try 0");
+g.click("#hintBtn"); g.click("#hintBtn");
+eq(g.ev("tapeView"), "gaps", "hint 3 turns on the gaps view");
+ok(g.$("#hintBtn").disabled, "three hints, then no more");
+
+/* show me: two taps */
+g.ev(`newRound(1); state.round.key = "add9"`);
+g.click("#showMe");
+eq(g.ev("mode"), "feed", "one tap on Show me only asks again");
+g.click("#showMe");
+eq(g.ev("mode"), "verdict", "the second tap reveals the rule");
+ok(/Add 9\./.test(g.$("#controls").textContent), "the rule is shown");
+ok(!g.ev(`state.met[1].includes("add9")`), "a revealed rule goes back in the pool");
+ok(!g.ev(`state.wall["1|add9"]`), "and wins no card");
+
+/* predicting */
+g.ev(`setSetting("prove", "predict"); newRound(1); state.round.key = "add6"; crank(1)`);
+g.click("#know");
+eq(g.ev("mode"), "predict", "with predicting on, I think I know asks for predictions");
+for(let i = 0; i < 2; i++){
+  const x = g.ev("predict.x");
+  eq(g.ev(`answerPredict(${x + 6})`), true, `prediction ${i + 1} is right`);
+  ok(/Yes!/.test(g.$("#band").textContent), "a right prediction is cheered, and the next question asked");
+}
+const x3 = g.ev("predict.x");
+ok(!g.ev("state.round.tape").slice(0, -2).some(t => t.x === x3), "the machine asks about a number not already on the tape");
+g.ev(`answerPredict(${x3 + 6})`);
+eq(g.ev("mode"), "verdict", "three right predictions crack it");
+g.ev(`newRound(1); state.round.key = "add8"; crank(1)`);
+g.click("#know");
+g.ev(`answerPredict(-1)`);
+eq(g.ev("mode"), "feed", "a wrong prediction goes back to cranking");
+eq(g.ev("state.round.wrong"), 1, "and counts as a wrong guess");
+g.ev(`setSetting("prove", "build")`);
+
+/* the rule pool doesn't repeat until it's used up */
+g.ev(`state.met[4] = []`);
+const drawn = g.ev(`Array.from({length:9}, () => pickRule(4))`);
+eq(new Set(drawn).size, 9, "nine draws from level 4 meet all nine rules before any repeats");
+
+/* ---- saving ---- */
+g.ev(`state.open = 3; newRound(3); state.round.key = "sub5"; crank(2); crank(4)`);
+g.ev(`setSetting("maxIn", 100)`);
+eq(g.$("#maxSeg .sel").textContent, "Up to 100", "the setting shows after a repaint");
+const saved = g.win.localStorage.getItem(KEY);
+ok(JSON.parse(saved).v === 1, "the saved blob carries v");
+g.close();
+
+g = boot(FILE, {storage:{[KEY]:saved}});
+ok(g.errors.length === 0, "reboots without error: " + g.errors.join(" | "));
+eq(g.ev("state.round.key"), "sub5", "a round in progress comes back after a reload");
+eq(g.ev("state.round.tape.map(t => t.y)"), [-3, -1], "with its tape: level 3 makes negatives, no jams");
+eq(g.ev("state.maxIn"), 100, "settings survive a reload");
+ok(/−3/.test(g.$("#tapeBody").textContent), "the tape shows −3");
+g.ev(`state.prove = "predict"; iThinkIKnow()`);
+ok(!!g.$('.padk[data-k="neg"]'), "from level 3 the prediction pad has a minus key");
+g.close();
+
+/* data from a newer build: play, never write */
+const newer = JSON.stringify({v:99, level:1, open:1, wall:{"1|add4":{level:1, rule:"add4", best:2, gold:true, times:1, first:1}}, future:"keep me"});
+g = boot(FILE, {storage:{[KEY]:newer}});
+ok(g.errors.length === 0, "boots on newer data without error: " + g.errors.join(" | "));
+eq(g.ev("readOnly"), true, "newer saved data makes the game read-only");
+ok(!g.$("#roCard").hidden, "and it says so");
+g.ev(`state.round.key = "add4"; crank(1)`);
+eq(g.win.localStorage.getItem(KEY), newer, "nothing is written over newer data");
+g.close();
+
+/* garbage in storage must not wedge the game */
+g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:1, level:9, open:42, prove:"telepathy", maxIn:7,
+  round:{level:1, key:"nonsense", tape:"x"}})}});
+ok(g.errors.length === 0, "boots on garbage without error: " + g.errors.join(" | "));
+eq(g.ev("[state.open, state.level, state.prove, state.maxIn]"), [7, 7, "build", 20], "bad settings are clamped to ones that exist");
+ok(g.ev("LEVELS[6].keys.includes(state.round.key)"), "a broken round is replaced with a real one");
+g.close();
+
+process.exit(report("hopper") ? 0 : 1);

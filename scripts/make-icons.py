@@ -48,8 +48,13 @@ PRESSED = (0xD5, 0x4A, 0x5E) # the same wax where the stamp pressed it — a rea
 # the bands of the stone it is named for, which is also the shape of a target,
 # a ring of seats, and a ball's stitching seen end on. Oath draws a wax seal
 # with a star on it — the same seal a president's portrait gets on the wall
-# once all seven of their cards are won.
+# once all seven of their cards are won. Hopper draws the gold gear a blueprint
+# earns when a rule is cracked from just enough clues.
 SPECS = {
+    "hopper": {
+        "icon": dict(bg=INK, gear=GOLD, ring=INK, hub=GLASS_HI, mark="gear"),
+        "splash": dict(bg=GLASS, gear=GOLD, ring=INK, hub=GLASS, mark="gear"),
+    },
     "oath": {
         "icon": dict(bg=INK, wax=SEAL, accent=PRESSED, mark="seal"),
         "splash": dict(bg=GLASS, wax=SEAL, accent=PRESSED, mark="seal"),
@@ -206,6 +211,28 @@ def draw_bands(cv, cx, cy, box, spec):
         cv.circle(cx, cy, r * frac, rgb)
 
 
+def gear(cx, cy, r, teeth):
+    """The outline of a gear: each tooth is four points, two on the root circle
+    and two on the tip circle, the same shape the game draws in SVG."""
+    ri, pts = r * 0.78, []
+    for i in range(teeth):
+        a, w = i / teeth * 2 * math.pi - math.pi / 2, math.pi / teeth
+        for ang, rad in ((a - w * .55, ri), (a - w * .3, r), (a + w * .3, r), (a + w * .55, ri)):
+            pts.append((cx + rad * math.cos(ang), cy + rad * math.sin(ang)))
+    return pts
+
+
+def draw_gear(cv, cx, cy, box, spec):
+    """A gold gear with a ring cut round its hub, outlined in ink by painting a
+    slightly larger ink gear underneath it."""
+    r = box / 2.0
+    cv.polygon(gear(cx, cy, r * 1.045, 10), spec["ring"])
+    cv.polygon(gear(cx, cy, r, 10), spec["gear"])
+    cv.circle(cx, cy, 0.42 * r, spec["ring"])
+    cv.circle(cx, cy, 0.35 * r, spec["hub"])
+    cv.circle(cx, cy, 0.11 * r, spec["ring"])
+
+
 def draw_mark(cv, cx, cy, box, spec):
     """A cols x rows lattice of dots, centred on (cx, cy) and fitted to `box`
     (the length of the square the mark may occupy)."""
@@ -213,6 +240,8 @@ def draw_mark(cv, cx, cy, box, spec):
         return draw_bands(cv, cx, cy, box, spec)
     if spec.get("mark") == "seal":
         return draw_seal(cv, cx, cy, box, spec)
+    if spec.get("mark") == "gear":
+        return draw_gear(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
