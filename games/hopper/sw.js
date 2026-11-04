@@ -4,7 +4,7 @@
    offline from the first launch onward.
    Fonts are the one exception, cached at runtime and deliberately unversioned. */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = `hopper-shell-${VERSION}`;
 const FONTS = "hopper-fonts-v1";   /* unversioned on purpose: an app update
                                        shouldn't re-download the typefaces */

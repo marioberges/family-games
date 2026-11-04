@@ -51,7 +51,10 @@ says what will come out, and three right in a row cracks it.
 | 7 | all of the above, plus add or take away first, then times | 186 |
 
 The game shows only "Level 3": saying what a level holds would give the
-answers away. Three cracked rules open the next level. Jams happen only in
+answers away. Any level can be picked at any time, and three cracks in a row
+move you up one on their own; three dots in the machine's header count the
+row. Wrong guesses on the way don't break the row; "Show me the rule" does, and
+so does picking a different level. Jams happen only in
 level 2, so negatives arrive on purpose in level 3. The player only ever feeds
 in 0 and up (20 by default, 100 as a setting); negatives come out, never go in.
 A rule doesn't come back until its level has been used up.
@@ -60,8 +63,8 @@ A rule doesn't come back until its level has been used up.
 
 Three hints, about how to hunt and never what the rule is: try 0; try two
 numbers next to each other; look at the gaps (which also turns on the tape's
-gaps view). "Show me the rule" takes two taps, wins no card, and puts the rule
-back in the pool.
+gaps view). "Show me the rule" takes two taps, wins no card, puts the rule
+back in the pool, and starts the in-a-row count again.
 
 Each cracked rule is a blueprint card on the workshop wall, with its fewest
 cranks. Crack a straight-line rule in two cranks, or a times-itself rule in
@@ -75,7 +78,8 @@ sounds are made in code. Everything else is precached. Bump `VERSION` in
 `sw.js` for any change to a precached file. A new build is picked up silently at
 the next machine, where everything is saved.
 
-Progress is saved under `hopper:state:v1`, including the round in progress, so
+Progress is saved under `hopper:state:v1` (the key never changes; the blob
+inside is version 2 since levels stopped being unlocked), including the round in progress, so
 closing the app mid-round comes back to the same machine. A build that meets
 data written by a newer one plays read-only rather than saving over it.
 

@@ -124,11 +124,16 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .plate{background:var(--glass-hi);border:1px solid var(--rule-2);position:relative}
 .plate-head{
   display:flex;justify-content:space-between;align-items:center;gap:12px;
-  padding:9px 14px;border-bottom:1px solid var(--rule);
+  padding:9px 14px;border-bottom:1px solid var(--rule);flex-wrap:wrap;
   font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(11,30,45,.62);
 }
 .tag{color:var(--ink);border:1px solid var(--rule-2);padding:2px 7px;white-space:nowrap}
 .tag.dark{background:var(--ink);color:var(--glass-hi);border-color:var(--ink)}
+.headr{display:flex;align-items:center;gap:12px}
+.row3{display:inline-flex;align-items:center;gap:5px}
+.row3 i{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--rule-2)}
+.row3 span{margin-left:3px}
+.row3 i.on{background:var(--green);border-color:var(--green)}
 
 .mount{
   position:relative;background:var(--paper);
@@ -389,7 +394,7 @@ body.is-offline .offline-bar{display:block}
     <section class="plate" id="plate">
       <div class="plate-head">
         <span id="machineNo">Machine</span>
-        <span><span class="tag" id="crankTag">0 cranks</span></span>
+        <span class="headr"><span class="row3" id="row3" role="img"></span><span class="tag" id="crankTag">0 cranks</span></span>
       </div>
       <div class="mount">
         <div class="rig">
@@ -440,7 +445,7 @@ body.is-offline .offline-bar{display:block}
       <div class="card">
         <h2>Settings</h2>
         <div class="meter">
-          <p class="tiny">Level — crack <b>3</b> rules to open the next</p>
+          <p class="tiny">Level — <b>3</b> in a row moves you up</p>
           <div class="seg levels" id="levelSeg"></div>
           <p class="tiny">How you prove it</p>
           <div class="seg" id="proveSeg"></div>
@@ -549,7 +554,7 @@ const LEVELS = [
   {n:6, rules:L6, jam:false},
   {n:7, rules:[...L1, ...L3, ...L4, ...L5, ...L6, ...FIRST], jam:false}
 ].map(l => ({...l, keys:l.rules.map(ruleKey)}));
-const UNLOCK = 3;            /* rules cracked in a level before the next opens */
+const ROW = 3;               /* rules cracked in a row that move you up a level */
 const CHECK_TO = 100;        /* the behaviour check runs every number 0..100 */
 const minusFrom = 3;         /* the pad grows a minus key from level 3 on */
 const lvl = n => LEVELS[n - 1];
@@ -573,13 +578,17 @@ function compare(secret, guess, jam, tried, maxIn){
 
 /* ============ storage ============ */
 const KEY = "hopper:state:v1";   /* namespaced: the origin is shared by every game */
-const STATE_V = 1;
-const MIGRATIONS = {};           /* v -> fn(blob) returning the v+1 shape */
+const STATE_V = 2;
+const MIGRATIONS = {             /* v -> fn(blob) returning the v+1 shape */
+  /* v2: levels are no longer unlocked. Any level can be picked, and three
+     cracks in a row move you up one. `open` goes; `streak` counts the row. */
+  1: blob => { delete blob.open; blob.streak = 0; return blob; }
+};
 const PROVES = [{id:"build", label:"Build it"}, {id:"predict", label:"Predict"}];
 const MAXES = [{id:20, label:"Up to 20"}, {id:100, label:"Up to 100"}];
 const SOUNDS = [{id:true, label:"On"}, {id:false, label:"Off"}];
 const defaults = () => ({
-  v:STATE_V, level:1, open:1, prove:"build", maxIn:20, sound:true,
+  v:STATE_V, level:1, streak:0, prove:"build", maxIn:20, sound:true,
   machines:0, met:{}, wall:{}, round:null
 });
 /* wall: "level|ruleKey" -> {level, rule, best, gold, times, first}
@@ -628,8 +637,8 @@ function load(){
   Object.assign(state, b);
   state.v = readOnly ? blob.v : STATE_V;
   /* Anything the code no longer knows must not wedge the game. */
-  state.open = Math.min(LEVELS.length, Math.max(1, state.open | 0));
-  state.level = Math.min(state.open, Math.max(1, state.level | 0));
+  state.level = Math.min(LEVELS.length, Math.max(1, state.level | 0));
+  state.streak = Math.min(ROW - 1, Math.max(0, state.streak | 0));
   if(!PROVES.some(p => p.id === state.prove)) state.prove = "build";
   if(!MAXES.some(m => m.id === state.maxIn)) state.maxIn = 20;
   state.sound = state.sound !== false;
@@ -653,7 +662,6 @@ const secret = () => parseKey(state.round.key);
 const level = () => lvl(state.round.level);
 const tried = () => state.round.tape.map(t => t.x);
 const cardKey = (l, k) => l + "|" + k;
-const crackedIn = l => Object.values(state.wall).filter(c => c.level === l).length;
 
 function pickRule(n){
   const L = lvl(n);
@@ -779,13 +787,17 @@ function crack(guess){
     ? {...before, best:Math.min(before.best, r.cranks), gold:before.gold || gold, times:(before.times | 0) + 1}
     : {level:r.level, rule:r.key, best:r.cranks, gold, times:1, first:Date.now()};
   state.wall[k] = card;
-  let opened = 0;
-  if(r.level === state.open && state.open < LEVELS.length && crackedIn(r.level) >= UNLOCK){
-    state.open++; opened = state.open;
+  /* Wrong guesses on the way don't break the row; only "Show me" does. */
+  state.streak++;
+  const inRow = state.streak;
+  let moved = 0;
+  if(state.streak >= ROW){
+    state.streak = 0;
+    if(r.level < LEVELS.length){ state.level = r.level + 1; moved = state.level; }
   }
   const spelled = guess && ruleKey(guess) !== r.key ? guess : null;
   verdict = {kind:"cracked", rule:r.key, spelled, cranks:r.cranks, gold, newCard:!before,
-             record:!!before && r.cranks < before.best, firstGold:gold && !(before && before.gold), opened};
+             record:!!before && r.cranks < before.best, firstGold:gold && !(before && before.gold), inRow, moved, level:r.level};
   mode = "verdict"; message = null;
   save(); sfx("cracked"); paintAll();
 }
@@ -794,7 +806,9 @@ function showMe(){
   if(!r || r.done) return;
   forgetUnfinished();
   r.done = true;
-  verdict = {kind:"shown", rule:r.key};
+  const hadRow = state.streak > 0;
+  state.streak = 0;
+  verdict = {kind:"shown", rule:r.key, hadRow};
   mode = "verdict"; message = null;
   save(); paintAll();
 }
@@ -842,6 +856,12 @@ function paintHead(){
   $("#machineNo").textContent = `Machine No. ${r.no} · Level ${r.level}`;
   $("#plateNo").textContent = r.no;
   $("#crankTag").textContent = r.cranks === 1 ? "1 crank" : `${r.cranks} cranks`;
+  const dots = $("#row3"), top = r.level >= LEVELS.length && state.level >= LEVELS.length;
+  dots.hidden = top;
+  /* on the verdict that completes a row, show the row full, not already reset */
+  const n = mode === "verdict" && verdict && verdict.kind === "cracked" ? Math.min(ROW, verdict.inRow) : state.streak;
+  dots.innerHTML = Array.from({length:ROW}, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("") + `<span>in a row</span>`;
+  dots.setAttribute("aria-label", `${n} of ${ROW} in a row`);
   paintIn();
 }
 function paintIn(){
@@ -968,7 +988,8 @@ function verdictMarkup(){
   if(v.kind === "shown"){
     return `<div class="verdict"><span class="stamp shown">Revealed</span>`
       + `<p class="was"><small>The machine's rule was</small>${esc(sentence(rule))}</p>`
-      + `<ul class="facts"><li>No card this time. This machine will come back another day.</li></ul></div>`
+      + `<ul class="facts"><li>No card this time. This machine will come back another day.</li>`
+      + (v.hadRow ? `<li>Your in-a-row count starts again.</li>` : "") + `</ul></div>`
       + `<div class="foot"><span></span><button class="btn solid big" id="nextBtn">Next machine</button></div>`;
   }
   const facts = [];
@@ -977,11 +998,15 @@ function verdictMarkup(){
   if(v.gold) facts.push(`<span class="g">Gold gear!</span> You used just enough clues${v.firstGold ? "" : " again"}.`);
   if(v.newCard) facts.push(`A new blueprint for the workshop.`);
   else if(v.record) facts.push(`A new record for this rule.`);
-  if(v.opened) facts.push(`<span class="u">Level ${v.opened} is open!</span>`);
+  if(v.moved) facts.push(`<span class="u">Three in a row! Next stop: level ${v.moved}.</span>`);
+  else if(v.inRow >= ROW) facts.push(`<span class="u">Three in a row on the top level!</span>`);
+  else if(v.level < LEVELS.length) facts.push(v.inRow === ROW - 1
+    ? `That's ${v.inRow} in a row. One more moves you up to level ${v.level + 1}.`
+    : `That's ${v.inRow} in a row. Crack ${ROW} in a row to move up a level.`);
   return `<div class="verdict"><span class="stamp">Cracked</span>`
     + `<p class="was"><small>The machine's rule was</small>${esc(sentence(rule))}</p>`
     + `<ul class="facts">${facts.map(f => `<li>${f}</li>`).join("")}</ul></div>`
-    + `<div class="foot"><span>${v.opened ? `<button class="btn" id="goLevel" data-l="${v.opened}">Try level ${v.opened}</button>` : ""}</span>`
+    + `<div class="foot"><span></span>`
     + `<button class="btn solid big" id="nextBtn">Next machine</button></div>`;
 }
 
@@ -1006,8 +1031,8 @@ function paintRail(){
     $("#wall").innerHTML = html;
   }
   $("#levelSeg").innerHTML = LEVELS.map(l => {
-    const locked = l.n > state.open, cur = state.round && state.round.level === l.n;
-    return `<button class="segb${cur ? " sel" : ""}" data-l="${l.n}"${locked ? ` disabled aria-label="Level ${l.n}, locked"` : ` aria-label="Level ${l.n}"`}>${locked ? "·" : l.n}</button>`;
+    const cur = state.round && state.round.level === l.n;
+    return `<button class="segb${cur ? " sel" : ""}" data-l="${l.n}" aria-label="Level ${l.n}">${l.n}</button>`;
   }).join("");
   const seg = (id, opts, cur) => $(id).innerHTML = opts.map(o =>
     `<button class="segb${o.id === cur ? " sel" : ""}" data-v="${o.id}">${o.label}</button>`).join("");
@@ -1159,7 +1184,6 @@ $("#controls").addEventListener("click", e => {
   if(b.id === "checkBtn"){ const g = guessRule(); if(g) checkGuess(g); return; }
   if(b.id === "addStep"){ builder.steps.push({op:null, n:null}); builder.active = builder.steps.length - 1; paintControls(); paintTape(); return; }
   if(b.id === "nextBtn") return newRound(state.level);
-  if(b.id === "goLevel") return newRound(Number(b.dataset.l));
   if(b.dataset.op){ const i = +b.dataset.i; builder.steps[i].op = b.dataset.op; builder.active = i; paintControls(); paintTape(); return; }
   if(b.dataset.slot !== undefined){ const i = +b.dataset.slot; builder.active = i; if(builder.steps[i].n === SELF) builder.steps[i].n = null; paintControls(); paintTape(); return; }
   if(b.dataset.self !== undefined){ const i = +b.dataset.self; builder.steps[i].n = SELF; builder.active = i; paintControls(); paintTape(); return; }
@@ -1174,6 +1198,8 @@ $("#levelSeg").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b || b.disabled) return;
   const n = Number(b.dataset.l);
   if(state.round && state.round.level === n && !state.round.done) return;
+  /* choosing a different level starts the row again there */
+  if(n !== state.level || (state.round && state.round.level !== n)) state.streak = 0;
   newRound(n);
 });
 function setSetting(key, v){
@@ -1202,7 +1228,7 @@ document.addEventListener("keydown", e => {
 });
 
 $("#reset").addEventListener("click", () => {
-  if(!confirm("Clear all progress? Every blueprint, record and opened level.")) return;
+  if(!confirm("Clear all progress? Every blueprint and record.")) return;
   /* settings stay: clearing progress should not also change how the game plays */
   state = Object.assign(defaults(), {prove:state.prove, maxIn:state.maxIn, sound:state.sound});
   lastKey = null;

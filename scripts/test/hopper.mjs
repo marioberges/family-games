@@ -10,6 +10,10 @@ let g = boot(FILE);
 ok(g.errors.length === 0, "boots without error: " + g.errors.join(" | "));
 ok(!!g.$("#machine") && !!g.$("#tapeBody") && !!g.$(".pad"), "machine, tape and pad rendered");
 ok(g.ev("!!state.round && state.round.level === 1"), "a level-1 machine is waiting");
+eq(g.all("#levelSeg .segb").length, 7, "seven levels in the picker");
+eq(g.all("#levelSeg .segb:disabled").length, 0, "every level can be picked from the start");
+eq(g.all("#row3 i").length, 3, "three in-a-row dots");
+eq(g.all("#row3 i.on").length, 0, "none filled yet");
 ok(!/\b(add|take away|times|itself)\b/i.test(["#levelSeg", ".plate-head", ".tally", "#wall", "#band"].map(s => g.$(s).textContent).join(" ")),
    "nothing on screen says what kind of rule a level holds");
 
@@ -98,10 +102,21 @@ g.ev(`newRound(1); state.round.key = "add2"`);
 g.ev("crank(5)"); g.ev("crank(6)");
 g.ev(`checkGuess(parseKey("add2"))`);
 eq(g.ev(`state.wall["1|add2"].gold`), true, "two cranks, no wrong guesses: gold gear");
+
+/* three cracks in a row move you up, on their own */
+eq(g.ev("state.streak"), 2, "two cracks in a row, though the first had a wrong guess on the way");
+eq(g.all("#row3 i.on").length, 2, "two dots filled");
+ok(/2 in a row\. One more moves you up to level 2/.test(g.$("#controls").textContent), "the verdict says one more moves you up");
+eq(g.ev("state.level"), 1, "still level 1");
 g.ev(`newRound(1); state.round.key = "add1"; crank(0); checkGuess(parseKey("add1"))`);
-eq(g.ev("state.open"), 2, "three cracked rules open level 2");
-ok(/Level 2 is open/.test(g.$("#controls").textContent), "the verdict says so");
-ok(!g.$('#levelSeg .segb[data-l="2"]').disabled && g.$('#levelSeg .segb[data-l="3"]').disabled, "level 2 opens, level 3 stays locked");
+eq(g.ev("state.level"), 2, "the third crack in a row moves you up to level 2");
+eq(g.ev("state.streak"), 0, "and the row starts again");
+eq(g.all("#row3 i.on").length, 3, "the verdict shows the row full");
+ok(/Three in a row! Next stop: level 2\./.test(g.$("#controls").textContent), "the verdict says where you're going");
+ok(!g.$("#goLevel"), "nothing to pick: the next machine is already on level 2");
+g.click("#nextBtn");
+eq(g.ev("state.round.level"), 2, "Next machine is a level-2 machine");
+ok(g.$('#levelSeg .segb[data-l="2"]').classList.contains("sel"), "the picker shows level 2");
 
 /* equivalent spelling is accepted and named */
 g.ev(`newRound(1); state.round.key = "add5"; crank(1)`);
@@ -123,8 +138,8 @@ g.click("#hintBtn"); g.click("#hintBtn");
 eq(g.ev("tapeView"), "gaps", "hint 3 turns on the gaps view");
 ok(g.$("#hintBtn").disabled, "three hints, then no more");
 
-/* show me: two taps */
-g.ev(`newRound(1); state.round.key = "add9"`);
+/* show me: two taps, and it breaks the row */
+g.ev(`newRound(1); state.round.key = "add9"; state.streak = 2; paintAll()`);
 g.click("#showMe");
 eq(g.ev("mode"), "feed", "one tap on Show me only asks again");
 g.click("#showMe");
@@ -132,6 +147,8 @@ eq(g.ev("mode"), "verdict", "the second tap reveals the rule");
 ok(/Add 9\./.test(g.$("#controls").textContent), "the rule is shown");
 ok(!g.ev(`state.met[1].includes("add9")`), "a revealed rule goes back in the pool");
 ok(!g.ev(`state.wall["1|add9"]`), "and wins no card");
+eq(g.ev("state.streak"), 0, "Show me starts the row again");
+ok(/in-a-row count starts again/.test(g.$("#controls").textContent), "and says so");
 
 /* predicting */
 g.ev(`setSetting("prove", "predict"); newRound(1); state.round.key = "add6"; crank(1)`);
@@ -158,12 +175,25 @@ g.ev(`state.met[4] = []`);
 const drawn = g.ev(`Array.from({length:9}, () => pickRule(4))`);
 eq(new Set(drawn).size, 9, "nine draws from level 4 meet all nine rules before any repeats");
 
+/* picking a level, any time */
+g.ev(`state.streak = 2; paintAll()`);
+g.click('#levelSeg .segb[data-l="6"]');
+eq(g.ev("[state.round.level, state.level, state.streak]"), [6, 6, 0], "picking level 6 starts a level-6 machine, with the row at zero");
+g.ev(`state.round.key = "mulS"; crank(3)`);
+g.click('#levelSeg .segb[data-l="6"]');
+eq(g.ev("state.round.cranks"), 1, "picking the level you're on doesn't throw the machine away");
+
+/* the top level: three in a row and you stay */
+g.ev(`state.streak = 2; newRound(7); state.round.key = "add3"; crank(0); crank(1); checkGuess(parseKey("add3"))`);
+eq(g.ev("[state.level, state.streak]"), [7, 0], "three in a row on level 7 stays on level 7");
+ok(/Three in a row on the top level!/.test(g.$("#controls").textContent), "and is still cheered");
+
 /* ---- saving ---- */
-g.ev(`state.open = 3; newRound(3); state.round.key = "sub5"; crank(2); crank(4)`);
+g.ev(`newRound(3); state.round.key = "sub5"; crank(2); crank(4)`);
 g.ev(`setSetting("maxIn", 100)`);
 eq(g.$("#maxSeg .sel").textContent, "Up to 100", "the setting shows after a repaint");
 const saved = g.win.localStorage.getItem(KEY);
-ok(JSON.parse(saved).v === 1, "the saved blob carries v");
+eq(JSON.parse(saved).v, 2, "the saved blob carries v");
 g.close();
 
 g = boot(FILE, {storage:{[KEY]:saved}});
@@ -187,11 +217,25 @@ eq(g.win.localStorage.getItem(KEY), newer, "nothing is written over newer data")
 g.close();
 
 /* garbage in storage must not wedge the game */
-g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:1, level:9, open:42, prove:"telepathy", maxIn:7,
+g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:2, level:9, streak:40, prove:"telepathy", maxIn:7,
   round:{level:1, key:"nonsense", tape:"x"}})}});
 ok(g.errors.length === 0, "boots on garbage without error: " + g.errors.join(" | "));
-eq(g.ev("[state.open, state.level, state.prove, state.maxIn]"), [7, 7, "build", 20], "bad settings are clamped to ones that exist");
+eq(g.ev("[state.level, state.streak, state.prove, state.maxIn]"), [7, 2, "build", 20], "bad settings are clamped to ones that exist");
 ok(g.ev("LEVELS[6].keys.includes(state.round.key)"), "a broken round is replaced with a real one");
+g.close();
+
+/* data saved by the first build (v1, levels unlocked one by one) */
+const v1 = JSON.stringify({v:1, level:3, open:3, prove:"predict", maxIn:100, sound:false, machines:9, met:{1:["add4"]},
+  wall:{"1|add4":{level:1, rule:"add4", best:2, gold:true, times:1, first:1}},
+  round:{level:3, key:"sub5", no:9, tape:[{x:2, y:-3, src:"crank"}], cranks:1, wrong:0, hint:0, done:false}});
+g = boot(FILE, {storage:{[KEY]:v1}});
+ok(g.errors.length === 0, "boots on v1 data without error: " + g.errors.join(" | "));
+eq(g.ev("[state.v, state.open, state.streak, state.level]"), [2, undefined, 0, 3], "v1 data moves to v2: no more unlocking, row at zero, same level");
+eq(g.ev("[state.prove, state.maxIn, state.sound, state.machines]"), ["predict", 100, false, 9], "settings and counts carry over");
+ok(g.ev(`!!state.wall["1|add4"]`), "the wall carries over");
+eq(g.ev("state.round.tape"), [{x:2, y:-3, src:"crank"}], "the round in progress carries over");
+const after = JSON.parse(g.win.localStorage.getItem(KEY));
+ok(after.v === 2 && !("open" in after), "and the upgraded shape is saved straight away");
 g.close();
 
 process.exit(report("hopper") ? 0 : 1);
