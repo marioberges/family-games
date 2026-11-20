@@ -61,15 +61,44 @@ wander, rest, follow a friend, and head for the star; touching it earns a star
 over their head, and it comes back a few seconds later. Twelve at most; the
 oldest leaves to make room. **Clear** asks twice, without a dialog.
 
+## My doodles: the book
+
+The doodles worth keeping live in a book, apart from any one world, so
+clearing the world never touches them.
+
+- **Keeping one.** Type a name in the drawing card before **Let it go!**, or
+  press and hold a character that's already romping about: its own card opens,
+  with a name field and **Keep in my book**.
+- **The book.** **My doodles** at the top shows every kept doodle as a sticker
+  with its name and every star it has ever collected. Tap one, or **Drop in**,
+  and a copy drops into whatever place is open.
+- **Changing one.** **Change** opens the drawing card with the doodle already
+  drawn, ready to add to, undo, or rename. The book keeps the new version and
+  its stars, and the new version drops in. Copies already in the world stay as
+  they were drawn. From a character's own card, **Change drawing** does the
+  same and the new version takes the old one's place.
+- **Send home** takes a character out of the world, not out of the book.
+  **Remove from book** asks twice.
+- A kept character shows its name for a moment when it arrives, while it is
+  held, and while its card is open. Up to 60 doodles.
+
 ## Saved data
 
-`localStorage["romp:world:v1"]` holds `{v: 1, layout, chars: [{id, strokes, x,
-y, a, stars}]}`. Strokes are small integers (pad units, width × 10), so a
-world of twelve stays small. Sprites and colliders are rebuilt from strokes on
-load. Data from a newer build makes this one read-only.
+Two keys, each with a `v` inside and each going read-only when it meets data
+from a newer build:
+
+- `localStorage["romp:world:v1"]` — the world: `{v: 2, layout, chars: [{id,
+  strokes, x, y, a, stars, book?}]}`. v2 added `book`, the page a character
+  came from; a v1 world loads unchanged and is saved back as v2.
+- `localStorage["romp:book:v1"]` — the book: `{v: 1, doodles: [{id, name,
+  strokes, stars, made, edited?}]}`.
+
+Strokes are small integers (pad units, width × 10), so both stay small.
+Sprites and colliders are rebuilt from strokes on load.
 
 ## Tests
 
 `scripts/test/romp.mjs` boots a copy of the page with Planck inlined and
 checks the places, the shape → movement rules, palm rejection, the bridge,
-the spring, the tunnel, saving and the read-only rule.
+the spring, the tunnel, the doodle book (keep, rename, change, drop in, send
+home, remove), saving, the v1 → v2 migration and the read-only rule.

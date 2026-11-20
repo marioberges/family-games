@@ -6,6 +6,7 @@ import os from "node:os";
 const GAMES = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "games");
 const DIR = path.join(GAMES, "romp");
 const KEY = "romp:world:v1";
+const BOOK_KEY = "romp:book:v1";
 
 /* Romp loads planck.min.js from its own folder. The rig boots a copy with the
    library inlined, so it needs no file loading. Planck's own "use strict" is
@@ -138,11 +139,80 @@ eq(await g.ev(`(() => { for(let i = 0; i < 60 * 40; i++){ tick(STEP);
     if(toU(chars[0].body.getPosition().x) > 1320) return true; chars[0].mood = {kind: "seek", t: 1e9}; }
   return toU(chars[0].body.getPosition().x); })()`), true, "a small doodle heading for the star gets through the tunnel");
 
+/* ---- the doodle book: keep, name, change, drop in anywhere ---- */
+await g.ev(`(() => { for(const c of chars.slice()) removeChar(c); })()`);
+eq(await g.ev("book.length"), 0, "the book starts empty");
+await g.ev(`(() => { openCard(); strokes = ${J(D.ball)}; document.getElementById("nameIn").value = "  Bouncy   Bob "; syncCard(); })()`);
+await g.click("#done");
+eq(await g.ev("[book.length, book[0].name, chars.length, chars[0].bookId === book[0].id]"), [1, "Bouncy Bob", 1, true],
+   "naming a doodle keeps it in the book, and the one dropped in belongs to that page");
+await g.ev(`(() => { openCard(); strokes = ${J(D.dot)}; syncCard(); letItGo(); })()`);
+eq(await g.ev("[book.length, chars.length, chars[1].bookId]"), [1, 2, null], "an unnamed doodle romps but isn't kept");
+const bookSaved = JSON.parse(await g.ev("localStorage.getItem(BOOK_KEY)"));
+eq([bookSaved.v, bookSaved.doodles.length, bookSaved.doodles[0].name], [1, 1, "Bouncy Bob"], "the book is saved under its own key, with a version");
+await g.ev("openBook()");
+eq(await g.ev("[...document.querySelectorAll('#shelf .dcard .dname')].map(n => n.textContent)"), ["Bouncy Bob"], "My doodles shows each kept doodle by name");
+await g.click("#shelf .dcard .drop");
+eq(await g.ev("[bookOpen, chars.length, chars[2].bookId === book[0].id]"), [false, 3, true], "'Drop in' closes the book and drops a copy into the place");
+await g.ev(`(() => { const c = chars[2]; c.held = true; star.visible = true;
+  c.body.setTransform(V(toM(star.x), toM(star.y)), 0); tick(STEP); })()`);
+eq(await g.ev("[chars[2].stars, book[0].stars]"), [1, 1], "a star a kept doodle collects is counted on its page too");
+await g.ev(`(() => { openBook(); document.querySelector("#shelf .dcard .edit").click(); })()`);
+eq(await g.ev("[cardOpen, strokes.length, document.getElementById('nameIn').value]"), [true, 3, "Bouncy Bob"],
+   "'Change' opens the drawing card with the doodle and its name");
+await g.ev(`(() => { strokes.push(${J(D.stick[1])}); document.getElementById("nameIn").value = "Bob"; letItGo(); })()`);
+eq(await g.ev("[book.length, book[0].name, book[0].strokes.length, book[0].stars, chars.length]"), [1, "Bob", 4, 1, 4],
+   "changing it updates the same page (new drawing, new name, stars kept) and drops the new version in");
+await g.ev("openWho(chars[1])");
+ok(await g.ev("!document.getElementById('who').hidden && document.getElementById('whoKeep').textContent === 'Keep in my book'"),
+   "pressing and holding a character opens its own card");
+await g.ev("document.getElementById('whoName').value = 'Dot'");
+await g.click("#whoKeep");
+eq(await g.ev("[book.length, book[1].name, chars[1].bookId === book[1].id, document.getElementById('whoKeep').disabled]"), [2, "Dot", true, true],
+   "'Keep in my book' keeps a character that's already romping");
+await g.ev("document.getElementById('whoName').value = 'Dotty'; document.getElementById('whoName').dispatchEvent(new Event('input'))");
+eq(await g.ev("book[1].name"), "Dotty", "renaming it on its card renames its page");
+await g.ev(`(() => { const c = chars[1]; c.held = true; c.body.setTransform(V(toM(500), toM(700)), 0); })()`);
+await g.click("#whoEdit");
+eq(await g.ev("[cardOpen, !!editing && editing.charId === chars[1].id]"), [true, true], "'Change drawing' opens its drawing");
+await g.ev(`(() => { strokes = ${J(D.mouse)}; letItGo(); })()`);
+eq(await g.ev("[chars.length, chars.filter(c => c.bookId === book[1].id).length, Math.abs(toU(chars[chars.length - 1].body.getPosition().x) - 500) < 5]"),
+   [4, 1, true], "the changed one takes the old one's place");
+await g.ev("openWho(chars[0])");
+await g.click("#whoHome");
+eq(await g.ev("[chars.length, book.length, whoChar]"), [3, 2, null], "'Send home' takes it out of the world but not out of the book");
+await g.ev(`(() => { for(const c of chars.slice()) removeChar(c); save(); })()`);
+eq(await g.ev("book.length"), 2, "clearing the world leaves the book alone");
+await g.ev("openBook()");
+await g.click("#shelf .dcard .remove");
+eq(await g.ev("book.length"), 2, "removing from the book asks twice");
+await g.click("#shelf .dcard .remove");
+eq(await g.ev("[book.length, book[0].name, document.querySelectorAll('#shelf .dcard').length]"), [1, "Bob", 1], "and the second tap removes it");
+await g.ev(`(() => { closeBook(); const c = spawn(${J(D.box)}, {bookId: book[0].id}); save(); })()`);
+const keptBook = await g.ev("localStorage.getItem(BOOK_KEY)");
+const keptWorld = await g.ev("localStorage.getItem(KEY)");
+g.close();
+
+g = await boot(FILE, {storage: {[BOOK_KEY]: keptBook, [KEY]: keptWorld}});
+eq(quiet(g.errors), [], "boots with a book without error");
+eq(await g.ev("[book.length, book[0].name, book[0].stars, chars.length, chars[0].bookId === book[0].id]"), [1, "Bob", 1, 1, true],
+   "the book and the world's link to it survive a restart");
+g.close();
+
+const newerBook = JSON.stringify({v: 2, doodles: JSON.parse(keptBook).doodles, extra: 1});
+g = await boot(FILE, {storage: {[BOOK_KEY]: newerBook}});
+await g.ev(`(() => { paused = true; keepInBook(${J(D.dot)}, "New"); saveBook(); })()`);
+eq([await g.ev("bookReadOnly"), await g.ev("localStorage.getItem(BOOK_KEY)")], [true, newerBook],
+   "a book from a newer build is read-only here, never saved over");
+g.close();
+g = await boot(FILE);
+await g.ev("paused = true; goTo('burrow')");
+
 /* ---- saving ---- */
 await g.ev(`(() => { for(const c of chars.slice()) removeChar(c);
   spawn(${J(D.ball)}); spawn(${J(D.stick)}); spawn(${J(D.worm)}); chars[1].stars = 3; save(); })()`);
 const saved = JSON.parse(await g.ev("localStorage.getItem(KEY)"));
-eq([saved.v, saved.layout, saved.chars.length], [1, "burrow", 3], "the world is saved with a version, the place and everyone in it");
+eq([saved.v, saved.layout, saved.chars.length], [2, "burrow", 3], "the world is saved with a version, the place and everyone in it");
 ok(saved.chars.every(c => Array.isArray(c.strokes) && Number.isFinite(c.x) && Number.isFinite(c.y)), "each character keeps its strokes and where it was");
 ok(JSON.stringify(saved).length < 60000, "three characters fit easily in storage: " + JSON.stringify(saved).length + " bytes");
 await g.ev(`(() => { for(let i = 0; i < 14; i++) spawn(${J(D.dot)}); })()`);
@@ -156,7 +226,14 @@ eq(await g.ev("JSON.stringify(chars.map(c => c.strokes))"), JSON.stringify(saved
 eq(await g.ev("document.getElementById('hint').classList.contains('gone')"), true, "no 'draw someone' hint when the world has people in it");
 g.close();
 
-const newer = JSON.stringify({...saved, v: 2, future: true});
+const v1 = JSON.stringify({...saved, v: 1});
+g = await boot(FILE, {storage: {[KEY]: v1}});
+eq(await g.ev("[readOnly, chars.length]"), [false, 3], "a world saved by the first build (v1) loads");
+await g.ev("paused = true; save()");
+eq(JSON.parse(await g.ev("localStorage.getItem(KEY)")).v, 2, "and is saved back as v2");
+g.close();
+
+const newer = JSON.stringify({...saved, v: 3, future: true});
 g = await boot(FILE, {storage: {[KEY]: newer}});
 eq(quiet(g.errors), [], "boots from a newer build's data without error");
 eq(await g.ev("readOnly"), true, "data from a newer build makes this one read-only");

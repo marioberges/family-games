@@ -119,6 +119,43 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
 .btn.go{background:var(--gold);box-shadow:0 4px 0 #C98A00}
 .btn.go:disabled{opacity:.45;box-shadow:none}
 
+/* name fields, the doodle book, and a character's own little card */
+.pill{display:flex;align-items:center;gap:7px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.7);
+  font-weight:600;font-size:15px}
+.pill svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+input.name{font:inherit;font-size:17px;padding:11px 14px;border-radius:14px;border:2px solid rgba(11,30,45,.12);
+  background:#fff;color:var(--ink);width:100%;-webkit-user-select:text;user-select:text}
+input.name:focus{outline:none;border-color:var(--gold)}
+input.name::placeholder{color:rgba(11,30,45,.38)}
+.overlay{position:absolute;inset:0;background:rgba(11,30,45,.38);display:grid;place-items:center;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 12px)}
+.overlay[hidden]{display:none}
+.panel{background:var(--paper);border-radius:26px;padding:18px;box-shadow:0 18px 50px rgba(11,30,45,.35);
+  width:min(880px, calc(100vw - 24px));max-height:calc(100vh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.panelhead{display:flex;align-items:center;gap:12px}
+.panelhead h2{margin:0;font-size:24px}
+.sub{color:var(--soft);font-size:15px}
+.empty{margin:6px 4px 10px;color:var(--soft);font-size:17px;line-height:1.45}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:12px;overflow-y:auto;
+  padding:2px 2px 6px;-webkit-overflow-scrolling:touch}
+.dcard{background:#fff;border-radius:18px;padding:10px;display:flex;flex-direction:column;gap:6px;
+  box-shadow:inset 0 0 0 2px rgba(11,30,45,.07)}
+.thumb{background:var(--glass-hi);border-radius:12px;padding:0;aspect-ratio:1/1;display:block;width:100%}
+.thumb canvas{width:100%;height:100%;pointer-events:none;touch-action:auto}
+.dname{font-weight:700;font-size:17px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dstars{text-align:center;color:#B87D00;font-weight:700;font-size:14px;min-height:18px}
+.drow{display:flex;gap:6px}
+.drow .tool{flex:1;padding:9px 0}
+.tool.drop{background:var(--gold)}
+.remove{background:none;color:var(--soft);font-size:13px;padding:4px}
+.remove.armed{color:#D7263D;font-weight:700}
+.panel.small{width:min(390px, calc(100vw - 24px));align-items:stretch}
+#whoPic{width:150px;height:150px;align-self:center;touch-action:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .tool{flex:1;padding:11px 0}
+.btn.go.kept,.btn.go.kept:disabled{background:var(--glass-hi);box-shadow:none;color:#2E7D32;opacity:1}
+
 #fail{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:30px;font-size:20px}
 @media (max-height:520px){
   .places button span{display:none}
@@ -126,16 +163,19 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
   #drawBtn{width:68px;height:68px}
   #drawBtn svg{width:36px;height:36px}
   #hint{top:calc(env(safe-area-inset-top) + 62px);font-size:15px}
-  .sheet{display:grid;width:auto;grid-template-columns:var(--pad) 230px;grid-template-rows:auto 1fr auto;
-    grid-template-areas:"pad title" "pad tools" "pad actions";column-gap:14px;padding:12px}
-  .cardtitle{grid-area:title;font-size:14px}
+  .sheet{display:grid;width:auto;grid-template-columns:var(--pad) 280px;grid-template-rows:auto auto auto minmax(0,1fr);height:calc(var(--pad) + 24px);
+    grid-template-areas:"pad title" "pad name" "pad tools" "pad actions";column-gap:14px;padding:12px}
+  #nameIn{grid-area:name;font-size:16px;padding:8px 12px}
+  .pill span{display:none}
+  .pill{padding:10px}
+  .cardtitle{grid-area:title;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
   .tools{grid-area:tools;flex-wrap:wrap;align-content:flex-start}
   .tools .spacer{display:none}
   .swatches{flex-wrap:wrap}
   .sw{width:34px;height:34px}
   .padwrap{grid-area:pad}
-  .actions{grid-area:actions;flex-direction:column}
-  .btn.ghost{flex:none}
+  .actions{grid-area:actions;align-self:end}
+  .btn.ghost{flex:0 0 40%}
   .btn{padding:11px 0;font-size:17px}
 }
 </style>
@@ -150,6 +190,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
     <button data-layout="burrow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 20h20M4 20c1.5-9 14.5-9 16 0M9.5 20v-2.5a2.5 2.5 0 0 1 5 0V20"/></svg><span>Burrow</span></button>
   </div>
   <div class="spacer"></div>
+  <button id="bookBtn" class="pill" aria-label="My doodles"><svg viewBox="0 0 24 24"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 7.5h6"/></svg><span>My doodles</span></button>
   <button id="clear">Clear</button>
 </div>
 
@@ -160,6 +201,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
 <div id="card" hidden>
   <div class="sheet" role="dialog" aria-label="Draw a character">
     <div class="cardtitle" id="cardTitle"></div>
+    <input id="nameIn" class="name" maxlength="24" autocomplete="off" autocapitalize="words" spellcheck="false"
+      placeholder="Give it a name to keep it in your book">
     <div class="tools">
       <div class="swatches" id="swatches"></div>
       <div class="spacer"></div>
@@ -171,6 +214,29 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
       <button class="btn ghost" id="cancel">Not now</button>
       <button class="btn go" id="done" disabled>Let it go!</button>
     </div>
+  </div>
+</div>
+
+<div id="book" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-label="My doodles">
+    <div class="panelhead"><h2>My doodles</h2><span class="sub" id="bookSub"></span><div class="spacer"></div>
+      <button class="tool" id="bookClose">Done</button></div>
+    <p class="empty" id="bookEmpty">Doodles you give a name to are kept here, ready to drop into any place.
+      To keep one that's already romping about, press and hold it.</p>
+    <div class="shelf" id="shelf"></div>
+  </div>
+</div>
+
+<div id="who" class="overlay" hidden>
+  <div class="panel small" role="dialog" aria-label="This character">
+    <canvas id="whoPic"></canvas>
+    <input id="whoName" class="name" maxlength="24" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Give it a name">
+    <button class="btn go" id="whoKeep">Keep in my book</button>
+    <div class="row">
+      <button class="tool" id="whoEdit">Change drawing</button>
+      <button class="tool" id="whoHome">Send home</button>
+    </div>
+    <button class="tool" id="whoClose">Done</button>
   </div>
 </div>
 
@@ -196,7 +262,10 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
    =================================================================== */
 
 const KEY = "romp:world:v1";   // never changes; `v` inside the blob does
-const DATA_V = 1;
+const DATA_V = 2;              // v2: a character may point at its page in the book
+const BOOK_KEY = "romp:book:v1";  // the doodles a family keeps, apart from any one world
+const BOOK_V = 1;
+const MAX_BOOK = 60;
 const W = 1600, H = 1000;
 const PPM = 50;
 const PAD = 1000;
@@ -285,7 +354,9 @@ let launches = [];
 let clock = 0;
 let grab = null;
 let dirty = false;
-let paused = false;        // tests stop the clock to step it by hand
+let paused = false;
+let book = [];             // [{id, name, strokes, stars, made, edited?}]
+let bookReadOnly = false;        // tests stop the clock to step it by hand
 
 /* =================================================================
    Shape: strokes → mask → hull and traits
@@ -504,6 +575,8 @@ function makeChar(strokes, opts = {}){
     traits: shape.traits,
     mv: movesFor(shape.traits),
     stars: opts.stars || 0,
+    bookId: opts.bookId || null,
+    nameT: opts.bookId ? clock + 3 : 0,     // show the name for a moment after arriving
     sprite: null,
     body: null,
     dir: Math.random() < .5 ? 1 : -1,
@@ -529,13 +602,15 @@ function addBody(c, x, y, a){
   });
 }
 
-function spawn(strokes){
-  const c = makeChar(strokes);
+function spawn(strokes, opts = {}){
+  const c = makeChar(strokes, {bookId: opts.bookId});
   const L = LAYOUTS[layoutId];
-  addBody(c, clamp(L.spawn[0] + rand(-90, 90), 60, W - 60), L.spawn[1] - rand(0, 80), rand(-.15, .15));
+  const x = opts.at ? clamp(opts.at[0], 60, W - 60) : clamp(L.spawn[0] + rand(-90, 90), 60, W - 60);
+  const y = opts.at ? Math.min(opts.at[1], H - 120) : L.spawn[1] - rand(0, 80);
+  addBody(c, x, y, opts.at ? 0 : rand(-.15, .15));
   chars.push(c);
   if(chars.length > MAX_CHARS) removeChar(chars[0]);
-  puff(L.spawn[0], L.spawn[1] + 40, "#fff", 10);
+  puff(x, y + 40, "#fff", 10);
   dirty = true; save(); showHint();
   return c;
 }
@@ -836,6 +911,8 @@ function tick(dt){
       if(Math.hypot(toU(p.x) - star.x, toU(p.y) - star.y) < c.traits.size * .5 + 34){
         star.visible = false; star.back = 5;
         c.stars++; c.heart = 2;
+        const page = bookEntry(c.bookId);
+        if(page){ page.stars = (page.stars | 0) + 1; saveBook(); }
         sparkle(star.x, star.y);
         dirty = true; save();
         break;
@@ -1040,6 +1117,18 @@ function drawChar(g, c){
   g.restore();
 
   const head = y - c.traits.h / 2 - 22;
+  const page = c.bookId && bookEntry(c.bookId);
+  if(page && (c.held || clock < c.nameT || whoChar === c)){
+    g.font = "700 22px " + fontFamily;
+    g.textAlign = "center"; g.textBaseline = "bottom";
+    const tw = g.measureText(page.name).width;
+    const ny = head - (c.stars ? 22 : 4);
+    g.fillStyle = "rgba(255,253,247,.92)";
+    g.beginPath();
+    g.roundRect ? g.roundRect(x - tw / 2 - 10, ny - 28, tw + 20, 32, 16) : g.rect(x - tw / 2 - 10, ny - 28, tw + 20, 32);
+    g.fill();
+    g.fillStyle = "#0B1E2D"; g.fillText(page.name, x, ny);
+  }
   if(c.heart > 0){
     const a = clamp(c.heart / .4, 0, 1);
     g.globalAlpha = a;
@@ -1055,7 +1144,7 @@ function drawChar(g, c){
       g.lineWidth = 2; g.strokeStyle = "#fff"; g.stroke();
     }
     if(c.stars > 5){
-      g.font = "700 18px " + getComputedStyle(document.body).fontFamily;
+      g.font = "700 18px " + fontFamily;
       g.fillStyle = "#0B1E2D"; g.textAlign = "left"; g.textBaseline = "middle";
       g.fillText("×" + c.stars, x + (n / 2) * 20 + 4, head + 7);
     }
@@ -1139,7 +1228,7 @@ function charAt(pt){
 }
 
 function onWorldDown(e){
-  if(cardOpen || grab || !world) return;
+  if(cardOpen || bookOpen || whoChar || grab || !world) return;
   const pt = toWorldM(e.clientX, e.clientY);
   const c = charAt(pt);
   if(!c) return;
@@ -1188,7 +1277,7 @@ let cur = null, curId = null, penSeen = false, colorIdx = 0, padPx = 600;
 function sizePad(){
   // short screens (a phone on its side) put the tools beside the pad
   const short = ch <= 520;
-  const side = Math.floor(Math.max(200, short ? Math.min(ch - 44, cw - 300, 720) : Math.min(cw - 52, ch - 200, 720)));
+  const side = Math.floor(Math.max(200, short ? Math.min(ch - 44, cw - 350, 720) : Math.min(cw - 52, ch - 262, 720)));
   padPx = side;
   document.documentElement.style.setProperty("--pad", side + "px");
   pad.width = Math.round(side * dpr); pad.height = Math.round(side * dpr);
@@ -1284,7 +1373,7 @@ function drawGuide(g){
   g.save();
   g.strokeStyle = "rgba(11,30,45,.18)"; g.fillStyle = "rgba(11,30,45,.32)";
   g.lineWidth = 4; g.setLineDash([14, 12]);
-  g.font = "600 " + Math.round(Math.max(30, 14 * PAD / padPx)) + "px " + getComputedStyle(document.body).fontFamily;
+  g.font = "600 " + Math.round(Math.max(30, 14 * PAD / padPx)) + "px " + fontFamily;
   g.textBaseline = "middle";
   if(gd.kind === "height"){
     const yTop = PAD - 40 - len, x = 40;
@@ -1310,31 +1399,66 @@ function syncCard(){
   $("done").disabled = !strokes.length || curId !== null;
   $("padHint").style.display = strokes.length ? "none" : "";
 }
-function openCard(){
+/* `edit` (optional): {strokes, name, bookId, charId} — change a kept doodle,
+   or one that's in the world, starting from its drawing. */
+let editing = null;
+function openCard(edit){
   if(grab) letGo(null);
+  editing = edit && edit.strokes ? edit : null;
   cardOpen = true;
-  strokes = []; cur = null; curId = null;
+  strokes = editing ? clone(editing.strokes) : []; cur = null; curId = null;
   const L = LAYOUTS[layoutId];
-  $("cardTitle").innerHTML = "Drawing for <b>" + L.name + "</b> · " + L.about;
+  const title = $("cardTitle");
+  title.textContent = "";
+  const b = document.createElement("b");
+  if(editing){
+    title.append("Changing ");
+    b.textContent = editing.name || "this doodle";
+    title.append(b);
+  } else {
+    title.append("Drawing for ");
+    b.textContent = L.name;
+    title.append(b, " · " + L.about);
+  }
+  $("nameIn").value = editing ? (editing.name || "") : "";
   $("card").hidden = false;
   $("hint").classList.add("gone");
   sizePad(); syncCard();
 }
 function closeCard(){
-  cardOpen = false; curId = null; cur = null;
+  cardOpen = false; curId = null; cur = null; editing = null;
+  try{ $("nameIn").blur(); }catch(e){}
   $("card").hidden = true;
 }
-$("drawBtn").addEventListener("click", openCard);
+$("drawBtn").addEventListener("click", () => openCard());
 $("cancel").addEventListener("click", closeCard);
 $("undo").addEventListener("click", () => { strokes.pop(); redrawPad(); syncCard(); });
 $("wipe").addEventListener("click", () => { strokes = []; redrawPad(); syncCard(); });
-$("done").addEventListener("click", () => {
+$("done").addEventListener("click", letItGo);
+function letItGo(){
   if(!strokes.length) return;
-  const s = strokes;
+  const s = strokes, name = cleanName($("nameIn").value), ed = editing;
   closeCard();
-  spawn(s);
   strokes = [];
-});
+  // a kept doodle being changed: its page in the book gets the new drawing
+  let page = ed && bookEntry(ed.bookId);
+  if(page){
+    page.strokes = clone(s);
+    if(name) page.name = name;
+    page.edited = Date.now();
+    saveBook();
+  }
+  else if(name) page = keepInBook(s, name);
+  // a character from the world being changed: the new one takes its place
+  let at = null;
+  const old = ed && ed.charId && chars.find(c => c.id === ed.charId);
+  if(old && old.body){
+    const p = old.body.getPosition();
+    at = [toU(p.x), toU(p.y) - 20];
+    removeChar(old);
+  }
+  spawn(s, {bookId: page ? page.id : null, at});
+}
 
 for(const b of document.querySelectorAll("[data-layout]")){
   b.addEventListener("click", () => goTo(b.dataset.layout));
@@ -1371,6 +1495,193 @@ function showHint(text){
 }
 
 /* =================================================================
+   The doodle book: the ones worth keeping, named, apart from any world.
+   Clearing the world never touches it. A page is {id, name, strokes, stars,
+   made, edited?}; stars are everything that doodle has ever collected.
+   ================================================================= */
+
+const clone = x => JSON.parse(JSON.stringify(x));
+const cleanName = s => String(s || "").replace(/\s+/g, " ").trim().slice(0, 24);
+const fontFamily = (() => { try{ return getComputedStyle(document.body).fontFamily || "sans-serif"; }catch(e){ return "sans-serif"; } })();
+function bookEntry(id){ return id ? book.find(d => d.id === id) || null : null; }
+function newBookId(){ return "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function keepInBook(strokes, name){
+  if(bookReadOnly) return null;
+  if(book.length >= MAX_BOOK){
+    showHint("Your book is full. Remove a doodle from it to keep a new one.");
+    return null;
+  }
+  const page = {id: newBookId(), name: cleanName(name) || "Doodle " + (book.length + 1),
+    strokes: clone(strokes), stars: 0, made: Date.now()};
+  book.push(page);
+  saveBook();
+  return page;
+}
+function saveBook(){
+  if(bookReadOnly) return;
+  try{ localStorage.setItem(BOOK_KEY, JSON.stringify({v: BOOK_V, doodles: book})); }catch(e){}
+}
+function loadBook(){
+  let raw = null;
+  try{ raw = localStorage.getItem(BOOK_KEY); }catch(e){ return []; }
+  if(!raw) return [];
+  let d;
+  try{ d = JSON.parse(raw); }catch(e){ return []; }
+  if(!d || typeof d !== "object" || !Array.isArray(d.doodles)) return [];
+  if((d.v | 0) > BOOK_V) bookReadOnly = true;   // from a newer build: look, don't touch
+  return d.doodles.filter(p => p && typeof p.id === "string" && validStrokes(p.strokes))
+    .map(p => ({...p, name: cleanName(p.name) || "Doodle", stars: p.stars | 0}));
+}
+
+/* A doodle's sticker, fitted into a square canvas. */
+const thumbs = new Map();
+function drawThumb(cv, page, css){
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = cv.height = Math.round(css * ratio);
+  const g = cv.getContext && cv.getContext("2d");
+  if(!g) return;
+  const key = page.id + ":" + (page.edited || page.made || 0);
+  let sp = thumbs.get(key);
+  if(!sp){
+    try{ sp = makeSprite({shape: analyse(page.strokes), strokes: page.strokes}); }catch(e){ sp = null; }
+    if(sp) thumbs.set(key, sp);
+  }
+  if(!sp) return;
+  const box = cv.width * .84, f = box / Math.max(sp.img.width, sp.img.height);
+  const w = sp.img.width * f, h = sp.img.height * f;
+  g.drawImage(sp.img, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+}
+
+let bookOpen = false;
+function openBook(){
+  if(grab) letGo(null);
+  bookOpen = true;
+  renderShelf();
+  $("book").hidden = false;
+  $("hint").classList.add("gone");
+}
+function closeBook(){
+  bookOpen = false;
+  $("book").hidden = true;
+  showHint(chars.length ? "" : undefined);
+}
+function renderShelf(){
+  const shelf = $("shelf");
+  shelf.textContent = "";
+  $("bookEmpty").hidden = book.length > 0;
+  $("bookSub").textContent = book.length ? book.length + (book.length === 1 ? " doodle" : " doodles") : "";
+  for(const page of book.slice().reverse()){
+    const card = document.createElement("div");
+    card.className = "dcard";
+    card.dataset.id = page.id;
+    const thumb = document.createElement("button");
+    thumb.className = "thumb";
+    thumb.setAttribute("aria-label", "Drop " + page.name + " in");
+    const cv = document.createElement("canvas");
+    thumb.appendChild(cv);
+    const nm = document.createElement("div");
+    nm.className = "dname"; nm.textContent = page.name;
+    const st = document.createElement("div");
+    st.className = "dstars"; st.textContent = page.stars ? "★ " + page.stars : "";
+    const row = document.createElement("div");
+    row.className = "drow";
+    const drop = document.createElement("button");
+    drop.className = "tool drop"; drop.textContent = "Drop in";
+    const edit = document.createElement("button");
+    edit.className = "tool edit"; edit.textContent = "Change";
+    row.append(drop, edit);
+    const rm = document.createElement("button");
+    rm.className = "remove"; rm.textContent = "Remove from book";
+    card.append(thumb, nm, st, row, rm);
+    shelf.appendChild(card);
+    drawThumb(cv, page, 156);
+
+    const dropIn = () => { closeBook(); spawn(clone(page.strokes), {bookId: page.id}); };
+    thumb.addEventListener("click", dropIn);
+    drop.addEventListener("click", dropIn);
+    edit.addEventListener("click", () => {
+      closeBook();
+      openCard({strokes: page.strokes, name: page.name, bookId: page.id});
+    });
+    let armed = 0;
+    rm.addEventListener("click", () => {
+      if(Date.now() < armed){ removeFromBook(page.id); renderShelf(); return; }
+      armed = Date.now() + 3000;
+      rm.textContent = "Tap again to remove"; rm.classList.add("armed");
+      setTimeout(() => { if(Date.now() >= armed){ rm.textContent = "Remove from book"; rm.classList.remove("armed"); } }, 3100);
+    });
+  }
+}
+function removeFromBook(id){
+  if(bookReadOnly) return;
+  book = book.filter(d => d.id !== id);
+  for(const c of chars) if(c.bookId === id) c.bookId = null;   // still in the world, just not kept
+  saveBook(); dirty = true; save();
+}
+$("bookBtn").addEventListener("click", openBook);
+$("bookClose").addEventListener("click", closeBook);
+
+/* Press and hold a character: its own card. Keep it, name it, change it,
+   or send it home. */
+let whoChar = null;
+function openWho(c){
+  if(!c || !c.body) return;
+  whoChar = c;
+  const page = bookEntry(c.bookId);
+  $("whoName").value = page ? page.name : "";
+  syncWho();
+  drawThumb($("whoPic"), page || {id: "c" + c.id, strokes: c.strokes, made: c.born}, 150);
+  $("who").hidden = false;
+  $("hint").classList.add("gone");
+}
+function syncWho(){
+  const page = whoChar && bookEntry(whoChar.bookId);
+  const keep = $("whoKeep");
+  keep.textContent = page ? "In your book ✓" : "Keep in my book";
+  keep.classList.toggle("kept", !!page);
+  keep.disabled = !!page || bookReadOnly;
+}
+function closeWho(){
+  try{ $("whoName").blur(); }catch(e){}
+  if(whoChar) whoChar.nameT = clock + 2;
+  whoChar = null;
+  $("who").hidden = true;
+  showHint(chars.length ? "" : undefined);
+}
+$("whoName").addEventListener("input", () => {
+  const page = whoChar && bookEntry(whoChar.bookId);
+  const name = cleanName($("whoName").value);
+  if(page && name){ page.name = name; saveBook(); }
+});
+$("whoKeep").addEventListener("click", () => {
+  if(!whoChar || whoChar.bookId) return;
+  const page = keepInBook(whoChar.strokes, $("whoName").value);
+  if(!page) return;
+  whoChar.bookId = page.id;
+  $("whoName").value = page.name;
+  dirty = true; save();
+  syncWho();
+});
+$("whoEdit").addEventListener("click", () => {
+  const c = whoChar;
+  if(!c) return;
+  const page = bookEntry(c.bookId);
+  closeWho();
+  openCard({strokes: c.strokes, name: page ? page.name : cleanName($("whoName").value), bookId: c.bookId, charId: c.id});
+});
+$("whoHome").addEventListener("click", () => {
+  const c = whoChar;
+  closeWho();
+  if(!c) return;
+  const p = c.body && c.body.getPosition();
+  if(p) puff(toU(p.x), toU(p.y), "#fff", 8);
+  removeChar(c);
+  dirty = true; save(); showHint();
+});
+$("whoClose").addEventListener("click", closeWho);
+
+/* =================================================================
    Saving. One blob, a `v` inside it. A build that meets newer data than it
    understands goes read-only rather than save over fields it doesn't know.
    ================================================================= */
@@ -1380,8 +1691,10 @@ function snapshot(){
     v: DATA_V, layout: layoutId,
     chars: chars.filter(c => c.body).map(c => {
       const p = c.body.getPosition();
-      return {id: c.id, strokes: c.strokes, x: Math.round(toU(p.x)), y: Math.round(toU(p.y)),
+      const out = {id: c.id, strokes: c.strokes, x: Math.round(toU(p.x)), y: Math.round(toU(p.y)),
         a: Math.round(normAngle(c.body.getAngle()) * 100) / 100, stars: c.stars};
+      if(c.bookId) out.book = c.bookId;
+      return out;
     })
   };
 }
@@ -1397,7 +1710,8 @@ function load(){
   try{ d = JSON.parse(raw); }catch(e){ return null; }
   if(!d || typeof d !== "object") return null;
   if((d.v | 0) > DATA_V) readOnly = true;   // from a newer build: look, don't touch
-  // migrations go here, oldest first, when there is a v2
+  // v1 → v2 added `book` to a character; a v1 world has none, so nothing moves
+  if((d.v | 0) < 2) d.v = 2;
   return d;
 }
 function validStrokes(ss){
@@ -1411,7 +1725,9 @@ function restore(d){
   for(const s of d.chars.slice(-MAX_CHARS)){
     if(!s || !validStrokes(s.strokes)) continue;
     try{
-      const c = makeChar(s.strokes, {id: s.id | 0 || undefined, stars: s.stars | 0});
+      const c = makeChar(s.strokes, {id: s.id | 0 || undefined, stars: s.stars | 0,
+        bookId: typeof s.book === "string" ? s.book : null});
+      c.nameT = 0;
       const x = Number.isFinite(s.x) ? clamp(s.x, 40, W - 40) : LAYOUTS[layoutId].spawn[0];
       const y = Number.isFinite(s.y) ? Math.min(s.y, H - 120) : LAYOUTS[layoutId].spawn[1];
       addBody(c, x, y, Number.isFinite(s.a) ? s.a : 0);
@@ -1423,6 +1739,7 @@ function restore(d){
 
 /* ---------------------------------------------------------------- run */
 
+book = loadBook();
 restore(load());
 resize();
 window.addEventListener("resize", resize);
@@ -1443,7 +1760,13 @@ function frame(t){
   draw();
   /* A new build is waiting: switch to it at a quiet moment, silently.
      Everyone is saved first, so the world comes back exactly as it was. */
-  if(updateReady && !cardOpen && !grab){ save(); updateReady = false; try{ location.reload(); }catch(e){} }
+  // press and hold a character, without dragging it: its own little card
+  if(grab && grab.moved < 12 && performance.now() - grab.t0 > 600){
+    const c = grab.c;
+    letGo(null);
+    openWho(c);
+  }
+  if(updateReady && !cardOpen && !bookOpen && !whoChar && !grab){ save(); updateReady = false; try{ location.reload(); }catch(e){} }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
