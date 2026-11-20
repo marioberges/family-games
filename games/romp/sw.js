@@ -5,7 +5,7 @@
    so it downloads once on first launch and Romp works offline from then on.
    No web fonts: the game uses the system's rounded face. */
 
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = `romp-shell-${VERSION}`;
 
 const SPLASH = [

@@ -108,6 +108,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
 .sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
 .tool{padding:9px 14px;border-radius:999px;background:var(--glass-hi);font-weight:600;font-size:15px}
 .tool:disabled{opacity:.4}
+.tool[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .padwrap{position:relative;width:var(--pad);height:var(--pad);border-radius:18px;overflow:hidden;
   background:#fff;box-shadow:inset 0 0 0 2px rgba(11,30,45,.08)}
 #pad{width:100%;height:100%;touch-action:none}
@@ -205,6 +206,7 @@ input.name::placeholder{color:rgba(11,30,45,.38)}
       placeholder="Give it a name to keep it in your book">
     <div class="tools">
       <div class="swatches" id="swatches"></div>
+      <button class="tool" id="eraser" aria-pressed="false">Eraser</button>
       <div class="spacer"></div>
       <button class="tool" id="undo" disabled>Undo</button>
       <button class="tool" id="wipe" disabled>Start over</button>
@@ -297,7 +299,7 @@ const LAYOUTS = {
   ledges: {
     name: "Ledges", about: "Steps up to a high shelf. Who can jump that high?",
     spawn: [300, 160], star: [1470, 375],
-    guide: {kind: "height", value: 110, label: "one step"},
+    guide: {kind: "step", value: 110, label: "A step is this tall"},
     solids: [
       [[0, 900], [1600, 900], [1600, 1000], [0, 1000]],
       [[0, 650], [430, 900], [0, 900]],
@@ -311,7 +313,7 @@ const LAYOUTS = {
   gap: {
     name: "Gap", about: "Two cliffs and a gap. Leap it, or lie across it?",
     spawn: [300, 220], star: [1330, 580],
-    guide: {kind: "width", value: 220, label: "the gap"},
+    guide: {kind: "gap", value: 220, label: "The gap is this wide"},
     solids: [
       [[0, 640], [690, 640], [690, 1000], [0, 1000]],
       [[910, 640], [1600, 640], [1600, 1000], [910, 1000]],
@@ -324,7 +326,7 @@ const LAYOUTS = {
   burrow: {
     name: "Burrow", about: "A low tunnel under a hill. Small enough to fit?",
     spawn: [220, 200], star: [1400, 848],
-    guide: {kind: "height", value: 85, label: "the tunnel"},
+    guide: {kind: "tunnel", value: 85, label: "The tunnel is this low"},
     solids: [
       [[0, 900], [1600, 900], [1600, 1000], [0, 1000]],
       [[600, 750], [1300, 750], [1300, 815], [600, 815]],
@@ -1293,6 +1295,7 @@ COLORS.forEach((col, i) => {
   b.addEventListener("click", () => {
     colorIdx = i;
     for(const s of swatches.children) s.setAttribute("aria-pressed", String(s === b));
+    setEraser(false);
   });
   swatches.appendChild(b);
 });
@@ -1310,6 +1313,65 @@ function widthFor(e){
   return 16;
 }
 
+/* Undo steps back through whole actions: a stroke, an eraser swipe, or
+   Start over. Each one saves the drawing as it was just before. */
+let history = [];
+function remember(){
+  history.push(clone(strokes));
+  if(history.length > 80) history.shift();
+}
+
+/* The eraser rubs out the bits of line it passes over, splitting a line in
+   two when it goes through the middle, the way a real eraser would. */
+let erasing = false, eraseMark = null, erasedAny = false;
+function setEraser(on){
+  erasing = !!on;
+  $("eraser").setAttribute("aria-pressed", String(erasing));
+}
+$("eraser").addEventListener("click", () => setEraser(!erasing));
+
+function segDist(px, py, ax, ay, bx, by){
+  const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+  let t = L2 ? ((px - ax) * dx + (py - ay) * dy) / L2 : 0;
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  return Math.hypot(ax + t * dx - px, ay + t * dy - py);
+}
+function eraseAt(x, y, r){
+  let changed = false;
+  const out = [];
+  for(const s of strokes){
+    const p = s.p, n = p.length / 3;
+    const keep = [], link = [];
+    let hit = false;
+    for(let i = 0; i < n; i++){
+      keep[i] = Math.hypot(p[3 * i] - x, p[3 * i + 1] - y) > r + p[3 * i + 2] / 20;
+      if(i < n - 1){
+        link[i] = segDist(x, y, p[3 * i], p[3 * i + 1], p[3 * i + 3], p[3 * i + 4]) >
+          r + Math.max(p[3 * i + 2], p[3 * i + 5]) / 20;
+      }
+      if(!keep[i] || (i < n - 1 && !link[i])) hit = true;
+    }
+    if(!hit){ out.push(s); continue; }
+    changed = true;
+    let run = [];
+    for(let i = 0; i < n; i++){
+      if(keep[i]) run.push(p[3 * i], p[3 * i + 1], p[3 * i + 2]);
+      if(!keep[i] || i === n - 1 || !link[i]){
+        if(run.length >= 6) out.push({c: s.c, p: run});   // crumbs of a single point go
+        run = [];
+      }
+    }
+  }
+  if(changed) strokes = out;
+  return changed;
+}
+function eraserRadius(e){ return e.pointerType === "pen" ? 22 + (e.pressure > 0 ? e.pressure : .5) * 20 : 34; }
+function rub(e){
+  const [x, y] = toPad(e), r = eraserRadius(e);
+  if(eraseAt(x, y, r)) erasedAny = true;
+  eraseMark = [x, y, r];
+}
+
 function padDown(e){
   if(!cardOpen) return;
   if(e.pointerType === "pen") penSeen = true;
@@ -1318,18 +1380,37 @@ function padDown(e){
   if(e.preventDefault) e.preventDefault();
   curId = e.pointerId;
   try{ pad.setPointerCapture(e.pointerId); }catch(err){}
-  cur = {c: colorIdx, p: []};
-  strokes.push(cur);
-  addPoint(e, true);
+  remember();
+  if(erasing){
+    erasedAny = false;
+    rub(e);
+    redrawPad();
+  } else {
+    cur = {c: colorIdx, p: []};
+    strokes.push(cur);
+    addPoint(e, true);
+  }
   syncCard();
 }
 function padMove(e){
-  if(e.pointerId !== curId || !cur) return;
+  if(e.pointerId !== curId) return;
   const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
-  for(const ev of (evs && evs.length ? evs : [e])) addPoint(ev, false);
+  const list = evs && evs.length ? evs : [e];
+  if(erasing){
+    for(const ev of list) rub(ev);
+    redrawPad();
+    return;
+  }
+  if(!cur) return;
+  for(const ev of list) addPoint(ev, false);
 }
 function padUp(e){
   if(e.pointerId !== curId) return;
+  if(erasing){
+    if(!erasedAny) history.pop();      // a swipe that rubbed out nothing isn't a step
+    eraseMark = null;
+    redrawPad();
+  }
   curId = null; cur = null;
   syncCard();
 }
@@ -1363,38 +1444,84 @@ function redrawPad(){
   pctx.setTransform(f, 0, 0, f, 0, 0);
   drawGuide(pctx);
   for(const s of strokes) strokePath(pctx, s, 0, COLORS[s.c] || COLORS[0]);
+  if(eraseMark){
+    pctx.beginPath(); pctx.arc(eraseMark[0], eraseMark[1], eraseMark[2], 0, Math.PI * 2);
+    pctx.fillStyle = "rgba(11,30,45,.06)"; pctx.fill();
+    pctx.lineWidth = 3; pctx.strokeStyle = "rgba(11,30,45,.35)"; pctx.stroke();
+  }
 }
 
-/* The place's key size, drawn faintly at the same scale as the doodle. */
+/* The place's tricky bit, drawn faintly at the bottom of the pad at exactly
+   the size it has in the world, with a measuring arrow and a plain label:
+   "A step is this tall". The doodle drawn next to it ends up in the world
+   at the same size, so a child can see whether it will jump, fit, or bridge. */
 function drawGuide(g){
   const gd = LAYOUTS[layoutId].guide;
   if(!gd) return;
-  const len = gd.value / PAD_TO_WORLD;
+  const len = gd.value / PAD_TO_WORLD;       // the obstacle in pad units
+  const base = PAD - 70;                     // the ground line
+  const font = Math.round(Math.max(30, 15 * PAD / padPx));
+  const earth = "rgba(201,164,124,.30)", hole = "rgba(143,108,76,.30)", grass = "rgba(120,179,86,.45)";
+  const poly = (pts, fill) => {
+    g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]));
+    g.closePath(); g.fillStyle = fill; g.fill();
+  };
+  const line = (pts, color, w) => {
+    g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]));
+    g.strokeStyle = color; g.lineWidth = w; g.lineCap = "round"; g.lineJoin = "round"; g.stroke();
+  };
+  // a measuring arrow with ends, from a to b
+  const measure = (ax, ay, bx, by) => {
+    const ang = Math.atan2(by - ay, bx - ax), h = 16, n = [-Math.sin(ang), Math.cos(ang)];
+    const ink = "rgba(11,30,45,.42)";
+    line([[ax, ay], [bx, by]], ink, 4);
+    for(const [x, y, d] of [[ax, ay, 1], [bx, by, -1]]){
+      line([[x + n[0] * 14, y + n[1] * 14], [x - n[0] * 14, y - n[1] * 14]], ink, 4);
+      line([[x + Math.cos(ang) * h * d + n[0] * 9, y + Math.sin(ang) * h * d + n[1] * 9], [x, y],
+            [x + Math.cos(ang) * h * d - n[0] * 9, y + Math.sin(ang) * h * d - n[1] * 9]], ink, 4);
+    }
+  };
+  const label = (text, x, y, align) => {
+    g.font = "600 " + font + "px " + fontFamily;
+    g.textAlign = align; g.textBaseline = "alphabetic";
+    g.fillStyle = "rgba(11,30,45,.5)";
+    g.fillText(text, x, y);
+  };
   g.save();
-  g.strokeStyle = "rgba(11,30,45,.18)"; g.fillStyle = "rgba(11,30,45,.32)";
-  g.lineWidth = 4; g.setLineDash([14, 12]);
-  g.font = "600 " + Math.round(Math.max(30, 14 * PAD / padPx)) + "px " + fontFamily;
-  g.textBaseline = "middle";
-  if(gd.kind === "height"){
-    const yTop = PAD - 40 - len, x = 40;
-    g.beginPath(); g.moveTo(x, PAD - 40); g.lineTo(PAD - 40, PAD - 40); g.stroke();
-    g.beginPath(); g.moveTo(x, yTop); g.lineTo(PAD - 40, yTop); g.stroke();
-    g.setLineDash([]);
-    g.textAlign = "left";
-    g.fillText(gd.label, x + 6, yTop - 24);
-  } else {
-    const x0 = (PAD - len) / 2, y = PAD - 60;
-    g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + len, y); g.stroke();
-    g.setLineDash([]);
-    g.beginPath(); g.moveTo(x0, y - 22); g.lineTo(x0, y + 22); g.moveTo(x0 + len, y - 22); g.lineTo(x0 + len, y + 22); g.stroke();
-    g.textAlign = "center";
-    g.fillText(gd.label, PAD / 2, y - 34);
+
+  if(gd.kind === "step"){
+    const x0 = PAD - 280;
+    poly([[0, base], [PAD, base], [PAD, PAD], [0, PAD]], earth);
+    poly([[x0, base - len], [PAD, base - len], [PAD, base], [x0, base]], earth);
+    line([[0, base], [x0, base], [x0, base - len], [PAD, base - len]], grass, 8);
+    measure(x0 - 34, base, x0 - 34, base - len);
+    label(gd.label, PAD - 24, base - len - 26, "right");
+  }
+  else if(gd.kind === "tunnel"){
+    const x0 = PAD * .42, roof = base - len;
+    poly([[0, base], [PAD, base], [PAD, PAD], [0, PAD]], earth);
+    poly([[x0, roof], [PAD, roof], [PAD, base], [x0, base]], hole);
+    poly([[x0, roof - 150], [PAD, roof - 150], [PAD, roof], [x0, roof]], earth);
+    line([[0, base], [PAD, base]], grass, 8);
+    line([[x0, roof - 150], [PAD, roof - 150]], grass, 8);
+    measure(x0 - 34, base, x0 - 34, roof);
+    label(gd.label, PAD - 24, roof - 150 - 26, "right");
+  }
+  else if(gd.kind === "gap"){
+    const x0 = (PAD - len) / 2, x1 = x0 + len;
+    poly([[0, base], [x0, base], [x0, PAD], [0, PAD]], earth);
+    poly([[x1, base], [PAD, base], [PAD, PAD], [x1, PAD]], earth);
+    poly([[x0, base], [x1, base], [x1, PAD], [x0, PAD]], hole);
+    line([[0, base], [x0, base]], grass, 8);
+    line([[x1, base], [PAD, base]], grass, 8);
+    measure(x0, base - 40, x1, base - 40);
+    label(gd.label, PAD / 2, base - 40 - 26, "center");
   }
   g.restore();
 }
 
 function syncCard(){
-  $("undo").disabled = !strokes.length;
+  $("undo").disabled = !history.length;
   $("wipe").disabled = !strokes.length;
   $("done").disabled = !strokes.length || curId !== null;
   $("padHint").style.display = strokes.length ? "none" : "";
@@ -1407,6 +1534,7 @@ function openCard(edit){
   editing = edit && edit.strokes ? edit : null;
   cardOpen = true;
   strokes = editing ? clone(editing.strokes) : []; cur = null; curId = null;
+  history = []; eraseMark = null; setEraser(false);
   const L = LAYOUTS[layoutId];
   const title = $("cardTitle");
   title.textContent = "";
@@ -1432,8 +1560,15 @@ function closeCard(){
 }
 $("drawBtn").addEventListener("click", () => openCard());
 $("cancel").addEventListener("click", closeCard);
-$("undo").addEventListener("click", () => { strokes.pop(); redrawPad(); syncCard(); });
-$("wipe").addEventListener("click", () => { strokes = []; redrawPad(); syncCard(); });
+$("undo").addEventListener("click", () => {
+  if(history.length) strokes = history.pop();
+  redrawPad(); syncCard();
+});
+$("wipe").addEventListener("click", () => {
+  if(!strokes.length) return;
+  remember(); strokes = [];
+  redrawPad(); syncCard();
+});
 $("done").addEventListener("click", letItGo);
 function letItGo(){
   if(!strokes.length) return;

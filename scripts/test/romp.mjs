@@ -63,6 +63,8 @@ eq(await g.ev(`(() => { const inside = ${inside};
    return Object.entries(LAYOUTS).filter(([k, L]) => L.solids.some(p => inside(L.star, p) || inside(L.spawn, p))).map(([k]) => k); })()`),
    [], "no star or spawn point is buried in the ground");
 eq(await g.ev("Object.values(LAYOUTS).map(L => !!(L.guide && L.guide.value > 0 && L.about))"), [true, true, true], "each place has a size guide and a one-line description");
+eq(await g.ev("Object.values(LAYOUTS).map(L => L.guide.kind + ': ' + /is this (tall|wide|low)$/.test(L.guide.label))"),
+   ["step: true", "gap: true", "tunnel: true"], "each guide says in plain words what it measures");
 
 /* ---- shape decides movement ---- */
 const kinds = {};
@@ -105,6 +107,36 @@ eq(await g.ev("strokes.length"), 2, "once a Pencil has been used, a palm or fing
 ok(await g.ev("!document.getElementById('done').disabled"), "with something drawn, 'Let it go!' is ready");
 await g.click("#done");
 eq(await g.ev("[cardOpen, chars.length]"), [false, 1], "'Let it go!' closes the card and drops the doodle in");
+
+/* ---- the eraser, and undo by whole actions ---- */
+const drag = (id, type, pts) => `(() => { const r = pad.getBoundingClientRect(), w = r.width || padPx, h = r.height || padPx;
+  const at = ([x, y]) => ({pointerId: ${id}, pointerType: "${type}", pressure: .5, clientX: r.left + x / PAD * w, clientY: r.top + y / PAD * h});
+  const pts = ${J(pts)};
+  padDown(at(pts[0])); for(const q of pts.slice(1)) padMove(at(q)); padUp(at(pts[pts.length - 1])); })()`;
+await g.ev("closeCard(); openCard()");
+await g.ev(drag(20, "pen", line(100, 500, 900, 500, 60)));
+const full = await g.ev("strokes[0].p.length");
+eq(await g.ev("[strokes.length, document.getElementById('undo').disabled]"), [1, false], "a line drawn; Undo is ready");
+await g.click("#eraser");
+eq(await g.ev("[erasing, document.getElementById('eraser').getAttribute('aria-pressed')]"), [true, "true"], "the eraser switches on");
+await g.ev(drag(21, "pen", line(500, 380, 500, 620, 12)));
+eq(await g.ev("strokes.length"), 2, "rubbing across the middle of a line splits it in two");
+eq(await g.ev("strokes.every(s => { for(let i = 0; i < s.p.length; i += 3) if(Math.abs(s.p[i] - 500) < 20) return false; return true; })"), true,
+   "and nothing is left where the eraser went");
+await g.ev(drag(22, "pen", line(100, 100, 300, 120, 8)));
+eq(await g.ev("[strokes.length, history.length]"), [2, 2], "rubbing where there's nothing changes nothing and adds no undo step");
+await g.click("#undo");
+eq(await g.ev("[strokes.length, strokes[0].p.length]"), [1, full], "Undo brings the whole line back");
+await g.ev(drag(23, "pen", line(80, 500, 920, 500, 60)));
+eq(await g.ev("[strokes.length, document.getElementById('done').disabled]"), [0, true], "rubbing along the whole line rubs it all out");
+await g.click("#undo");
+await g.ev("document.querySelectorAll('#swatches .sw')[2].click()");
+eq(await g.ev("[erasing, colorIdx]"), [false, 2], "picking a colour puts the eraser away");
+await g.click("#wipe");
+eq(await g.ev("strokes.length"), 0, "Start over clears the pad");
+await g.click("#undo");
+eq(await g.ev("strokes.length"), 1, "and Undo brings it back");
+await g.ev("closeCard()");
 
 /* ---- the world runs ---- */
 await g.ev(`(() => { for(const c of chars.slice()) removeChar(c);

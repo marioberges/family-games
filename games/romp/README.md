@@ -39,16 +39,21 @@ The player never sees a number. They find out by watching.
 | Gap | Two cliffs with a pit between; a spring in the pit throws you back out | Long doodles bridge it; jumpers leap it |
 | Burrow | A hill with a low tunnel under it, 85 units high | Small doodles go through; tall jumpers go over |
 
-While drawing, the pad shows the place's key size faintly at the same scale
-("one step", "the gap", "the tunnel"), so a child can see how small small
-enough is. Switching places brings everyone along: they drop in from the sky.
+While drawing, the bottom of the pad shows the place's tricky bit faintly, at
+exactly the size it has in the world, with a measuring arrow and a plain label:
+"A step is this tall", "The gap is this wide", "The tunnel is this low". A
+doodle drawn next to it lands in the world at that same size, so a child can
+see whether it will jump the step, bridge the gap, or fit the tunnel. Switching places brings everyone along: they drop in from the sky.
 
 ## Drawing
 
 Apple Pencil first. Its pressure sets the line width, and once a Pencil has
 touched the pad, fingers and palms are ignored there, so a resting hand leaves
-no marks. Fingers draw too, for anyone without the Pencil. Six colours, Undo,
-Start over.
+no marks. Fingers draw too, for anyone without the Pencil. Six colours, an
+**Eraser** that rubs out just the bits of line it passes over (splitting a line
+in two through the middle), **Undo** that steps back one whole action at a
+time (a line, an eraser swipe, or Start over), and **Start over**. Picking a
+colour puts the eraser away.
 
 The finished doodle is cut out as a sticker: the strokes are painted into a
 grid, the outside is flood-filled, and whatever the flood can't reach is body
