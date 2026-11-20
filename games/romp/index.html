@@ -1,0 +1,1484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Romp — doodles that come alive</title>
+<meta name="description" content="Draw a little character and let it loose. Its shape decides how it moves.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#D6DFDB">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Romp">
+
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<!-- launch screens: without these iOS shows a white flash on every cold start -->
+<link rel="apple-touch-startup-image" href="icons/splash/320x568@2x.png" media="screen and (device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x667@2x.png" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x736@3x.png" media="screen and (device-width:414px) and (device-height:736px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x812@3x.png" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/390x844@3x.png" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/393x852@3x.png" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/402x874@3x.png" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@2x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@3x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/428x926@3x.png" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/430x932@3x.png" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/440x956@3x.png" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/744x1133@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1133x744@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/768x1024@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x768@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/810x1080@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1080x810@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/820x1180@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1180x820@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1112@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1112x834@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1194@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1194x834@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x1366@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1366x1024@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1032x1376@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1376x1032@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+
+<style>
+:root{
+  --ink:#0B1E2D;
+  --glass:#D6DFDB;
+  --glass-hi:#E7ECE8;
+  --gold:#FFB612;
+  --paper:#FFFDF7;
+  --soft:rgba(11,30,45,.55);
+  --font: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--glass);color:var(--ink);
+  font-family:var(--font);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{position:fixed;inset:0}
+canvas{display:block;touch-action:none}
+#world{position:absolute;inset:0;width:100%;height:100%}
+button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+/* top bar: where are we */
+#bar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:10px;
+  padding:calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 14px) 0 calc(env(safe-area-inset-left) + 14px);
+  pointer-events:none}
+#bar > *{pointer-events:auto}
+.places{display:flex;gap:6px;background:rgba(255,255,255,.7);border-radius:999px;padding:5px;
+  box-shadow:0 1px 0 rgba(11,30,45,.08)}
+.places button{display:flex;align-items:center;gap:7px;padding:9px 15px 9px 11px;border-radius:999px;
+  background:transparent;font-weight:600;font-size:16px}
+.places button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.places button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.spacer{flex:1}
+#clear{padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.7);font-weight:600;font-size:15px;color:var(--soft)}
+#clear.armed{background:#D7263D;color:#fff}
+
+#drawBtn{position:absolute;right:calc(env(safe-area-inset-right) + 22px);bottom:calc(env(safe-area-inset-bottom) + 22px);
+  width:88px;height:88px;border-radius:50%;background:var(--gold);box-shadow:0 6px 0 #C98A00,0 10px 24px rgba(11,30,45,.25);
+  display:grid;place-items:center}
+#drawBtn:active{transform:translateY(4px);box-shadow:0 2px 0 #C98A00,0 6px 14px rgba(11,30,45,.25)}
+#drawBtn svg{width:46px;height:46px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+#hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 76px);transform:translateX(-50%);
+  max-width:min(560px, calc(100vw - 40px));text-align:center;background:var(--paper);padding:12px 20px;border-radius:18px;
+  font-size:18px;line-height:1.35;box-shadow:0 4px 18px rgba(11,30,45,.12);transition:opacity .4s;pointer-events:none}
+#hint.gone{opacity:0}
+
+/* the drawing card */
+#card{position:absolute;inset:0;background:rgba(11,30,45,.38);display:grid;place-items:center;
+  padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px)}
+#card[hidden]{display:none}
+.sheet{background:var(--paper);border-radius:26px;padding:14px;box-shadow:0 18px 50px rgba(11,30,45,.35);
+  display:flex;flex-direction:column;gap:10px;width:calc(var(--pad) + 28px)}
+.cardtitle{font-size:16px;color:var(--soft);padding:0 4px;min-height:20px}
+.cardtitle b{color:var(--ink)}
+.tools{display:flex;align-items:center;gap:8px}
+.swatches{display:flex;gap:8px}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--paper);box-shadow:0 0 0 2px rgba(11,30,45,.12)}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.tool{padding:9px 14px;border-radius:999px;background:var(--glass-hi);font-weight:600;font-size:15px}
+.tool:disabled{opacity:.4}
+.padwrap{position:relative;width:var(--pad);height:var(--pad);border-radius:18px;overflow:hidden;
+  background:#fff;box-shadow:inset 0 0 0 2px rgba(11,30,45,.08)}
+#pad{width:100%;height:100%;touch-action:none}
+#padHint{position:absolute;left:0;right:0;top:38%;margin:0;text-align:center;color:rgba(11,30,45,.38);
+  font-size:20px;line-height:1.4;pointer-events:none;padding:0 30px}
+.actions{display:flex;gap:10px}
+.btn{flex:1;padding:15px 0;border-radius:16px;font-weight:700;font-size:19px}
+.btn.ghost{background:var(--glass-hi);flex:0 0 34%}
+.btn.go{background:var(--gold);box-shadow:0 4px 0 #C98A00}
+.btn.go:disabled{opacity:.45;box-shadow:none}
+
+#fail{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:30px;font-size:20px}
+@media (max-height:520px){
+  .places button span{display:none}
+  .places button{padding:8px}
+  #drawBtn{width:68px;height:68px}
+  #drawBtn svg{width:36px;height:36px}
+  #hint{top:calc(env(safe-area-inset-top) + 62px);font-size:15px}
+  .sheet{display:grid;width:auto;grid-template-columns:var(--pad) 230px;grid-template-rows:auto 1fr auto;
+    grid-template-areas:"pad title" "pad tools" "pad actions";column-gap:14px;padding:12px}
+  .cardtitle{grid-area:title;font-size:14px}
+  .tools{grid-area:tools;flex-wrap:wrap;align-content:flex-start}
+  .tools .spacer{display:none}
+  .swatches{flex-wrap:wrap}
+  .sw{width:34px;height:34px}
+  .padwrap{grid-area:pad}
+  .actions{grid-area:actions;flex-direction:column}
+  .btn.ghost{flex:none}
+  .btn{padding:11px 0;font-size:17px}
+}
+</style>
+</head>
+<body>
+<canvas id="world" aria-label="The world your characters live in"></canvas>
+
+<div id="bar">
+  <div class="places" role="group" aria-label="Places">
+    <button data-layout="ledges" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 20h20M5 20v-4h4v-4h4V8h4V4h4"/></svg><span>Ledges</span></button>
+    <button data-layout="gap" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 10h7v10M15 20V10h7M10.5 18.5l3 0"/></svg><span>Gap</span></button>
+    <button data-layout="burrow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 20h20M4 20c1.5-9 14.5-9 16 0M9.5 20v-2.5a2.5 2.5 0 0 1 5 0V20"/></svg><span>Burrow</span></button>
+  </div>
+  <div class="spacer"></div>
+  <button id="clear">Clear</button>
+</div>
+
+<p id="hint" class="gone"></p>
+
+<button id="drawBtn" aria-label="Draw a character"><svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.8L16 4.4a2 2 0 0 1 2.8 0l.8.8a2 2 0 0 1 0 2.8L8.8 18.8z"/><path d="M14.5 6l3.5 3.5"/></svg></button>
+
+<div id="card" hidden>
+  <div class="sheet" role="dialog" aria-label="Draw a character">
+    <div class="cardtitle" id="cardTitle"></div>
+    <div class="tools">
+      <div class="swatches" id="swatches"></div>
+      <div class="spacer"></div>
+      <button class="tool" id="undo" disabled>Undo</button>
+      <button class="tool" id="wipe" disabled>Start over</button>
+    </div>
+    <div class="padwrap"><canvas id="pad"></canvas><p id="padHint">Draw someone!<br>Pencil or finger.</p></div>
+    <div class="actions">
+      <button class="btn ghost" id="cancel">Not now</button>
+      <button class="btn go" id="done" disabled>Let it go!</button>
+    </div>
+  </div>
+</div>
+
+<div id="fail">Romp couldn't start its physics.<br>Open it once while connected to the internet.</div>
+
+<script src="planck.min.js"></script>
+<script>
+(async function(){
+"use strict";
+
+/* ===================================================================
+   Romp — doodles that come alive.
+
+   A doodle becomes a Planck (Box2D) body shaped like its convex hull, so
+   shape decides movement through real physics: round things roll, tall
+   things tip and spring, long things lie across gaps. "Traits" measured from
+   the drawing only tune how hard each one tries. The world is a side view
+   in fixed units (1600 x 1000), scaled to fit the screen.
+
+   Units: the world is drawn in "units"; physics runs in metres, PPM units
+   to the metre. The drawing pad is 1000 x 1000 pad units, and a doodle that
+   fills the pad is PAD_TO_WORLD * 1000 = 320 units across.
+   =================================================================== */
+
+const KEY = "romp:world:v1";   // never changes; `v` inside the blob does
+const DATA_V = 1;
+const W = 1600, H = 1000;
+const PPM = 50;
+const PAD = 1000;
+const PAD_TO_WORLD = 0.32;
+const MIN_SIZE = 30;           // tiny dots are scaled up to at least this
+const MAX_CHARS = 12;
+const STEP = 1 / 60;
+const GRAVITY = 26;            // m/s², a little snappier than Earth
+const CELL = 8;                // mask resolution, pad units
+const STICKER = 10;            // white border round a doodle, pad units
+const MAX_HULL = 10;           // Planck allows 12 corners; keep a margin
+const VISIBLE_TOP = 300;       // world y from which the view must show everything
+const COLORS = ["#0B1E2D", "#D7263D", "#1B6CA8", "#2E9E4F", "#F08A00", "#7B3FA0"];
+
+const P = window.planck;
+const toM = x => x / PPM, toU = x => x * PPM;
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const rand = (a, b) => a + Math.random() * (b - a);
+const $ = id => document.getElementById(id);
+
+if(!P || !P.World){ $("fail").style.display = "grid"; return; }
+const V = (x, y) => P.Vec2(x, y);
+
+/* ---------------------------------------------------------------- places
+   Each place rewards a different shape. Coordinates are world units, y down.
+   `guide` is drawn faintly on the pad at the same scale, so the player can
+   see how big "small enough for the tunnel" really is. */
+const LAYOUTS = {
+  ledges: {
+    name: "Ledges", about: "Steps up to a high shelf. Who can jump that high?",
+    spawn: [300, 160], star: [1470, 375],
+    guide: {kind: "height", value: 110, label: "one step"},
+    solids: [
+      [[0, 900], [1600, 900], [1600, 1000], [0, 1000]],
+      [[0, 650], [430, 900], [0, 900]],
+      [[760, 800], [1600, 800], [1600, 900], [760, 900]],
+      [[960, 690], [1600, 690], [1600, 800], [960, 800]],
+      [[1150, 570], [1600, 570], [1600, 690], [1150, 690]],
+      [[1340, 440], [1600, 440], [1600, 570], [1340, 570]]
+    ],
+    springs: []
+  },
+  gap: {
+    name: "Gap", about: "Two cliffs and a gap. Leap it, or lie across it?",
+    spawn: [300, 220], star: [1330, 580],
+    guide: {kind: "width", value: 220, label: "the gap"},
+    solids: [
+      [[0, 640], [690, 640], [690, 1000], [0, 1000]],
+      [[910, 640], [1600, 640], [1600, 1000], [910, 1000]],
+      [[690, 960], [910, 960], [910, 1000], [690, 1000]]
+    ],
+    springs: [[800, 960]],
+    pit: [690, 640, 910, 960],    // anyone stuck down here gets sprung out
+    back: [[[690, 640], [910, 640], [910, 960], [690, 960]]]
+  },
+  burrow: {
+    name: "Burrow", about: "A low tunnel under a hill. Small enough to fit?",
+    spawn: [220, 200], star: [1400, 848],
+    guide: {kind: "height", value: 85, label: "the tunnel"},
+    solids: [
+      [[0, 900], [1600, 900], [1600, 1000], [0, 1000]],
+      [[600, 750], [1300, 750], [1300, 815], [600, 815]],
+      [[600, 750], [850, 600], [1050, 600], [1300, 750]]
+    ],
+    // the hill is two convex pieces for the physics, one shape to look at
+    look: [
+      [[0, 900], [1600, 900], [1600, 1000], [0, 1000]],
+      [[600, 815], [600, 750], [850, 600], [1050, 600], [1300, 750], [1300, 815]]
+    ],
+    back: [[[600, 815], [1300, 815], [1300, 900], [600, 900]]],
+    springs: []
+  }
+};
+
+/* ---------------------------------------------------------------- state */
+let layoutId = "ledges";
+let world = null, ground = null;
+let chars = [];
+let nextId = 1;
+let readOnly = false;
+let updateReady = false;
+let star = {x: 0, y: 0, visible: true, back: 0};
+let particles = [];
+let springAnim = [];
+let launches = [];
+let clock = 0;
+let grab = null;
+let dirty = false;
+let paused = false;        // tests stop the clock to step it by hand
+
+/* =================================================================
+   Shape: strokes → mask → hull and traits
+   A stroke is {c: colour index, p: [x, y, w10, x, y, w10, ...]} in pad units,
+   w10 being the pen width times ten. Kept as small integers so a saved world
+   of twelve characters stays well inside localStorage.
+   ================================================================= */
+
+function strokeBounds(strokes){
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for(const s of strokes){
+    for(let i = 0; i < s.p.length; i += 3){
+      const r = s.p[i + 2] / 20;
+      x0 = Math.min(x0, s.p[i] - r); y0 = Math.min(y0, s.p[i + 1] - r);
+      x1 = Math.max(x1, s.p[i] + r); y1 = Math.max(y1, s.p[i + 1] + r);
+    }
+  }
+  return {x0, y0, x1, y1};
+}
+
+/* Paint every stroke segment into a grid as a capsule of radius r + pad. */
+function rasterize(grid, gw, gh, gx, gy, strokes, pad){
+  const paint = (ax, ay, bx, by, r) => {
+    const minx = Math.max(0, Math.floor((Math.min(ax, bx) - r - gx) / CELL));
+    const maxx = Math.min(gw - 1, Math.floor((Math.max(ax, bx) + r - gx) / CELL));
+    const miny = Math.max(0, Math.floor((Math.min(ay, by) - r - gy) / CELL));
+    const maxy = Math.min(gh - 1, Math.floor((Math.max(ay, by) + r - gy) / CELL));
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy, r2 = r * r;
+    for(let j = miny; j <= maxy; j++){
+      const cy = gy + (j + .5) * CELL;
+      for(let i = minx; i <= maxx; i++){
+        const cx = gx + (i + .5) * CELL;
+        let t = L2 ? ((cx - ax) * dx + (cy - ay) * dy) / L2 : 0;
+        t = t < 0 ? 0 : t > 1 ? 1 : t;
+        const ex = ax + t * dx - cx, ey = ay + t * dy - cy;
+        if(ex * ex + ey * ey <= r2) grid[j * gw + i] = 1;
+      }
+    }
+  };
+  for(const s of strokes){
+    const p = s.p;
+    if(p.length === 3){ paint(p[0], p[1], p[0], p[1], p[2] / 20 + pad); continue; }
+    for(let i = 3; i < p.length; i += 3){
+      const r = Math.max(p[i - 1], p[i + 2]) / 20 + pad;
+      paint(p[i - 3], p[i - 2], p[i], p[i + 1], r);
+    }
+  }
+}
+
+function convexHull(pts){
+  pts = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if(pts.length < 3) return pts;
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for(const p of pts){
+    while(lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop();
+    lo.push(p);
+  }
+  for(let i = pts.length - 1; i >= 0; i--){
+    const p = pts[i];
+    while(up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop();
+    up.push(p);
+  }
+  lo.pop(); up.pop();
+  return lo.concat(up);
+}
+
+/* Drop the corner that adds least area until the hull fits Planck. */
+function simplify(hull, max){
+  hull = hull.slice();
+  const area3 = (a, b, c) => Math.abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]));
+  while(hull.length > max){
+    let best = 0, bestA = Infinity;
+    for(let i = 0; i < hull.length; i++){
+      const a = area3(hull[(i + hull.length - 1) % hull.length], hull[i], hull[(i + 1) % hull.length]);
+      if(a < bestA){ bestA = a; best = i; }
+    }
+    hull.splice(best, 1);
+  }
+  return hull;
+}
+
+function polyArea(poly){
+  let a = 0;
+  for(let i = 0; i < poly.length; i++){
+    const p = poly[i], q = poly[(i + 1) % poly.length];
+    a += p[0] * q[1] - q[0] * p[1];
+  }
+  return Math.abs(a) / 2;
+}
+function polyCentroid(poly){
+  let a = 0, cx = 0, cy = 0;
+  for(let i = 0; i < poly.length; i++){
+    const p = poly[i], q = poly[(i + 1) % poly.length];
+    const f = p[0] * q[1] - q[0] * p[1];
+    a += f; cx += (p[0] + q[0]) * f; cy += (p[1] + q[1]) * f;
+  }
+  if(Math.abs(a) < 1e-6){
+    const n = poly.length || 1;
+    return [poly.reduce((s, p) => s + p[0], 0) / n, poly.reduce((s, p) => s + p[1], 0) / n];
+  }
+  return [cx / (3 * a), cy / (3 * a)];
+}
+function polyPerimeter(poly){
+  let L = 0;
+  for(let i = 0; i < poly.length; i++){
+    const p = poly[i], q = poly[(i + 1) % poly.length];
+    L += Math.hypot(q[0] - p[0], q[1] - p[1]);
+  }
+  return L;
+}
+
+/* Everything the game knows about a doodle comes out of here. */
+function analyse(strokes){
+  const b = strokeBounds(strokes);
+  const margin = STICKER + CELL * 2;
+  const gx = b.x0 - margin, gy = b.y0 - margin;
+  const gw = Math.ceil((b.x1 - b.x0 + 2 * margin) / CELL);
+  const gh = Math.ceil((b.y1 - b.y0 + 2 * margin) / CELL);
+
+  // ink alone, then ink with the sticker border
+  const ink = new Uint8Array(gw * gh);
+  rasterize(ink, gw, gh, gx, gy, strokes, 0);
+  const solid = new Uint8Array(gw * gh);
+  rasterize(solid, gw, gh, gx, gy, strokes, STICKER);
+
+  // flood the outside from the border; whatever the flood can't reach is body
+  const outside = new Uint8Array(gw * gh);
+  const stack = [];
+  const push = (i, j) => {
+    if(i < 0 || j < 0 || i >= gw || j >= gh) return;
+    const k = j * gw + i;
+    if(outside[k] || solid[k]) return;
+    outside[k] = 1; stack.push(k);
+  };
+  for(let i = 0; i < gw; i++){ push(i, 0); push(i, gh - 1); }
+  for(let j = 0; j < gh; j++){ push(0, j); push(gw - 1, j); }
+  while(stack.length){
+    const k = stack.pop(), i = k % gw, j = (k / gw) | 0;
+    push(i + 1, j); push(i - 1, j); push(i, j + 1); push(i, j - 1);
+  }
+  let solidCount = 0, inkCount = 0;
+  const edge = [];
+  for(let j = 0; j < gh; j++) for(let i = 0; i < gw; i++){
+    const k = j * gw + i;
+    if(ink[k]) inkCount++;
+    if(outside[k]) continue;
+    solid[k] = 1; solidCount++;
+    const isEdge = i === 0 || j === 0 || i === gw - 1 || j === gh - 1 ||
+      outside[k - 1] || outside[k + 1] || outside[k - gw] || outside[k + gw];
+    if(isEdge){
+      const x = gx + i * CELL, y = gy + j * CELL;
+      edge.push([x, y], [x + CELL, y], [x, y + CELL], [x + CELL, y + CELL]);
+    }
+  }
+  let hull = simplify(convexHull(edge), MAX_HULL);
+  const hullArea = Math.max(1, polyArea(hull));
+  const [cx, cy] = polyCentroid(hull);
+  hull = hull.map(p => [p[0] - cx, p[1] - cy]);
+
+  let hx0 = Infinity, hy0 = Infinity, hx1 = -Infinity, hy1 = -Infinity;
+  for(const p of hull){
+    hx0 = Math.min(hx0, p[0]); hx1 = Math.max(hx1, p[0]);
+    hy0 = Math.min(hy0, p[1]); hy1 = Math.max(hy1, p[1]);
+  }
+  const big = Math.max(hx1 - hx0, hy1 - hy0) * PAD_TO_WORLD;
+  const k = PAD_TO_WORLD * (big < MIN_SIZE ? MIN_SIZE / Math.max(1, big) : 1);   // pad units → world units
+
+  const per = polyPerimeter(hull);
+  const traits = {
+    w: (hx1 - hx0) * k,                         // world units
+    h: (hy1 - hy0) * k,
+    size: Math.sqrt(hullArea) * k,
+    round: 4 * Math.PI * hullArea / (per * per),  // 1 for a circle
+    solidity: solidCount * CELL * CELL / hullArea, // 1 for a filled blob, low for a stick figure
+    ink: inkCount * CELL * CELL / hullArea
+  };
+  traits.tall = traits.h / Math.max(1, traits.w);
+  return {
+    hull, k, cx, cy, traits,
+    mask: {grid: solid, gw, gh, gx, gy}
+  };
+}
+
+/* Traits → how it moves. Only these numbers are invented; everything else
+   (rolling, tipping, bridging) comes out of the physics on its own. */
+function movesFor(t){
+  const round = t.round > 0.88 && t.tall > 0.72 && t.tall < 1.38;
+  const style = round ? "roller" : t.tall >= 1.6 ? "jumper" : t.tall <= 0.55 ? "crawler" : "hopper";
+  const quick = clamp(1.35 - t.size / 260, 0.8, 1.3);   // little ones scurry
+  const m = {
+    roller:  {hop: 3.4, big: 7.5,  walk: 3.0, upright: 0,    leap: 0.3},
+    jumper:  {hop: 5.4, big: 13.6, walk: 1.6, upright: 0.45, leap: 0.75},
+    hopper:  {hop: 4.2, big: 9.6,  walk: 2.0, upright: 1.0,  leap: 0.5},
+    crawler: {hop: 2.0, big: 0,    walk: 1.2, upright: 1.25, leap: 0}
+  }[style];
+  return {
+    style,
+    hop: m.hop, big: m.big, walk: m.walk * quick, upright: m.upright, leap: m.leap,
+    density: 0.5 + 1.3 * clamp(t.ink / 0.6, 0, 1),           // more ink, heavier
+    friction: clamp(0.45 + 0.7 * (1 - Math.min(1, t.solidity)), 0.4, 1.1), // bumpy edges grip
+    restitution: style === "roller" ? 0.35 : 0.08
+  };
+}
+
+/* =================================================================
+   Characters
+   ================================================================= */
+
+function makeChar(strokes, opts = {}){
+  const shape = analyse(strokes);
+  const c = {
+    id: opts.id || nextId++,
+    strokes,
+    shape,
+    traits: shape.traits,
+    mv: movesFor(shape.traits),
+    stars: opts.stars || 0,
+    sprite: null,
+    body: null,
+    dir: Math.random() < .5 ? 1 : -1,
+    mood: {kind: "wander", t: rand(2, 4), other: null},
+    hopT: rand(.2, .8), cool: 0, stuckT: 0, flipT: 0, greetCool: rand(2, 5),
+    heart: 0, sq: 0, sqv: 0, born: clock, held: false, grounded: false
+  };
+  nextId = Math.max(nextId, c.id + 1);
+  c.sprite = makeSprite(c);
+  return c;
+}
+
+function addBody(c, x, y, a){
+  const s = c.shape;
+  const verts = s.hull.map(p => V(toM(p[0] * s.k), toM(p[1] * s.k)));
+  c.body = world.createBody({
+    type: "dynamic", position: V(toM(x), toM(y)), angle: a || 0,
+    angularDamping: c.mv.style === "roller" ? 0.2 : 1.2, linearDamping: 0.05,
+    userData: c
+  });
+  c.body.createFixture(P.Polygon(verts), {
+    density: c.mv.density, friction: c.mv.friction, restitution: c.mv.restitution
+  });
+}
+
+function spawn(strokes){
+  const c = makeChar(strokes);
+  const L = LAYOUTS[layoutId];
+  addBody(c, clamp(L.spawn[0] + rand(-90, 90), 60, W - 60), L.spawn[1] - rand(0, 80), rand(-.15, .15));
+  chars.push(c);
+  if(chars.length > MAX_CHARS) removeChar(chars[0]);
+  puff(L.spawn[0], L.spawn[1] + 40, "#fff", 10);
+  dirty = true; save(); showHint();
+  return c;
+}
+
+function removeChar(c){
+  if(grab && grab.c === c) letGo(null);
+  if(c.body) world.destroyBody(c.body);
+  chars = chars.filter(x => x !== c);
+}
+
+/* =================================================================
+   World
+   ================================================================= */
+
+function buildWorld(id){
+  layoutId = id;
+  world = P.World({gravity: V(0, GRAVITY)});
+  ground = world.createBody();
+  const L = LAYOUTS[id];
+  for(const poly of L.solids){
+    ground.createFixture(P.Polygon(poly.map(p => V(toM(p[0]), toM(p[1])))), {friction: 0.8});
+  }
+  // the edges of the world: invisible walls that reach well into the sky
+  ground.createFixture(P.Edge(V(0, toM(-3000)), V(0, toM(H))), {friction: 0.1});
+  ground.createFixture(P.Edge(V(toM(W), toM(-3000)), V(toM(W), toM(H))), {friction: 0.1});
+  springAnim = L.springs.map(() => 0);
+  L.springs.forEach((s, i) => {
+    ground.createFixture(P.Box(toM(48), toM(10), V(toM(s[0]), toM(s[1] - 10)), 0),
+      {friction: 0.6, userData: {spring: i}});
+  });
+  star = {x: L.star[0], y: L.star[1], visible: true, back: 0};
+  world.on("begin-contact", onContact);
+  world.on("post-solve", onImpact);
+  launches = [];
+  for(const b of document.querySelectorAll("[data-layout]")){
+    b.setAttribute("aria-pressed", String(b.dataset.layout === id));
+  }
+}
+
+/* Moving to another place keeps everyone: they drop in from the sky. */
+function goTo(id){
+  if(!LAYOUTS[id] || (id === layoutId && world)) return;
+  if(grab) letGo(null);
+  buildWorld(id);
+  const L = LAYOUTS[id];
+  chars.forEach((c, i) => {
+    c.body = null;
+    addBody(c, clamp(L.spawn[0] + (i - chars.length / 2) * 70, 60, W - 60), L.spawn[1] - 60 - i * 40, 0);
+    c.born = clock;
+  });
+  dirty = true; save(); showHint(L.about);
+}
+
+function onContact(contact){
+  const fa = contact.getFixtureA(), fb = contact.getFixtureB();
+  for(const [f, o] of [[fa, fb], [fb, fa]]){
+    const d = f.getUserData();
+    if(d && d.spring !== undefined){
+      const c = o.getBody().getUserData();
+      if(c && c.body) launches.push({c, i: d.spring});
+    }
+  }
+}
+
+function onImpact(contact, impulse){
+  const n = impulse.normalImpulses[0] || 0;
+  for(const f of [contact.getFixtureA(), contact.getFixtureB()]){
+    const c = f.getBody().getUserData();
+    if(!c || !c.body) continue;
+    const dv = n / c.body.getMass();
+    if(dv > 1.6){
+      c.sq = Math.min(.34, c.sq + dv * .028);
+      if(dv > 6){
+        const p = c.body.getPosition();
+        puff(toU(p.x), toU(p.y) + c.traits.h / 2, "#E9DCC6", 5);
+      }
+    }
+  }
+}
+
+function isGrounded(b){
+  for(let ce = b.getContactList(); ce; ce = ce.next){
+    const ct = ce.contact;
+    if(!ct.isTouching()) continue;
+    const fa = ct.getFixtureA(), fb = ct.getFixtureB();
+    if(fa.isSensor() || fb.isSensor()) continue;
+    const wm = ct.getWorldManifold(null);
+    if(!wm) continue;
+    const ny = fa.getBody() === b ? wm.normal.y : -wm.normal.y;
+    if(ny > 0.45) return true;
+  }
+  return false;
+}
+
+/* Is there something solid (ground, a spring, or a friend) along this line? */
+function rayHits(p1, p2, self){
+  let hit = false;
+  world.rayCast(p1, p2, (f, pt, n, frac) => {
+    if(f.isSensor() || f.getBody() === self) return -1;
+    hit = true; return frac;
+  });
+  return hit;
+}
+function rayHitsGround(p1, p2){
+  let hit = false;
+  world.rayCast(p1, p2, (f, pt, n, frac) => {
+    if(f.getBody() !== ground || f.isSensor()) return -1;
+    hit = true; return frac;
+  });
+  return hit;
+}
+
+const normAngle = a => { a = (a + Math.PI) % (2 * Math.PI); if(a < 0) a += 2 * Math.PI; return a - Math.PI; };
+
+/* ---------------------------------------------------------------- brains */
+
+function nextMood(c){
+  const r = Math.random();
+  const others = chars.filter(o => o !== c);
+  if(r < .12) c.mood = {kind: "rest", t: rand(1, 2.4)};
+  else if(r < .62 && star.visible) c.mood = {kind: "seek", t: rand(6, 12)};
+  else if(r < .74 && others.length) c.mood = {kind: "follow", t: rand(3, 6), other: others[(Math.random() * others.length) | 0]};
+  else {
+    if(Math.random() < .35) c.dir = -c.dir;
+    c.mood = {kind: "wander", t: rand(3, 6)};
+  }
+}
+
+function wantDir(c, x){
+  const md = c.mood;
+  if(md.kind === "rest") return 0;
+  if(md.kind === "seek"){
+    const d = star.x - toU(x);
+    return Math.abs(d) < 20 ? c.dir : Math.sign(d);
+  }
+  if(md.kind === "follow" && md.other && md.other.body){
+    const d = toU(md.other.body.getPosition().x) - toU(x);
+    if(Math.abs(d) < (c.traits.w + md.other.traits.w) * .6) return 0;
+    return Math.sign(d);
+  }
+  return c.dir;
+}
+
+function jump(c, vy, vx){
+  const b = c.body, m = b.getMass(), v = b.getLinearVelocity();
+  b.applyLinearImpulse(V(m * (vx - v.x), m * (-vy - Math.min(0, v.y))), b.getWorldCenter(), true);
+  c.sq = Math.max(-.22, c.sq - .14 - vy * .008);
+}
+
+function think(c, dt){
+  const b = c.body;
+  if(!b || c.held) return;
+  const pos = b.getPosition(), vel = b.getLinearVelocity();
+  const ang = normAngle(b.getAngle());
+  const I = b.getInertia(), mv = c.mv;
+  c.grounded = isGrounded(b);
+  c.hopT -= dt; c.cool -= dt; c.greetCool -= dt; c.mood.t -= dt;
+  if(c.heart > 0) c.heart -= dt;
+  if(c.mood.t <= 0) nextMood(c);
+  if(c.mood.kind === "follow" && (!c.mood.other || !c.mood.other.body)) nextMood(c);
+
+  // keep upright, more firmly on the ground; tall ones wobble
+  if(mv.upright > 0){
+    const k = mv.upright * (c.grounded ? 1 : .45);
+    b.applyAngularImpulse((-ang * 28 * k - b.getAngularVelocity() * 5 * k) * I * dt, true);
+  }
+
+  // fallen over: wriggle back up
+  if(Math.abs(ang) > 1.25 && mv.style !== "roller") c.flipT += dt; else c.flipT = 0;
+  if(c.flipT > 1 && c.grounded){
+    jump(c, mv.hop * 1.3, vel.x);
+    b.applyAngularImpulse(-Math.sign(ang) * I * 7, true);
+    c.flipT = 0;
+    return;
+  }
+
+  const dir = wantDir(c, pos.x);
+  const halfW = toM(c.traits.w / 2), halfH = toM(c.traits.h / 2);
+
+  // look ahead: a wall, or a drop
+  if(dir && c.grounded && c.cool <= 0){
+    // feel ahead at the feet, the middle and the head: a low tunnel roof
+    // is a wall too, for anyone too tall to duck under it
+    const wall = [.45, 0, -.55].some(f => {
+      const fy = pos.y + halfH * f;
+      return rayHitsGround(V(pos.x + dir * halfW * .5, fy), V(pos.x + dir * (halfW + .45), fy));
+    });
+    const front = pos.x + dir * (halfW + .3);
+    const drop = !rayHits(V(front, pos.y), V(front, pos.y + halfH + 1.6), b);
+    if(wall){
+      c.cool = .7;
+      if(mv.big && Math.random() < .8){ jump(c, mv.big, dir * 3.2); c.hopT = .5; return; }
+      c.dir = -dir; c.mood = {kind: "wander", t: rand(2, 4)};
+    }
+    else if(drop){
+      c.cool = .7;
+      if(mv.style === "crawler" || mv.style === "roller"){ /* carry on: fall, or bridge */ }
+      else if(Math.random() < mv.leap){ jump(c, mv.big, dir * 4.6); c.hopT = .6; return; }
+      else { c.dir = -dir; c.mood = {kind: "wander", t: rand(2, 4)}; }
+    }
+  }
+
+  // stuck: not getting anywhere for a while
+  if(dir && Math.abs(vel.x) < .15) c.stuckT += dt; else c.stuckT = 0;
+  if(c.stuckT > 2.5){
+    c.stuckT = 0;
+    if(c.grounded && mv.big && Math.random() < .4) jump(c, mv.big, dir * 2.5);
+    else {
+      // back off, so nobody stays wedged against a wall or a tunnel mouth
+      if(c.grounded) jump(c, mv.hop, -dir * 2.5);
+      c.dir = -dir; c.mood = {kind: "wander", t: rand(2, 5)};
+    }
+  }
+
+  if(mv.style === "roller"){
+    const r = Math.max(.2, toM(c.traits.size / 2));
+    const target = dir * mv.walk / r;
+    b.applyAngularImpulse((target - b.getAngularVelocity()) * I * .12, true);
+    if(c.grounded && c.hopT <= 0 && dir === 0){ jump(c, mv.hop * .6, vel.x); c.hopT = rand(1.5, 3); }
+  }
+  else if(c.grounded && c.hopT <= 0){
+    if(dir){
+      jump(c, mv.hop * rand(.8, 1.15), dir * mv.walk + vel.x * .2);
+      c.hopT = rand(.22, .55) + (mv.style === "jumper" ? .2 : 0);
+    } else {
+      jump(c, mv.hop * .45, vel.x * .5);   // a little bounce on the spot
+      c.hopT = rand(1.2, 2.8);
+    }
+  }
+
+  // say hello to anyone close by
+  if(c.greetCool <= 0){
+    for(const o of chars){
+      if(o === c || !o.body || o.greetCool > 0) continue;
+      const op = o.body.getPosition();
+      const d = Math.hypot(op.x - pos.x, op.y - pos.y);
+      if(d < toM((c.traits.size + o.traits.size) * .5) + .5){
+        for(const [a, other] of [[c, o], [o, c]]){
+          a.heart = 1.6; a.greetCool = rand(7, 12);
+          a.dir = Math.sign(toU(other.body.getPosition().x - a.body.getPosition().x)) || a.dir;
+          if(a.grounded) jump(a, a.mv.hop * .7, 0);
+        }
+        break;
+      }
+    }
+  }
+}
+
+function tick(dt){
+  clock += dt;
+  for(const c of chars) think(c, dt);
+  world.step(dt, 8, 3);
+
+  // springs: launched after the step, never from inside a contact callback
+
+  // stuck in the pit (wedged sideways, say): the spring comes to the rescue
+  const pit = LAYOUTS[layoutId].pit;
+  for(const c of chars){
+    if(!pit || !c.body || c.held) continue;
+    const p = c.body.getPosition(), x = toU(p.x), y = toU(p.y);
+    c.pitT = x > pit[0] && x < pit[2] && y > pit[1] && y < pit[3] ? (c.pitT || 0) + dt : 0;
+    if(c.pitT > 2.5){
+      c.pitT = 0;
+      c.body.setTransform(V(toM((pit[0] + pit[2]) / 2), toM(pit[3] - 30 - c.traits.h / 2)), 0);
+      c.body.setAngularVelocity(0);
+      launches.push({c, i: 0});
+    }
+  }
+  for(const l of launches){
+    if(!l.c.body) continue;
+    const v = l.c.body.getLinearVelocity();
+    if(v.y < -8) continue;   // already flying
+    const side = Math.random() < .5 ? -1 : 1;
+    jump(l.c, 21, side * rand(2.5, 4.5));
+    l.c.sq = -.3;
+    springAnim[l.i] = 1;
+  }
+  launches = [];
+
+  for(const c of chars){
+    // squash and stretch: a damped spring that every landing plucks
+    c.sqv += (-130 * c.sq - 9 * c.sqv) * dt;
+    c.sq += c.sqv * dt;
+    // anything that somehow left the world comes back from the sky
+    const p = c.body && c.body.getPosition();
+    if(p && (toU(p.y) > H + 200 || !isFinite(p.x) || !isFinite(p.y))){
+      const L = LAYOUTS[layoutId];
+      c.body.setTransform(V(toM(L.spawn[0]), toM(L.spawn[1])), 0);
+      c.body.setLinearVelocity(V(0, 0)); c.body.setAngularVelocity(0);
+    }
+  }
+
+  // the star: touch it to collect it; it comes back a little later
+  if(star.visible){
+    for(const c of chars){
+      if(!c.body) continue;
+      const p = c.body.getPosition();
+      if(Math.hypot(toU(p.x) - star.x, toU(p.y) - star.y) < c.traits.size * .5 + 34){
+        star.visible = false; star.back = 5;
+        c.stars++; c.heart = 2;
+        sparkle(star.x, star.y);
+        dirty = true; save();
+        break;
+      }
+    }
+  } else if((star.back -= dt) <= 0){ star.visible = true; sparkle(star.x, star.y, 8); }
+
+  for(let i = 0; i < springAnim.length; i++) springAnim[i] = Math.max(0, springAnim[i] - dt * 3);
+  for(const q of particles){ q.x += q.vx * dt; q.y += q.vy * dt; q.vy += q.g * dt; q.life -= dt; }
+  particles = particles.filter(q => q.life > 0);
+}
+
+function puff(x, y, color, n){
+  for(let i = 0; i < n; i++){
+    particles.push({x, y, vx: rand(-90, 90), vy: rand(-80, -10), g: 60, life: rand(.4, .8), max: .8,
+      r: rand(6, 13), color, kind: "puff"});
+  }
+}
+function sparkle(x, y, n = 16){
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, s = rand(80, 260);
+    particles.push({x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: 160, life: rand(.6, 1.1), max: 1.1,
+      r: rand(5, 10), color: "#FFB612", kind: "star"});
+  }
+}
+
+/* =================================================================
+   Drawing the world
+   ================================================================= */
+
+const canvas = $("world");
+const ctx = canvas.getContext && canvas.getContext("2d");
+let dpr = 1, cw = 1, ch = 1, scale = 1, ox = 0, oy = 0;
+
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cw = window.innerWidth || 1024; ch = window.innerHeight || 768;
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
+  // landscape shows the whole place; portrait zooms in to about 900 units
+  // across and the view follows the characters left and right
+  scale = cw < ch ? Math.min(ch / (H - VISIBLE_TOP), cw / 900) : Math.min(cw / W, ch / (H - VISIBLE_TOP));
+  oy = ch - H * scale;
+  placeCamera(1);
+  sizePad();
+}
+
+let camX = W / 2;
+function placeCamera(dt){
+  const viewW = cw / scale;
+  if(viewW >= W){ ox = (cw - W * scale) / 2; return; }
+  let target = LAYOUTS[layoutId].spawn[0];
+  if(grab && grab.c.body) target = toU(grab.c.body.getPosition().x);
+  else if(chars.length){
+    target = chars.reduce((t, c) => t + (c.body ? toU(c.body.getPosition().x) : 0), 0) / chars.length;
+  }
+  camX += (target - camX) * Math.min(1, dt * 1.5);
+  camX = clamp(camX, viewW / 2, W - viewW / 2);
+  ox = -(camX - viewW / 2) * scale;
+}
+
+function starPath(g, x, y, r1, r2, rot){
+  g.beginPath();
+  for(let i = 0; i < 10; i++){
+    const a = rot - Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? r2 : r1;
+    g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+  }
+  g.closePath();
+}
+function heartPath(g, x, y, s){
+  g.beginPath();
+  g.moveTo(x, y + s * .35);
+  g.bezierCurveTo(x - s * 1.1, y - s * .35, x - s * .45, y - s * 1.05, x, y - s * .45);
+  g.bezierCurveTo(x + s * .45, y - s * 1.05, x + s * 1.1, y - s * .35, x, y + s * .35);
+  g.closePath();
+}
+
+function draw(){
+  if(!ctx) return;
+  const g = ctx;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // sky
+  const sky = g.createLinearGradient(0, 0, 0, ch);
+  sky.addColorStop(0, "#BFDCEA"); sky.addColorStop(1, "#EEF4EC");
+  g.fillStyle = sky; g.fillRect(0, 0, cw, ch);
+
+  g.save();
+  g.translate(ox, oy); g.scale(scale, scale);
+  const left = -ox / scale - 10, right = (cw - ox) / scale + 10, top = -oy / scale - 10;
+
+  // clouds drift slowly by
+  g.fillStyle = "rgba(255,255,255,.75)";
+  for(let i = 0; i < 4; i++){
+    const span = right - left + 400;
+    const x = left - 200 + ((i * 523 + clock * (8 + i * 3)) % span);
+    const y = Math.max(top + 60, 120) + i * 70;
+    g.beginPath();
+    g.ellipse(x, y, 90, 26, 0, 0, Math.PI * 2);
+    g.ellipse(x + 50, y - 16, 55, 30, 0, 0, Math.PI * 2);
+    g.ellipse(x - 45, y - 8, 45, 22, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  // far hills
+  g.fillStyle = "#CFE2C9";
+  g.beginPath(); g.moveTo(left, H);
+  for(let x = left; x <= right; x += 40) g.lineTo(x, 760 - 60 * Math.sin(x / 260) - 30 * Math.sin(x / 97 + 1));
+  g.lineTo(right, H); g.closePath(); g.fill();
+
+  // the place itself; anything touching the world's edge carries on past it
+  const L = LAYOUTS[layoutId];
+  const ex = x => x <= 0 ? left - 40 : x >= W ? right + 40 : x;
+  const shapes = L.look || L.solids;
+  // the inside of a tunnel or a pit, darker so it reads as a hole
+  for(const poly of L.back || []){
+    g.beginPath();
+    poly.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]));
+    g.closePath(); g.fillStyle = "#8F6C4C"; g.fill();
+  }
+  for(const poly of shapes){
+    g.beginPath();
+    poly.forEach((p, i) => i ? g.lineTo(ex(p[0]), p[1]) : g.moveTo(ex(p[0]), p[1]));
+    g.closePath();
+    g.fillStyle = "#C9A47C"; g.fill();
+  }
+  // grass along every edge that faces up
+  g.strokeStyle = "#78B356"; g.lineWidth = 12; g.lineCap = "round"; g.lineJoin = "round";
+  for(const poly of shapes){
+    const n = poly.length, area2 = poly.reduce((s, p, i) => {
+      const q = poly[(i + 1) % n]; return s + p[0] * q[1] - q[0] * p[1];
+    }, 0);
+    for(let i = 0; i < n; i++){
+      const p = poly[i], q = poly[(i + 1) % n];
+      let nx = q[1] - p[1], ny = -(q[0] - p[0]);
+      if(area2 < 0){ nx = -nx; ny = -ny; }
+      const len = Math.hypot(nx, ny) || 1;
+      if(-ny / len > .5 && !(p[1] >= H && q[1] >= H)){   // outward normal points up
+        g.beginPath(); g.moveTo(ex(p[0]), p[1] + 2); g.lineTo(ex(q[0]), q[1] + 2); g.stroke();
+      }
+    }
+  }
+  // springs
+  L.springs.forEach((s, i) => {
+    const squeeze = springAnim[i];
+    const top = s[1] - 20 + squeeze * 8;
+    g.strokeStyle = "#5B6B73"; g.lineWidth = 5;
+    g.beginPath();
+    for(let k = 0; k <= 6; k++) g.lineTo(s[0] + (k % 2 ? 30 : -30), s[1] - (k / 6) * (s[1] - top));
+    g.stroke();
+    g.fillStyle = "#D7263D";
+    g.beginPath(); g.roundRect ? g.roundRect(s[0] - 50, top - 10, 100, 14, 7) : g.rect(s[0] - 50, top - 10, 100, 14); g.fill();
+  });
+  // the star
+  if(star.visible){
+    const bob = Math.sin(clock * 2.4) * 6;
+    g.save();
+    g.shadowColor = "rgba(255,182,18,.8)"; g.shadowBlur = 24 * scale * dpr;
+    starPath(g, star.x, star.y + bob, 30, 13, Math.sin(clock) * .2);
+    g.fillStyle = "#FFB612"; g.fill();
+    g.restore();
+    g.lineWidth = 4; g.strokeStyle = "#fff";
+    starPath(g, star.x, star.y + bob, 30, 13, Math.sin(clock) * .2); g.stroke();
+  }
+
+  // characters, the one being held on top
+  const order = chars.slice().sort((a, b) => (a.held ? 1 : 0) - (b.held ? 1 : 0));
+  for(const c of order) drawChar(g, c);
+
+  for(const q of particles){
+    const a = clamp(q.life / q.max, 0, 1);
+    g.globalAlpha = a;
+    if(q.kind === "star"){ starPath(g, q.x, q.y, q.r, q.r * .45, q.life * 4); g.fillStyle = q.color; g.fill(); }
+    else { g.beginPath(); g.arc(q.x, q.y, q.r * (1.4 - a * .4), 0, Math.PI * 2); g.fillStyle = q.color; g.fill(); }
+  }
+  g.globalAlpha = 1;
+  g.restore();
+}
+
+function drawChar(g, c){
+  if(!c.body) return;
+  const p = c.body.getPosition(), v = c.body.getLinearVelocity();
+  const x = toU(p.x), y = toU(p.y);
+  const age = clock - c.born;
+  const pop = age < .35 ? easeOutBack(age / .35) : 1;
+  const breathe = c.grounded && Math.abs(v.x) < .3 ? Math.sin(clock * 3 + c.id) * .015 : 0;
+  const sq = clamp(c.sq, -.3, .36) + breathe;
+  const lean = clamp(-v.x * .022, -.16, .16);
+
+  // a soft shadow on whatever is below
+  g.save();
+  g.translate(x, y);
+  g.rotate(c.body.getAngle());
+  g.transform(1, 0, lean, 1, 0, 0);
+  g.scale(pop * (1 + sq * .6), pop * (1 - sq));
+  if(c.sprite){
+    const s = c.sprite;
+    g.drawImage(s.img, s.x, s.y, s.w, s.h);
+  } else {
+    // no canvas to cut out a sprite (tests): draw the hull
+    g.beginPath();
+    c.shape.hull.forEach((h, i) => i ? g.lineTo(h[0] * c.shape.k, h[1] * c.shape.k) : g.moveTo(h[0] * c.shape.k, h[1] * c.shape.k));
+    g.closePath(); g.fillStyle = "#fff"; g.fill();
+  }
+  g.restore();
+
+  const head = y - c.traits.h / 2 - 22;
+  if(c.heart > 0){
+    const a = clamp(c.heart / .4, 0, 1);
+    g.globalAlpha = a;
+    heartPath(g, x, head - 18 - (1.6 - c.heart) * 14, 16);
+    g.fillStyle = "#E8445A"; g.fill();
+    g.globalAlpha = 1;
+  }
+  if(c.stars){
+    const n = Math.min(c.stars, 5);
+    for(let i = 0; i < n; i++){
+      starPath(g, x + (i - (n - 1) / 2) * 20, head + 6, 9, 4, 0);
+      g.fillStyle = "#FFB612"; g.fill();
+      g.lineWidth = 2; g.strokeStyle = "#fff"; g.stroke();
+    }
+    if(c.stars > 5){
+      g.font = "700 18px " + getComputedStyle(document.body).fontFamily;
+      g.fillStyle = "#0B1E2D"; g.textAlign = "left"; g.textBaseline = "middle";
+      g.fillText("×" + c.stars, x + (n / 2) * 20 + 4, head + 7);
+    }
+  }
+}
+
+const easeOutBack = t => { const s = 1.7; t = t - 1; return t * t * ((s + 1) * t + s) + 1; };
+
+/* A sticker: the doodle on a white cut-out with a soft edge. */
+function makeSprite(c){
+  const s = c.shape, m = s.mask;
+  const PX = 2.4;                         // sprite pixels per world unit
+  const k = s.k;                          // world units per pad unit
+  const bx0 = m.gx, by0 = m.gy, bw = m.gw * CELL, bh = m.gh * CELL;
+  const w = Math.max(2, Math.ceil(bw * k * PX)), h = Math.max(2, Math.ceil(bh * k * PX));
+  let img, g, back, gb;
+  try{
+    img = document.createElement("canvas"); img.width = w; img.height = h;
+    g = img.getContext("2d");
+    back = document.createElement("canvas"); back.width = w; back.height = h;
+    gb = back.getContext("2d");
+  }catch(e){ return null; }
+  if(!g || !gb) return null;
+  const f = k * PX;
+  // white body: the solid mask as overlapping discs, then the strokes fattened
+  gb.setTransform(f, 0, 0, f, -bx0 * f, -by0 * f);
+  gb.fillStyle = "#fff";
+  for(let j = 0; j < m.gh; j++) for(let i = 0; i < m.gw; i++){
+    if(!m.grid[j * m.gw + i]) continue;
+    gb.beginPath(); gb.arc(m.gx + (i + .5) * CELL, m.gy + (j + .5) * CELL, CELL, 0, Math.PI * 2); gb.fill();
+  }
+  for(const st of c.strokes) strokePath(gb, st, STICKER * 2, "#fff");
+  g.save();
+  g.shadowColor = "rgba(11,30,45,.28)"; g.shadowBlur = 5 * PX; g.shadowOffsetY = 1.5 * PX;
+  g.drawImage(back, 0, 0);
+  g.restore();
+  g.setTransform(f, 0, 0, f, -bx0 * f, -by0 * f);
+  for(const st of c.strokes) strokePath(g, st, 0, COLORS[st.c] || COLORS[0]);
+  return {img, x: (bx0 - s.cx) * k, y: (by0 - s.cy) * k, w: bw * k, h: bh * k};
+}
+
+/* One stroke, its width following the pen. `extra` fattens it (the sticker). */
+function strokePath(g, st, extra, color){
+  const p = st.p;
+  g.strokeStyle = color; g.fillStyle = color; g.lineCap = "round"; g.lineJoin = "round";
+  if(p.length === 3){
+    g.beginPath(); g.arc(p[0], p[1], p[2] / 20 + extra / 2, 0, Math.PI * 2); g.fill();
+    return;
+  }
+  for(let i = 3; i < p.length; i += 3){
+    g.lineWidth = (p[i - 1] + p[i + 2]) / 20 + extra;
+    g.beginPath(); g.moveTo(p[i - 3], p[i - 2]); g.lineTo(p[i], p[i + 1]); g.stroke();
+  }
+}
+
+/* =================================================================
+   Touching the world: grab a character and toss it, or tap it to hop
+   ================================================================= */
+
+function toWorldM(clientX, clientY){
+  return V(toM((clientX - ox) / scale), toM((clientY - oy) / scale));
+}
+function charAt(pt){
+  let found = null;
+  const d = .05;
+  world.queryAABB(P.AABB(V(pt.x - d, pt.y - d), V(pt.x + d, pt.y + d)), f => {
+    const c = f.getBody().getUserData();
+    if(c && c.body && f.testPoint(pt)){ found = c; return false; }
+    return true;
+  });
+  if(found) return found;
+  // fingers are wide: forgive a near miss on small characters
+  let best = null, bestD = Infinity;
+  for(const c of chars){
+    if(!c.body) continue;
+    const p = c.body.getPosition();
+    const dd = Math.hypot(p.x - pt.x, p.y - pt.y);
+    if(dd < toM(Math.max(30, c.traits.size * .6)) && dd < bestD){ best = c; bestD = dd; }
+  }
+  return best;
+}
+
+function onWorldDown(e){
+  if(cardOpen || grab || !world) return;
+  const pt = toWorldM(e.clientX, e.clientY);
+  const c = charAt(pt);
+  if(!c) return;
+  if(e.preventDefault) e.preventDefault();
+  const joint = world.createJoint(P.MouseJoint(
+    {maxForce: 900 * c.body.getMass(), frequencyHz: 5, dampingRatio: .7}, ground, c.body, pt));
+  grab = {id: e.pointerId, c, joint, x0: e.clientX, y0: e.clientY, t0: performance.now(), moved: 0};
+  c.held = true; c.body.setAwake(true);
+  try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+}
+function onWorldMove(e){
+  if(!grab || e.pointerId !== grab.id) return;
+  grab.moved = Math.max(grab.moved, Math.hypot(e.clientX - grab.x0, e.clientY - grab.y0));
+  grab.joint.setTarget(toWorldM(e.clientX, e.clientY));
+}
+function letGo(e){
+  if(!grab) return;
+  if(e && e.pointerId !== grab.id) return;
+  const {c, joint, moved, t0} = grab;
+  grab = null;
+  try{ world.destroyJoint(joint); }catch(err){}
+  c.held = false;
+  if(e && moved < 14 && performance.now() - t0 < 450 && c.body){
+    jump(c, c.mv.hop * 1.4 + 2, (Math.random() - .5) * 2);
+    c.heart = 1.4;
+  }
+  dirty = true;
+}
+canvas.addEventListener("pointerdown", onWorldDown);
+canvas.addEventListener("pointermove", onWorldMove);
+canvas.addEventListener("pointerup", letGo);
+canvas.addEventListener("pointercancel", letGo);
+
+/* =================================================================
+   The drawing card. Apple Pencil first: its pressure sets the line width,
+   and once a Pencil has touched the pad, fingers and palms are ignored there
+   so a resting hand leaves no marks. Fingers still draw if no Pencil is used.
+   ================================================================= */
+
+const pad = $("pad");
+const pctx = pad.getContext && pad.getContext("2d");
+let cardOpen = false;
+let strokes = [];
+let cur = null, curId = null, penSeen = false, colorIdx = 0, padPx = 600;
+
+function sizePad(){
+  // short screens (a phone on its side) put the tools beside the pad
+  const short = ch <= 520;
+  const side = Math.floor(Math.max(200, short ? Math.min(ch - 44, cw - 300, 720) : Math.min(cw - 52, ch - 200, 720)));
+  padPx = side;
+  document.documentElement.style.setProperty("--pad", side + "px");
+  pad.width = Math.round(side * dpr); pad.height = Math.round(side * dpr);
+  redrawPad();
+}
+
+const swatches = $("swatches");
+COLORS.forEach((col, i) => {
+  const b = document.createElement("button");
+  b.className = "sw"; b.style.background = col;
+  b.setAttribute("aria-label", "Colour " + (i + 1));
+  b.setAttribute("aria-pressed", String(i === 0));
+  b.addEventListener("click", () => {
+    colorIdx = i;
+    for(const s of swatches.children) s.setAttribute("aria-pressed", String(s === b));
+  });
+  swatches.appendChild(b);
+});
+
+function toPad(e){
+  const r = pad.getBoundingClientRect();
+  const w = r.width || padPx, h = r.height || padPx;
+  return [clamp((e.clientX - r.left) / w * PAD, 0, PAD), clamp((e.clientY - r.top) / h * PAD, 0, PAD)];
+}
+function widthFor(e){
+  if(e.pointerType === "pen"){
+    const pr = e.pressure > 0 ? e.pressure : .5;
+    return 6 + pr * 26;      // light touch ~ thin, pressed ~ bold
+  }
+  return 16;
+}
+
+function padDown(e){
+  if(!cardOpen) return;
+  if(e.pointerType === "pen") penSeen = true;
+  else if(penSeen && e.pointerType === "touch") return;   // palm rejection
+  if(curId !== null) return;
+  if(e.preventDefault) e.preventDefault();
+  curId = e.pointerId;
+  try{ pad.setPointerCapture(e.pointerId); }catch(err){}
+  cur = {c: colorIdx, p: []};
+  strokes.push(cur);
+  addPoint(e, true);
+  syncCard();
+}
+function padMove(e){
+  if(e.pointerId !== curId || !cur) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+  for(const ev of (evs && evs.length ? evs : [e])) addPoint(ev, false);
+}
+function padUp(e){
+  if(e.pointerId !== curId) return;
+  curId = null; cur = null;
+  syncCard();
+}
+function addPoint(e, first){
+  const [x, y] = toPad(e);
+  let w = widthFor(e);
+  const p = cur.p, n = p.length;
+  if(n){
+    const lx = p[n - 3], ly = p[n - 2];
+    if(Math.hypot(x - lx, y - ly) < 2.5) return;
+    w = p[n - 1] / 10 * .6 + w * .4;      // smooth the width so lines don't bead
+  }
+  p.push(Math.round(x), Math.round(y), Math.round(w * 10));
+  if(pctx){
+    const f = pad.width / PAD;
+    pctx.setTransform(f, 0, 0, f, 0, 0);
+    const m = p.length;
+    strokePath(pctx, {c: cur.c, p: m >= 6 ? p.slice(m - 6) : p.slice(m - 3)}, 0, COLORS[cur.c]);
+  }
+}
+pad.addEventListener("pointerdown", padDown);
+pad.addEventListener("pointermove", padMove);
+pad.addEventListener("pointerup", padUp);
+pad.addEventListener("pointercancel", padUp);
+
+function redrawPad(){
+  if(!pctx) return;
+  const f = pad.width / PAD;
+  pctx.setTransform(1, 0, 0, 1, 0, 0);
+  pctx.clearRect(0, 0, pad.width, pad.height);
+  pctx.setTransform(f, 0, 0, f, 0, 0);
+  drawGuide(pctx);
+  for(const s of strokes) strokePath(pctx, s, 0, COLORS[s.c] || COLORS[0]);
+}
+
+/* The place's key size, drawn faintly at the same scale as the doodle. */
+function drawGuide(g){
+  const gd = LAYOUTS[layoutId].guide;
+  if(!gd) return;
+  const len = gd.value / PAD_TO_WORLD;
+  g.save();
+  g.strokeStyle = "rgba(11,30,45,.18)"; g.fillStyle = "rgba(11,30,45,.32)";
+  g.lineWidth = 4; g.setLineDash([14, 12]);
+  g.font = "600 " + Math.round(Math.max(30, 14 * PAD / padPx)) + "px " + getComputedStyle(document.body).fontFamily;
+  g.textBaseline = "middle";
+  if(gd.kind === "height"){
+    const yTop = PAD - 40 - len, x = 40;
+    g.beginPath(); g.moveTo(x, PAD - 40); g.lineTo(PAD - 40, PAD - 40); g.stroke();
+    g.beginPath(); g.moveTo(x, yTop); g.lineTo(PAD - 40, yTop); g.stroke();
+    g.setLineDash([]);
+    g.textAlign = "left";
+    g.fillText(gd.label, x + 6, yTop - 24);
+  } else {
+    const x0 = (PAD - len) / 2, y = PAD - 60;
+    g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + len, y); g.stroke();
+    g.setLineDash([]);
+    g.beginPath(); g.moveTo(x0, y - 22); g.lineTo(x0, y + 22); g.moveTo(x0 + len, y - 22); g.lineTo(x0 + len, y + 22); g.stroke();
+    g.textAlign = "center";
+    g.fillText(gd.label, PAD / 2, y - 34);
+  }
+  g.restore();
+}
+
+function syncCard(){
+  $("undo").disabled = !strokes.length;
+  $("wipe").disabled = !strokes.length;
+  $("done").disabled = !strokes.length || curId !== null;
+  $("padHint").style.display = strokes.length ? "none" : "";
+}
+function openCard(){
+  if(grab) letGo(null);
+  cardOpen = true;
+  strokes = []; cur = null; curId = null;
+  const L = LAYOUTS[layoutId];
+  $("cardTitle").innerHTML = "Drawing for <b>" + L.name + "</b> · " + L.about;
+  $("card").hidden = false;
+  $("hint").classList.add("gone");
+  sizePad(); syncCard();
+}
+function closeCard(){
+  cardOpen = false; curId = null; cur = null;
+  $("card").hidden = true;
+}
+$("drawBtn").addEventListener("click", openCard);
+$("cancel").addEventListener("click", closeCard);
+$("undo").addEventListener("click", () => { strokes.pop(); redrawPad(); syncCard(); });
+$("wipe").addEventListener("click", () => { strokes = []; redrawPad(); syncCard(); });
+$("done").addEventListener("click", () => {
+  if(!strokes.length) return;
+  const s = strokes;
+  closeCard();
+  spawn(s);
+  strokes = [];
+});
+
+for(const b of document.querySelectorAll("[data-layout]")){
+  b.addEventListener("click", () => goTo(b.dataset.layout));
+}
+
+/* Clear asks twice, without a dialog: the button itself says "again". */
+let clearArm = 0;
+$("clear").addEventListener("click", () => {
+  const b = $("clear");
+  if(!chars.length) return;
+  if(clock < clearArm){
+    for(const c of chars.slice()){
+      const p = c.body && c.body.getPosition();
+      if(p) puff(toU(p.x), toU(p.y), "#fff", 6);
+      removeChar(c);
+    }
+    clearArm = 0; b.textContent = "Clear"; b.classList.remove("armed");
+    dirty = true; save(); showHint();
+    return;
+  }
+  clearArm = clock + 3;
+  b.textContent = "Tap again to clear"; b.classList.add("armed");
+  setTimeout(() => { if(clock >= clearArm){ b.textContent = "Clear"; b.classList.remove("armed"); } }, 3200);
+});
+
+let hintTimer = 0;
+function showHint(text){
+  const h = $("hint");
+  const msg = text || (chars.length ? "" : "Pick a place, then tap the pencil to draw someone.");
+  h.textContent = msg;
+  h.classList.toggle("gone", !msg);
+  clearTimeout(hintTimer);
+  if(text) hintTimer = setTimeout(() => showHint(), 4500);
+}
+
+/* =================================================================
+   Saving. One blob, a `v` inside it. A build that meets newer data than it
+   understands goes read-only rather than save over fields it doesn't know.
+   ================================================================= */
+
+function snapshot(){
+  return {
+    v: DATA_V, layout: layoutId,
+    chars: chars.filter(c => c.body).map(c => {
+      const p = c.body.getPosition();
+      return {id: c.id, strokes: c.strokes, x: Math.round(toU(p.x)), y: Math.round(toU(p.y)),
+        a: Math.round(normAngle(c.body.getAngle()) * 100) / 100, stars: c.stars};
+    })
+  };
+}
+function save(){
+  if(readOnly) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(snapshot())); dirty = false; }catch(e){}
+}
+function load(){
+  let raw = null;
+  try{ raw = localStorage.getItem(KEY); }catch(e){ return null; }
+  if(!raw) return null;
+  let d;
+  try{ d = JSON.parse(raw); }catch(e){ return null; }
+  if(!d || typeof d !== "object") return null;
+  if((d.v | 0) > DATA_V) readOnly = true;   // from a newer build: look, don't touch
+  // migrations go here, oldest first, when there is a v2
+  return d;
+}
+function validStrokes(ss){
+  return Array.isArray(ss) && ss.length && ss.every(s => s && Array.isArray(s.p) && s.p.length >= 3 &&
+    s.p.length % 3 === 0 && s.p.every(Number.isFinite));
+}
+function restore(d){
+  buildWorld(LAYOUTS[d && d.layout] ? d.layout : "ledges");
+  chars = [];
+  if(!d || !Array.isArray(d.chars)) return;
+  for(const s of d.chars.slice(-MAX_CHARS)){
+    if(!s || !validStrokes(s.strokes)) continue;
+    try{
+      const c = makeChar(s.strokes, {id: s.id | 0 || undefined, stars: s.stars | 0});
+      const x = Number.isFinite(s.x) ? clamp(s.x, 40, W - 40) : LAYOUTS[layoutId].spawn[0];
+      const y = Number.isFinite(s.y) ? Math.min(s.y, H - 120) : LAYOUTS[layoutId].spawn[1];
+      addBody(c, x, y, Number.isFinite(s.a) ? s.a : 0);
+      c.born = -1;
+      chars.push(c);
+    }catch(e){ console.warn("Couldn't bring back a character:", e); }
+  }
+}
+
+/* ---------------------------------------------------------------- run */
+
+restore(load());
+resize();
+window.addEventListener("resize", resize);
+showHint(chars.length ? "" : undefined);
+document.addEventListener("gesturestart", e => e.preventDefault());
+
+let last = 0, acc = 0, sinceSave = 0;
+function frame(t){
+  const dt = last ? Math.min(.05, (t - last) / 1000) : STEP;
+  last = t;
+  acc += dt;
+  let n = 0;
+  while(!paused && acc >= STEP && n < 4){ tick(STEP); acc -= STEP; n++; }
+  if(n === 4 || paused) acc = 0;
+  sinceSave += dt;
+  if(sinceSave > 4){ sinceSave = 0; if(chars.length || dirty) save(); }
+  placeCamera(dt);
+  draw();
+  /* A new build is waiting: switch to it at a quiet moment, silently.
+     Everyone is saved first, so the world comes back exactly as it was. */
+  if(updateReady && !cardOpen && !grab){ save(); updateReady = false; try{ location.reload(); }catch(e){} }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") save(); });
+window.addEventListener("pagehide", save);
+
+/* ---- update delivery ----
+   Cache-first shell, and iOS freezes rather than relaunches a home-screen app,
+   so check for a new worker when the app comes back, and switch to it at the
+   next quiet moment (no drawing card open, nobody being held). */
+if("serviceWorker" in navigator){
+  try{
+    const reg = await navigator.serviceWorker.register("sw.js", {updateViaCache: "none"});
+    reg.addEventListener("updatefound", () => {
+      const sw = reg.installing;
+      if(!sw) return;
+      sw.addEventListener("statechange", () => {
+        if(sw.state === "installed" && navigator.serviceWorker.controller) updateReady = true;
+      });
+    });
+    let lastCheck = 0;
+    const maybeCheck = () => {
+      if(document.visibilityState !== "visible") return;
+      if(Date.now() - lastCheck < 15 * 60 * 1000) return;
+      lastCheck = Date.now();
+      reg.update().catch(() => {});
+    };
+    document.addEventListener("visibilitychange", maybeCheck);
+    window.addEventListener("pageshow", maybeCheck);
+    maybeCheck();
+  }
+  catch(e){ console.warn("Service worker didn't register:", e); }
+}
+})();
+</script>
+</body>
+</html>

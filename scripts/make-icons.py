@@ -51,6 +51,10 @@ PRESSED = (0xD5, 0x4A, 0x5E) # the same wax where the stamp pressed it — a rea
 # once all seven of their cards are won. Hopper draws the gold gear a blueprint
 # earns when a rule is cracked from just enough clues.
 SPECS = {
+    "romp": {
+        "icon": dict(bg=INK, body=GOLD, line=INK, eye=GLASS_HI, mark="doodle"),
+        "splash": dict(bg=GLASS, body=GOLD, line=INK, eye=(0xFF, 0xFF, 0xFF), mark="doodle"),
+    },
     "hopper": {
         "icon": dict(bg=INK, gear=GOLD, ring=INK, hub=GLASS_HI, mark="gear"),
         "splash": dict(bg=GLASS, gear=GOLD, ring=INK, hub=GLASS, mark="gear"),
@@ -233,6 +237,33 @@ def draw_gear(cv, cx, cy, box, spec):
     cv.circle(cx, cy, 0.11 * r, spec["ring"])
 
 
+def wobble(cx, cy, rx, ry, n=72):
+    """A hand-drawn circle: the radius breathes a little as it goes round, the
+    way a felt-tip circle never quite closes on itself."""
+    pts = []
+    for i in range(n):
+        a = i / n * 2 * math.pi
+        k = 1 + 0.035 * math.sin(3 * a + 0.6) + 0.02 * math.sin(5 * a)
+        pts.append((cx + rx * k * math.cos(a), cy + ry * k * math.sin(a)))
+    return pts
+
+
+def draw_doodle(cv, cx, cy, box, spec):
+    """Romp's mark is a doodle come alive: a gold blob with two feet and two
+    eyes looking up, outlined in ink as if drawn with a pen."""
+    r = box / 2.0
+    by = cy - 0.06 * r
+    for fx in (-0.34, 0.34):                      # feet, ink then gold
+        cv.circle(cx + fx * r, by + 0.80 * r, 0.21 * r, spec["line"])
+        cv.circle(cx + fx * r, by + 0.80 * r, 0.15 * r, spec["body"])
+    cv.polygon(wobble(cx, by, 0.84 * r, 0.76 * r), spec["line"])
+    cv.polygon(wobble(cx, by, 0.76 * r, 0.68 * r), spec["body"])
+    for ex in (-0.27, 0.27):
+        cv.circle(cx + ex * r, by - 0.12 * r, 0.20 * r, spec["line"])
+        cv.circle(cx + ex * r, by - 0.12 * r, 0.155 * r, spec["eye"])
+        cv.circle(cx + ex * r + 0.03 * r, by - 0.19 * r, 0.075 * r, spec["line"])
+
+
 def draw_mark(cv, cx, cy, box, spec):
     """A cols x rows lattice of dots, centred on (cx, cy) and fitted to `box`
     (the length of the square the mark may occupy)."""
@@ -242,6 +273,8 @@ def draw_mark(cv, cx, cy, box, spec):
         return draw_seal(cv, cx, cy, box, spec)
     if spec.get("mark") == "gear":
         return draw_gear(cv, cx, cy, box, spec)
+    if spec.get("mark") == "doodle":
+        return draw_doodle(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
