@@ -277,4 +277,140 @@ g = await boot(FILE, {storage: {[KEY]: "{not json"}});
 eq([quiet(g.errors).length, await g.ev("chars.length")], [0, 0], "unreadable saved data just means a fresh world");
 g.close();
 
+/* ---- the pad: the Pencil wins, a palm can't press buttons, Scribble stays out ---- */
+const SQ_KEY = "romp:squiggle:v1";
+g = await boot(FILE);
+await g.ev("paused = true; openCard()");
+await g.ev(`(() => { const r = pad.getBoundingClientRect();
+  padDown({pointerId: 1, pointerType: "touch", clientX: r.left + 10, clientY: r.top + 10});
+  padMove({pointerId: 1, pointerType: "touch", clientX: r.left + 80, clientY: r.top + 80});
+  padDown({pointerId: 2, pointerType: "pen", pressure: .5, clientX: r.left + 200, clientY: r.top + 200});
+  padMove({pointerId: 1, pointerType: "touch", clientX: r.left + 120, clientY: r.top + 120});
+  padMove({pointerId: 2, pointerType: "pen", pressure: .5, clientX: r.left + 260, clientY: r.top + 240});
+  padUp({pointerId: 1}); padUp({pointerId: 2}); })()`);
+eq(await g.ev("[strokes.length, strokes[0].p[0] > 150, history.length]"), [1, true, 1],
+   "a palm that lands first draws until the Pencil comes down; then its line is taken back and the Pencil draws");
+const fire = (sel, type, pointerType, id) => `document.querySelector(${J(sel)}).dispatchEvent(new PointerEvent(${J(type)},
+  {bubbles: true, cancelable: true, pointerType: ${J(pointerType)}, pointerId: ${id}}))`;
+await g.ev(`(() => { ${fire("#pad", "pointerdown", "pen", 7)}; ${fire("#cancel", "pointerdown", "touch", 8)};
+  ${fire("#pad", "pointerup", "pen", 7)}; ${fire("#cancel", "pointerup", "touch", 8)};
+  document.getElementById("cancel").click(); })()`);
+eq(await g.ev("cardOpen"), true, "a palm resting on 'Not now' while the Pencil draws doesn't close the card");
+await g.ev("swallowUntil = 0; penLiftedAt = -1e9");
+await g.ev(`(() => { ${fire("#swatches .sw:nth-child(3)", "pointerdown", "touch", 9)}; ${fire("#swatches .sw:nth-child(3)", "pointerup", "touch", 9)};
+  document.querySelector("#swatches .sw:nth-child(3)").click(); })()`);
+eq(await g.ev("colorIdx"), 2, "a real tap, away from the Pencil, still picks a colour");
+eq(await g.ev(`["touchstart", "touchmove"].map(t => { const e = new Event(t, {bubbles: true, cancelable: true});
+  pad.dispatchEvent(e); return e.defaultPrevented; })`), [true, true],
+   "touches on the pad are cancelled, so Scribble doesn't hold back the Pencil");
+eq(await g.ev("document.querySelectorAll('#swatches .sw').length"), 6, "six pens to pick from; graphite is only for squiggles");
+g.close();
+
+/* ---- Squiggle: making squiggles ---- */
+g = await boot(FILE);
+await g.ev("paused = true");
+eq(await g.ev("JSON.stringify(makeSquiggle(4242).strokes) === JSON.stringify(makeSquiggle(4242).strokes)"), true, "same seed, same squiggle");
+eq(await g.ev("JSON.stringify(makeSquiggle(1).strokes) !== JSON.stringify(makeSquiggle(2).strokes)"), true, "different seeds, different squiggles");
+const sweep = await g.ev(`(() => { let bad = [], shape = 0, ink = 0;
+  for(let i = 1; i <= 300; i++){
+    const seed = i * 104729, r = sqRng(seed);
+    const q = makeSquiggle(seed);
+    if(!validStrokes(q.strokes)) shape++;
+    if(!q.strokes.every(s => s.c === SQ_INK && s.p.every((v, k) => k % 3 === 2 || (v >= 0 && v <= 1000)))) ink++;
+    if(q.tries >= 40) bad.push(seed);
+  } return {bad: bad.length, shape, ink}; })()`);
+eq(sweep, {bad: 0, shape: 0, ink: 0}, "300 squiggles: every one passes the rules, in graphite, on the page");
+eq(await g.ev("[2, 3].includes(makeSquiggle(77).strokes.length)"), true, "a squiggle is two or three pieces");
+
+/* ---- Squiggle: a turn ---- */
+await g.click("#sqBtn");
+eq(await g.ev("[cardOpen, sqMode, sqBase.length > 1, document.getElementById('card').classList.contains('sq')]"), [true, true, true, true],
+   "the Squiggle door opens the drawing card with a squiggle on it");
+eq(await g.ev("[document.getElementById('done').textContent, document.getElementById('cancel').textContent, document.getElementById('done').disabled]"),
+   ["I'm done!", "My squiggles", true], "nothing drawn yet: 'I'm done!' waits");
+const firstBase = await g.ev("JSON.stringify(sqBase)");
+await g.ev(drag(11, "pen", [[100, 100], [300, 300], [600, 650]]));
+eq(await g.ev("[strokes.length, document.getElementById('done').disabled]"), [1, false], "the player's lines go on top");
+await g.ev("setEraser(true)");
+await g.ev(drag(12, "pen", [[0, 0], [250, 250], [500, 500], [750, 750], [1000, 1000], [0, 1000], [1000, 0]]));
+await g.ev("setEraser(false)");
+eq(await g.ev("JSON.stringify(sqBase)"), firstBase, "the eraser can't touch the squiggle");
+await g.ev("document.getElementById('wipe').click()");
+eq(await g.ev("[strokes.length, JSON.stringify(sqBase) === " + J(firstBase) + "]"), [0, true], "and neither can Start over");
+await g.ev(drag(13, "pen", [[200, 200], [400, 260], [500, 500]]));
+await g.ev("document.getElementById('cancel').click()");
+eq(await g.ev("[cardOpen, sqOpen, !document.getElementById('sq').hidden]"), [false, true, true], "'My squiggles' goes to the gallery");
+eq(await g.ev("document.getElementById('sqDraw').textContent"), "Keep drawing", "with the squiggle in progress waiting");
+const midway = JSON.parse(await g.ev("localStorage.getItem(SQ_KEY)"));
+eq([midway.v, midway.current && midway.current.strokes.length, J(midway.current.base) === firstBase], [1, 1, true],
+   "a squiggle in progress is saved, lines and all");
+await g.click("#sqDraw");
+eq(await g.ev("[sqMode, strokes.length, JSON.stringify(sqBase) === " + J(firstBase) + "]"), [true, 1, true], "and comes back as it was left");
+await g.click("#sqNew");
+eq(await g.ev("JSON.stringify(sqBase) === " + J(firstBase)), true, "'New squiggle' asks twice when something's drawn");
+await g.click("#sqNew");
+eq(await g.ev("[JSON.stringify(sqBase) !== " + J(firstBase) + ", strokes.length]"), [true, 0], "the second tap swaps in a fresh one");
+await g.ev(drag(14, "pen", [[150, 150], [500, 200], [850, 820]]));
+await g.ev("document.getElementById('nameIn').value = 'Spiky Dino'");
+await g.click("#done");
+eq(await g.ev("[cardOpen, sqData.drawings.length, sqData.drawings[0].name, sqCurrent, sqOpen, sqViewId === sqData.drawings[0].id]"),
+   [false, 1, "Spiky Dino", null, true, true], "'I'm done!' keeps it, named, and shows it");
+eq(await g.ev("sqViewMode"), "before", "first as the squiggle it started from");
+await new Promise(r => setTimeout(r, 1300));
+eq(await g.ev("sqViewMode"), "after", "then as what it became");
+eq(await g.ev("[...document.querySelectorAll('#sqShelf .dname')].map(n => n.textContent)"), ["Spiky Dino"], "the gallery shows it by name");
+await g.ev("closeSqView(); openSquiggle()");
+await g.ev(drag(15, "pen", [[300, 300], [700, 700]]));
+await g.click("#done");
+eq(await g.ev("sqData.drawings[1].name"), "Squiggle 2", "one with no name gets a number");
+const saved2 = JSON.parse(await g.ev("localStorage.getItem(SQ_KEY)"));
+eq([saved2.v, saved2.drawings.length, saved2.drawings.every(d => d.base.length && d.strokes.length && d.seed), saved2.current],
+   [1, 2, true, null], "the gallery is saved under its own key, each with its squiggle and seed");
+eq(await g.ev("localStorage.getItem(BOOK_KEY)"), null, "nothing goes to the doodle book by itself");
+
+/* ---- Squiggle: sending one to Romp ---- */
+await g.ev("openSqView(sqData.drawings[0].id)");
+eq(await g.ev("[document.getElementById('sqSend').textContent, document.getElementById('sqPlay').hidden]"), ["Send to Romp", true], "a drawing can be sent to Romp");
+await g.click("#sqSend");
+eq(await g.ev(`(() => { const d = sqData.drawings[0], p = bookEntry(d.book);
+  return [book.length, p && p.name, p && p.strokes.length === d.base.length + d.strokes.length, p && p.strokes[0].c]; })()`),
+   [1, "Spiky Dino", true, 6], "'Send to Romp' puts the whole drawing in the book, squiggle and all, in graphite");
+eq(await g.ev("[document.getElementById('sqSend').textContent, document.getElementById('sqSend').disabled, document.getElementById('sqPlay').hidden]"),
+   ["In Romp ✓", true, false], "the button says it's there, and offers to play with it");
+await g.ev("document.getElementById('sqName').value = 'Dino'; document.getElementById('sqName').dispatchEvent(new Event('input'))");
+eq(await g.ev("[sqData.drawings[0].name, book[0].name]"), ["Dino", "Dino"], "renaming it renames its page in the book too");
+await g.ev("closeSqView()");
+eq(await g.ev("document.querySelector('#sqShelf .dcard[data-id=\"' + sqData.drawings[0].id + '\"] .dbadge').textContent"), "In Romp ✓", "its card in the gallery says so");
+await g.ev("openSqView(sqData.drawings[0].id)");
+await g.click("#sqPlay");
+eq(await g.ev("[sqOpen, chars.length, chars[0].bookId === book[0].id]"), [false, 1, true], "'Play with it' drops it into the place");
+await g.ev("removeFromBook(book[0].id); openSqShelf(); openSqView(sqData.drawings[0].id)");
+eq(await g.ev("document.getElementById('sqSend').textContent"), "Send to Romp", "taken out of the book, it can be sent again");
+await g.ev("openSquiggle(); closeCard(); openSqShelf(); onWorldDown({pointerId: 1, clientX: 600, clientY: 600})");
+eq(await g.ev("grab"), null, "the world can't be grabbed through the gallery");
+await g.ev("openSqView(sqData.drawings[1].id)");
+await g.click("#sqRemove");
+eq(await g.ev("sqData.drawings.length"), 2, "removing a drawing asks twice");
+await g.click("#sqRemove");
+eq(await g.ev("[sqData.drawings.length, document.getElementById('sqView').hidden]"), [1, true], "and the second tap removes it");
+const keptSq = await g.ev("localStorage.getItem(SQ_KEY)");
+g.close();
+
+g = await boot(FILE, {storage: {[SQ_KEY]: keptSq}});
+eq(quiet(g.errors), [], "boots with squiggles without error");
+eq(await g.ev("[sqData.drawings.length, sqData.drawings[0].name, sqData.count]"), [1, "Dino", 2], "the gallery survives a restart");
+g.close();
+
+const newerSq = JSON.stringify({...JSON.parse(keptSq), v: 2, future: true});
+g = await boot(FILE, {storage: {[SQ_KEY]: newerSq}});
+await g.ev("paused = true; openSquiggle()");
+await g.ev(drag(16, "pen", [[300, 300], [700, 700]]));
+await g.click("#done");
+eq([await g.ev("sqReadOnly"), await g.ev("localStorage.getItem(SQ_KEY)")], [true, newerSq], "squiggles from a newer build are looked at, never saved over");
+g.close();
+
+g = await boot(FILE, {storage: {[SQ_KEY]: "{not json"}});
+eq([quiet(g.errors).length, await g.ev("sqData.drawings.length")], [0, 0], "unreadable squiggles just mean an empty gallery");
+g.close();
+
 process.exit(report("romp") ? 0 : 1);

@@ -55,6 +55,23 @@ in two through the middle), **Undo** that steps back one whole action at a
 time (a line, an eraser swipe, or Start over), and **Start over**. Picking a
 colour puts the eraser away.
 
+Two things keep the Pencil from being interrupted (fixed 20 Nov 2026):
+
+- **Scribble.** iPadOS Scribble watches every Pencil touch to see whether it
+  is handwriting, and while it decides it can swallow the pen's next
+  pointerdown: lift the pen, come back quickly, and nothing draws for a
+  moment. The pad cancels its touch events (`touchstart`/`touchmove`,
+  non-passive), which tells Scribble it isn't a place for handwriting; pointer
+  events still arrive. See WebKit bug 217430.
+- **Palms.** The Pencil always wins: if a palm got to the pad first (before
+  any Pencil this session) and started a line, that line is taken back when
+  the Pencil lands. And once a Pencil has been used, a touch that is down when
+  the pen lands, or lands while the pen is down or within half a second of it
+  lifting, is treated as a palm: the tap it would make on the card's buttons
+  (Not now, a colour, Undo…) is swallowed, and it can't focus the name field.
+  Nothing on the card scrolls or zooms, so a resting hand can't start a
+  gesture that cancels the pen.
+
 The finished doodle is cut out as a sticker: the strokes are painted into a
 grid, the outside is flood-filled, and whatever the flood can't reach is body
 — so a drawn circle becomes a solid ball, and a stick figure stays spindly.
@@ -87,9 +104,37 @@ clearing the world never touches them.
 - A kept character shows its name for a moment when it arrives, while it is
   held, and while its card is open. Up to 60 doodles.
 
+## Squiggle
+
+A section of Romp behind its own **Squiggle** button at the top. The game
+hands over a random squiggle and the player finishes it into whatever they
+see in it: a monster, a face, a fish. It lives inside Romp rather than as an
+app of its own because home-screen apps on an iPad don't share storage, and so
+it can use the same drawing pad.
+
+- **Squiggles.** Two or three hand-wobbly pieces (blob, wave, zigzag, spiral,
+  hook, loopy line), each starting on or near the one before, then checked:
+  its box covers 22–48% of the page, at least two loose ends, not too
+  symmetric (a mirror test), at most three crossings, not long and thin. One
+  that fails is rebuilt from the same random stream, so the same seed always
+  makes the same squiggle. A fresh one scribbles itself in over 1.4 s.
+- **A turn.** The squiggle sits on the pad in graphite and can't be erased,
+  undone or wiped; only the player's own lines can. **New squiggle** swaps it
+  (asking twice if something's drawn). **I'm done!** keeps it in the gallery,
+  named "Squiggle 7" if no name was typed. **My squiggles** leaves the one in
+  progress exactly as it is, for later.
+- **The gallery.** Every finished drawing, newest first, with the squiggle
+  traced in gold. Tap one for a big view with **Before / After**, rename it, or
+  remove it (asks twice). Up to 100.
+- **Send to Romp.** The player picks which ones go. **Send to Romp** puts the
+  whole drawing (squiggle lines in graphite, the seventh colour, which isn't a
+  pen) into the doodle book as a new page; **Play with it** drops it into the
+  place. Renaming it in the gallery renames its page. If the page is later
+  removed from the book, it can be sent again.
+
 ## Saved data
 
-Two keys, each with a `v` inside and each going read-only when it meets data
+Three keys, each with a `v` inside and each going read-only when it meets data
 from a newer build:
 
 - `localStorage["romp:world:v1"]` — the world: `{v: 2, layout, chars: [{id,
@@ -97,6 +142,11 @@ from a newer build:
   came from; a v1 world loads unchanged and is saved back as v2.
 - `localStorage["romp:book:v1"]` — the book: `{v: 1, doodles: [{id, name,
   strokes, stars, made, edited?}]}`.
+- `localStorage["romp:squiggle:v1"]` — Squiggle: `{v: 1, count, drawings:
+  [{id, name, seed, base, strokes, made, book}], current: {seed, base,
+  strokes, name} | null}`. `base` is the squiggle's lines, kept as drawn so a
+  later change to the squiggle maker never alters a saved drawing; `book` is
+  the page it was sent to.
 
 Strokes are small integers (pad units, width × 10), so both stay small.
 Sprites and colliders are rebuilt from strokes on load.
@@ -106,4 +156,6 @@ Sprites and colliders are rebuilt from strokes on load.
 `scripts/test/romp.mjs` boots a copy of the page with Planck inlined and
 checks the places, the shape → movement rules, palm rejection, the bridge,
 the spring, the tunnel, the doodle book (keep, rename, change, drop in, send
-home, remove), saving, the v1 → v2 migration and the read-only rule.
+home, remove), the Pencil-wins and palm-tap rules, Squiggle (300 squiggles
+against the rules, a turn, the gallery, sending to the book), saving, the v1 →
+v2 migration and the read-only rules.
