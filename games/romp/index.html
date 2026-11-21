@@ -104,6 +104,8 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
 #card input{touch-action:manipulation}
 .sheet{background:var(--paper);border-radius:26px;padding:14px;box-shadow:0 18px 50px rgba(11,30,45,.35);
   display:flex;flex-direction:column;gap:10px;width:calc(var(--pad) + 28px)}
+.cardhead{display:flex;align-items:center;gap:10px}
+.cardhead .cardtitle{flex:1;min-width:0}
 .cardtitle{font-size:16px;color:var(--soft);padding:0 4px;min-height:20px}
 .cardtitle b{color:var(--ink)}
 .tools{display:flex;align-items:center;gap:8px}
@@ -113,6 +115,14 @@ button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-
 .tool{padding:9px 14px;border-radius:999px;background:var(--glass-hi);font-weight:600;font-size:15px}
 .tool:disabled{opacity:.4}
 .tool[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+/* Pencil only: a lock the player sets, instead of guessing which touch is a palm */
+.tool.lock{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto;padding:7px 12px;font-size:14px}
+.tool.lock svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tool.lock .shut{display:none}
+.tool.lock[aria-pressed="true"] .shut{display:inline}
+.tool.lock[aria-pressed="true"] .open{display:none}
+@keyframes nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.tool.nudge{animation:nudge .3s 2}
 .padwrap{position:relative;width:var(--pad);height:var(--pad);border-radius:18px;overflow:hidden;
   background:#fff;box-shadow:inset 0 0 0 2px rgba(11,30,45,.08)}
 #pad{width:100%;height:100%;touch-action:none}
@@ -169,7 +179,14 @@ input.name::placeholder{color:rgba(11,30,45,.38)}
 #card:not(.sq) #sqNew{display:none}
 #sqNew.armed{background:#D7263D;color:#fff}
 .sqhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.sqhead .btn.go{flex:0 0 auto;padding:12px 22px;font-size:18px}
+.sqhead .btn{flex:0 0 auto;padding:12px 22px;font-size:18px}
+.sqhead .btn.armed{background:#D7263D;color:#fff}
+/* making a squiggle for someone: graphite only, so no colours */
+#card.make .swatches, #card.make #sqNew{display:none}
+.dby{text-align:center;color:var(--soft);font-size:13px;margin-top:-6px}
+#sqPass .panel{width:min(420px, calc(100vw - 24px));align-items:stretch;text-align:center;gap:14px}
+#sqPass h2{margin:0;font-size:26px}
+#sqPass p{margin:0;color:var(--soft);font-size:17px}
 .dbadge{text-align:center;color:#2E7D32;font-weight:700;font-size:13px;min-height:17px}
 #sqView .panel{width:min(460px, calc(100vw - 24px));align-items:stretch}
 #sqPic{width:min(300px, 60vh);height:min(300px, 60vh);align-self:center;border-radius:16px;background:#fff;
@@ -200,7 +217,8 @@ input.name::placeholder{color:rgba(11,30,45,.38)}
   #nameIn{grid-area:name;font-size:16px;padding:8px 12px}
   .pill span{display:none}
   .pill{padding:10px}
-  .cardtitle{grid-area:title;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
+  .cardhead{grid-area:title;align-items:flex-start}
+  .cardtitle{font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:0}
   .tools{grid-area:tools;flex-wrap:wrap;align-content:flex-start}
   .tools .spacer{display:none}
   .swatches{flex-wrap:wrap}
@@ -233,7 +251,10 @@ input.name::placeholder{color:rgba(11,30,45,.38)}
 
 <div id="card" hidden>
   <div class="sheet" role="dialog" aria-label="Draw a character">
-    <div class="cardtitle" id="cardTitle"></div>
+    <div class="cardhead">
+      <div class="cardtitle" id="cardTitle"></div>
+      <button class="tool lock" id="penLock" aria-pressed="false" aria-label="Pencil only"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path class="shut" d="M8 11V8a4 4 0 0 1 8 0v3"/><path class="open" d="M8 11V8a4 4 0 0 1 7.6-1.8"/></svg><span>Pencil only</span></button>
+    </div>
     <input id="nameIn" class="name" maxlength="24" autocomplete="off" autocapitalize="words" spellcheck="false"
       placeholder="Give it a name to keep it in your book">
     <div class="tools">
@@ -279,10 +300,21 @@ input.name::placeholder{color:rgba(11,30,45,.38)}
   <div class="panel" role="dialog" aria-label="Squiggles">
     <div class="panelhead"><h2>Squiggles</h2><span class="sub" id="sqSub"></span><div class="spacer"></div>
       <button class="tool" id="sqClose">Back to Romp</button></div>
-    <div class="sqhead"><button class="btn go" id="sqDraw">New squiggle</button></div>
+    <div class="sqhead"><button class="btn go" id="sqDraw">New squiggle</button>
+      <button class="btn ghost" id="sqMake">Make one for a friend</button></div>
     <p class="empty" id="sqEmpty">Every squiggle is the start of something. Look at it, turn your head,
-      and finish it: a monster, a face, a fish, anything you see. Finished ones are kept here.</p>
+      and finish it: a monster, a face, a fish, anything you see. Finished ones are kept here.
+      Two of you? One makes a squiggle, the other finishes it.</p>
     <div class="shelf" id="sqShelf"></div>
+  </div>
+</div>
+
+<div id="sqPass" class="overlay" hidden>
+  <div class="panel" role="dialog" aria-label="Pass it on">
+    <h2>Pass it on!</h2>
+    <p id="sqPassWho">Hand the iPad to the other player.</p>
+    <button class="btn go" id="sqReady">I'm ready</button>
+    <button class="tool" id="sqPassBack">Never mind</button>
   </div>
 </div>
 
@@ -346,7 +378,7 @@ const VISIBLE_TOP = 300;       // world y from which the view must show everythi
 const COLORS = ["#0B1E2D", "#D7263D", "#1B6CA8", "#2E9E4F", "#F08A00", "#7B3FA0", "#8A94A0"];
 const PENS = 6;
 const SQ_KEY = "romp:squiggle:v1";   // Squiggle's gallery; never changes, `v` inside does
-const SQ_V = 1;
+const SQ_V = 2;      // v2: `by`, who made the squiggle (null: the game)
 const MAX_SQ = 100;
 
 const P = window.planck;
@@ -1439,17 +1471,64 @@ function rub(e){
   eraseMark = [x, y, r];
 }
 
+/* Pencil only. Rather than guess which touch is a palm, the player locks
+   the pad to the Pencil with a button, and taps it again (finger or Pencil)
+   to let fingers draw. The first time a Pencil ever touches the pad the lock
+   turns on by itself; after that it stays however the player left it.
+   Remembered on this iPad under PREFS_KEY. */
+const PREFS_KEY = "romp:prefs:v1";
+let penLock = false;
+let penLockSet = false;      // has the lock ever been set (by hand or by that first Pencil)?
+let prefsReadOnly = false;
+function loadPrefs(){
+  try{
+    const d = JSON.parse(localStorage.getItem(PREFS_KEY) || "null");
+    if(!d || typeof d !== "object") return;
+    if((d.v | 0) > 1) prefsReadOnly = true;
+    if(typeof d.penLock === "boolean"){ penLock = d.penLock; penLockSet = true; }
+  }catch(e){}
+}
+function savePrefs(){
+  if(prefsReadOnly) return;
+  try{ localStorage.setItem(PREFS_KEY, JSON.stringify({v: 1, penLock})); }catch(e){}
+}
+function setPenLock(on){
+  penLock = !!on; penLockSet = true;
+  savePrefs(); syncLock();
+}
+function syncLock(){
+  $("penLock").setAttribute("aria-pressed", String(penLock));
+  $("padHint").innerHTML = penLock ? "Draw someone!<br>Pencil only for now." : "Draw someone!<br>Pencil or finger.";
+}
+// a finger on a locked pad: the lock button gives a little shake, so it's clear why
+function nudgeLock(){
+  const b = $("penLock");
+  b.classList.remove("nudge"); void b.offsetWidth; b.classList.add("nudge");
+}
+$("penLock").addEventListener("click", () => setPenLock(!penLock));
+$("penLock").addEventListener("animationend", () => $("penLock").classList.remove("nudge"));
+
 let curPen = false;          // is the line being drawn the Pencil's?
 function padDown(e){
   if(!cardOpen) return;
   const pen = e.pointerType === "pen";
-  if(pen) penSeen = true;
-  else if(penSeen && e.pointerType === "touch") return;   // palm rejection
+  if(pen){
+    penSeen = true;
+    if(!penLockSet) setPenLock(true);       // the first Pencil ever: lock on by itself
+  } else if(penLock && e.pointerType === "touch"){
+    // not while the Pencil is drawing: that's a resting palm, not a question
+    if(!penActive && performance.now() - penLiftedAt > 1500) nudgeLock();
+    return;
+  }
   if(curId !== null){
     // The Pencil always wins. A palm that landed first (before any Pencil
     // this session) was drawing; take its line back and let the pen draw.
     if(!pen || curPen) return;
     abandonLine();
+  }
+  if(sqMake && !erasing && (strokes.length >= SQ_MAKE_LINES || inkOf(strokes) >= SQ_MAKE_INK)){
+    makeTitle(true);
+    return;
   }
   if(e.preventDefault) e.preventDefault();
   try{ const a = document.activeElement; if(a && a.tagName === "INPUT") a.blur(); }catch(err){}
@@ -1477,7 +1556,14 @@ function padMove(e){
     return;
   }
   if(!cur) return;
-  for(const ev of list) addPoint(ev, false);
+  for(const ev of list){
+    // making a squiggle: the ink runs out, and the line just stops
+    if(sqMake){
+      const q = cur.p, n = q.length, [x, y] = toPad(ev);
+      if(inkOf(strokes) + (n ? Math.hypot(x - q[n - 3], y - q[n - 2]) : 0) > SQ_MAKE_INK){ makeTitle(true); break; }
+    }
+    addPoint(ev, false);
+  }
 }
 function padUp(e){
   if(e.pointerId !== curId) return;
@@ -1531,9 +1617,10 @@ $("card").addEventListener("touchmove", e => {
   noTouchDefault(e);
 }, {passive: false});
 
-/* A resting hand can't press the card's buttons. Once a Pencil has been used,
-   a touch that is down when the pen lands, or lands while the pen is down or
-   just after it lifts, is a palm, and the tap it would make is swallowed. */
+/* A resting hand can't press the card's buttons. While the pad is locked to
+   the Pencil, a touch that is down when the pen lands, or lands while the pen
+   is down or just after it lifts, is a palm, and the tap it would make is
+   swallowed. */
 let penActive = false, penLiftedAt = -1e9, swallowUntil = 0;
 const touchesDown = new Set(), palms = new Set();
 {
@@ -1546,7 +1633,7 @@ const touchesDown = new Set(), palms = new Set();
     }
     if(e.pointerType !== "touch") return;
     touchesDown.add(e.pointerId);
-    if(penSeen && (penActive || performance.now() - penLiftedAt < 500)) palms.add(e.pointerId);
+    if(penLock && (penActive || performance.now() - penLiftedAt < 500)) palms.add(e.pointerId);
   }, true);
   const up = e => {
     if(e.pointerType === "pen"){ penActive = false; penLiftedAt = performance.now(); }
@@ -1570,7 +1657,7 @@ function redrawPad(){
   pctx.clearRect(0, 0, pad.width, pad.height);
   pctx.setTransform(f, 0, 0, f, 0, 0);
   if(sqMode) drawSqBase(pctx, sqBase, sqReveal ? Math.min(1, (performance.now() - sqReveal) / SQ_REVEAL_MS) : 1, COLORS[SQ_INK]);
-  else drawGuide(pctx);
+  else if(!sqMake) drawGuide(pctx);
   for(const s of strokes) strokePath(pctx, s, 0, COLORS[s.c] || COLORS[0]);
   if(eraseMark){
     pctx.beginPath(); pctx.arc(eraseMark[0], eraseMark[1], eraseMark[2], 0, Math.PI * 2);
@@ -1660,7 +1747,7 @@ let editing = null;
 function openCard(edit){
   if(grab) letGo(null);
   editing = edit && edit.strokes ? edit : null;
-  sqMode = false; sqBase = [];
+  sqMode = false; sqBase = []; endMake();
   $("card").classList.remove("sq");
   $("cancel").textContent = "Not now"; $("done").textContent = "Let it go!";
   $("nameIn").placeholder = "Give it a name to keep it in your book";
@@ -1687,13 +1774,14 @@ function openCard(edit){
 }
 function closeCard(){
   if(sqMode){ sqCurrent.name = $("nameIn").value; saveSq(); }
+  endMake();
   cardOpen = false; curId = null; cur = null; curPen = false; editing = null; sqMode = false;
   try{ $("nameIn").blur(); }catch(e){}
   $("card").hidden = true;
 }
 $("drawBtn").addEventListener("click", () => openCard());
 $("cancel").addEventListener("click", () => {
-  const wasSq = sqMode;
+  const wasSq = sqMode || sqMake;
   closeCard();
   if(wasSq) openSqShelf();
 });
@@ -1709,6 +1797,7 @@ $("wipe").addEventListener("click", () => {
 $("done").addEventListener("click", letItGo);
 function letItGo(){
   if(!strokes.length) return;
+  if(sqMake) return passItOn();
   if(sqMode) return finishSquiggle();
   const s = strokes, name = cleanName($("nameIn").value), ed = editing;
   closeCard();
@@ -2241,7 +2330,8 @@ let sqBase = [];             // that squiggle's lines, drawn under the player's
 let sqOpen = false;          // the gallery (or one drawing from it) is up
 let sqReadOnly = false;
 let sqData = {count: 0, drawings: []};
-let sqCurrent = null;        // {seed, base, strokes, name}
+let sqCurrent = null;        // {seed, base, strokes, name, by}
+let sqMake = false;          // the card is making a squiggle for someone else
 function sqEntry(id){ return sqData.drawings.find(d => d.id === id) || null; }
 
 function loadSq(){
@@ -2252,16 +2342,18 @@ function loadSq(){
   try{ d = JSON.parse(raw); }catch(e){ return; }
   if(!d || typeof d !== "object") return;
   if((d.v | 0) > SQ_V) sqReadOnly = true;       // from a newer build: look, don't touch
+  // v1 → v2: every squiggle so far was the game's (by: null)
+  const byOf = x => typeof x.by === "string" && x.by ? x.by.slice(0, 24) : null;
   const okLines = ss => Array.isArray(ss) && (!ss.length || validStrokes(ss));
   sqData.count = d.count | 0;
   sqData.drawings = (Array.isArray(d.drawings) ? d.drawings : [])
     .filter(x => x && typeof x.id === "string" && validStrokes(x.base) && validStrokes(x.strokes))
-    .map(x => ({...x, name: cleanName(x.name) || "Squiggle", book: typeof x.book === "string" ? x.book : null}));
+    .map(x => ({...x, name: cleanName(x.name) || "Squiggle", book: typeof x.book === "string" ? x.book : null, by: byOf(x)}));
   sqData.count = Math.max(sqData.count, sqData.drawings.length);
   const c = d.current;
   if(c && validStrokes(c.base)){
     sqCurrent = {seed: c.seed | 0, base: c.base, strokes: okLines(c.strokes) ? c.strokes : [],
-      name: typeof c.name === "string" ? c.name.slice(0, 24) : ""};
+      name: typeof c.name === "string" ? c.name.slice(0, 24) : "", by: byOf(c)};
   }
 }
 function saveSq(){
@@ -2274,7 +2366,7 @@ function saveSq(){
 }
 function freshSquiggle(){
   const s = makeSquiggle(newSeed());
-  sqCurrent = {seed: s.seed, base: s.strokes, strokes: [], name: ""};
+  sqCurrent = {seed: s.seed, base: s.strokes, strokes: [], name: "", by: null};
 }
 
 /* ---- the turn: the drawing card, with a squiggle on it ---- */
@@ -2286,6 +2378,7 @@ function openSquiggle(){
   closeSqView(); closeSqShelf(true);
   if(!sqCurrent) freshSquiggle();
   editing = null;
+  endMake();
   sqMode = true; sqBase = sqCurrent.base;
   strokes = clone(sqCurrent.strokes); cur = null; curId = null; curPen = false;
   history = []; eraseMark = null; setEraser(false);
@@ -2310,6 +2403,11 @@ function sqTitle(msg){
   title.textContent = "";
   if(msg){ title.textContent = msg; return; }
   const b = document.createElement("b");
+  if(sqCurrent && sqCurrent.by){
+    b.textContent = sqCurrent.by + " made you a squiggle.";
+    title.append(b, " What do you see? Finish it.");
+    return;
+  }
   b.textContent = "What do you see?";
   title.append(b, " Finish it: a monster, a face, anything.");
 }
@@ -2356,13 +2454,102 @@ $("sqNew").addEventListener("click", () => {
   saveSq();
   openSquiggle();
 });
+/* ---- two players: one makes the squiggle, the other finishes it ----
+   The maker draws in graphite, up to SQ_MAKE_LINES lines and SQ_MAKE_INK of
+   ink (about what the game's own squiggles use), so it stays a squiggle and
+   not a whole drawing. Then "Pass it on" covers the pad until the other
+   player taps "I'm ready", and their squiggle scribbles itself in. */
+const SQ_MAKE_LINES = 3, SQ_MAKE_INK = 3600;
+let sqMakeArm = 0, sqMakeColor = 0, sqMade = null;
+function inkOf(ss){
+  let L = 0;
+  for(const s of ss) for(let i = 3; i < s.p.length; i += 3) L += Math.hypot(s.p[i] - s.p[i - 3], s.p[i + 1] - s.p[i - 2]);
+  return L;
+}
+function openSqMake(){
+  if(grab) letGo(null);
+  closeSqView(); closeSqShelf(true);
+  editing = null;
+  sqMode = false; sqMake = true; sqBase = [];
+  strokes = []; cur = null; curId = null; curPen = false;
+  history = []; eraseMark = null; setEraser(false);
+  sqMakeColor = colorIdx; colorIdx = SQ_INK;
+  cardOpen = true;
+  const card = $("card");
+  card.classList.add("sq", "make");
+  makeTitle();
+  $("nameIn").value = "";
+  $("nameIn").placeholder = "Who's making it? Your name";
+  $("cancel").textContent = "Never mind";
+  $("done").textContent = "Pass it on";
+  card.hidden = false;
+  $("hint").classList.add("gone");
+  sizePad(); syncCard();
+}
+function makeTitle(full){
+  const title = $("cardTitle");
+  title.textContent = "";
+  const b = document.createElement("b");
+  b.textContent = full ? "That's a squiggle!" : "Make a squiggle";
+  title.append(b, full ? " Pass it on, or undo a line to change it."
+    : " for someone else to finish. Up to " + SQ_MAKE_LINES + " lines.");
+}
+function endMake(){
+  if(!sqMake) return;
+  sqMake = false;
+  colorIdx = sqMakeColor;
+  $("card").classList.remove("make");
+}
+function passItOn(){
+  if(!strokes.length) return;
+  const by = cleanName($("nameIn").value) || "A friend";
+  sqMade = {seed: 0, base: strokes.map(st => ({c: SQ_INK, p: st.p.slice()})), strokes: [], name: "", by};
+  endMake();
+  cardOpen = false; curId = null; cur = null;
+  try{ $("nameIn").blur(); }catch(e){}
+  $("card").hidden = true;
+  $("sqPassWho").textContent = "Hand the iPad to the other player. " + by + " made them a squiggle.";
+  $("sqPass").hidden = false;
+  sqOpen = true;
+}
+$("sqReady").addEventListener("click", () => {
+  if(!sqMade) return;
+  sqCurrent = sqMade; sqMade = null;
+  $("sqPass").hidden = true;
+  saveSq();
+  openSquiggle();
+});
+$("sqPassBack").addEventListener("click", () => {
+  sqMade = null;
+  $("sqPass").hidden = true;
+  openSqShelf();
+});
+function disarmSqMake(){
+  sqMakeArm = 0;
+  const b = $("sqMake");
+  b.textContent = "Make one for a friend"; b.classList.remove("armed");
+}
+$("sqMake").addEventListener("click", () => {
+  // a drawing in progress would be swapped out: ask twice, the way Clear does
+  if(sqCurrent && sqCurrent.strokes.length && Date.now() > sqMakeArm){
+    sqMakeArm = Date.now() + 3000;
+    const b = $("sqMake");
+    b.textContent = "Tap again: the one you're drawing goes"; b.classList.add("armed");
+    setTimeout(() => { if(Date.now() >= sqMakeArm) disarmSqMake(); }, 3100);
+    return;
+  }
+  disarmSqMake();
+  openSqMake();
+});
+
 function finishSquiggle(){
   if(!strokes.length || !sqCurrent) return;
   if(sqReadOnly){ sqTitle("This iPad has a newer Romp's squiggles. Update this one to keep more."); return; }
   if(sqData.drawings.length >= MAX_SQ){ sqTitle("Your squiggles are full. Remove one from My squiggles to keep this one."); return; }
   const d = {id: "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     name: cleanName($("nameIn").value) || "Squiggle " + (sqData.count + 1),
-    seed: sqCurrent.seed, base: clone(sqCurrent.base), strokes: clone(strokes), made: Date.now(), book: null};
+    seed: sqCurrent.seed, base: clone(sqCurrent.base), strokes: clone(strokes), made: Date.now(), book: null,
+    by: sqCurrent.by || null};
   const before = sqCurrent;
   sqData.drawings.push(d); sqData.count++;
   sqCurrent = null;
@@ -2400,7 +2587,9 @@ function renderSqShelf(){
   const n = sqData.drawings.length;
   $("sqEmpty").hidden = n > 0;
   $("sqSub").textContent = n ? n + (n === 1 ? " drawing" : " drawings") : "";
-  $("sqDraw").textContent = sqCurrent && sqCurrent.strokes.length ? "Keep drawing" : "New squiggle";
+  $("sqDraw").textContent = sqCurrent && sqCurrent.strokes.length ? "Keep drawing"
+    : sqCurrent && sqCurrent.by ? "Finish " + sqCurrent.by + "'s squiggle" : "New squiggle";
+  disarmSqMake();
   for(const d of sqData.drawings.slice().reverse()){
     const card = document.createElement("div");
     card.className = "dcard";
@@ -2415,7 +2604,13 @@ function renderSqShelf(){
     nm.className = "dname"; nm.textContent = d.name;
     const badge = document.createElement("div");
     badge.className = "dbadge"; badge.textContent = bookEntry(d.book) ? "In Romp ✓" : "";
-    card.append(thumb, nm, badge);
+    card.append(thumb, nm);
+    if(d.by){
+      const by = document.createElement("div");
+      by.className = "dby"; by.textContent = "squiggle by " + d.by;
+      card.appendChild(by);
+    }
+    card.appendChild(badge);
     shelf.appendChild(card);
     drawSq(cv, d, "after", 156);
     thumb.addEventListener("click", () => openSqView(d.id));
@@ -2446,7 +2641,8 @@ function openSqView(id, reveal){
   if(!d) return;
   sqViewId = id;
   $("sqName").value = d.name;
-  $("sqMsg").textContent = reveal ? "Here's what you made of it." : "";
+  $("sqMsg").textContent = reveal ? (d.by ? "Here's what you made of " + d.by + "'s squiggle." : "Here's what you made of it.")
+    : d.by ? "Squiggle by " + d.by : "";
   sqRemoveArm = 0;
   $("sqRemove").textContent = "Remove"; $("sqRemove").classList.remove("armed");
   syncSqView();
@@ -2519,7 +2715,11 @@ $("sqRemove").addEventListener("click", () => {
   setTimeout(() => { if(Date.now() >= sqRemoveArm){ b.textContent = "Remove"; b.classList.remove("armed"); } }, 3100);
 });
 $("sqViewClose").addEventListener("click", closeSqView);
-$("sqBtn").addEventListener("click", openSquiggle);
+$("sqBtn").addEventListener("click", () => {
+  if(bookOpen) closeBook();
+  if(whoChar) closeWho();
+  openSqShelf();
+});
 $("sqDraw").addEventListener("click", openSquiggle);
 $("sqClose").addEventListener("click", () => closeSqShelf());
 
@@ -2583,6 +2783,7 @@ function restore(d){
 
 book = loadBook();
 loadSq();
+loadPrefs(); syncLock();
 restore(load());
 resize();
 window.addEventListener("resize", resize);

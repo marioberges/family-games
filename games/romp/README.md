@@ -47,15 +47,23 @@ see whether it will jump the step, bridge the gap, or fit the tunnel. Switching 
 
 ## Drawing
 
-Apple Pencil first. Its pressure sets the line width, and once a Pencil has
-touched the pad, fingers and palms are ignored there, so a resting hand leaves
-no marks. Fingers draw too, for anyone without the Pencil. Six colours, an
+Apple Pencil first. Its pressure sets the line width. Fingers draw too, for
+anyone without the Pencil. Six colours, an
 **Eraser** that rubs out just the bits of line it passes over (splitting a line
 in two through the middle), **Undo** that steps back one whole action at a
 time (a line, an eraser swipe, or Start over), and **Start over**. Picking a
 colour puts the eraser away.
 
-Two things keep the Pencil from being interrupted (fixed 20 Nov 2026):
+**Pencil only** (top right of the card, added 21 Nov 2026) locks the pad to
+the Pencil: fingers and resting palms leave no marks. A tap on it, with a
+finger or the Pencil, unlocks it so fingers draw again. Rather than guess
+which touch is a palm, the player says. The first time a Pencil ever touches
+the pad the lock turns on by itself; after that it stays however someone
+left it. A finger on a locked pad makes the button give a little shake, so a
+child without the Pencil sees why nothing draws. Remembered on the iPad under
+`romp:prefs:v1`.
+
+Two more things keep the Pencil from being interrupted (20 Nov 2026):
 
 - **Scribble.** iPadOS Scribble watches every Pencil touch to see whether it
   is handwriting, and while it decides it can swallow the pen's next
@@ -63,9 +71,9 @@ Two things keep the Pencil from being interrupted (fixed 20 Nov 2026):
   moment. The pad cancels its touch events (`touchstart`/`touchmove`,
   non-passive), which tells Scribble it isn't a place for handwriting; pointer
   events still arrive. See WebKit bug 217430.
-- **Palms.** The Pencil always wins: if a palm got to the pad first (before
-  any Pencil this session) and started a line, that line is taken back when
-  the Pencil lands. And once a Pencil has been used, a touch that is down when
+- **Palms.** The Pencil always wins: if a finger or palm got to an unlocked
+  pad first and started a line, that line is taken back when the Pencil
+  lands. And while the pad is locked, a touch that is down when
   the pen lands, or lands while the pen is down or within half a second of it
   lifting, is treated as a palm: the tap it would make on the card's buttons
   (Not now, a colour, Undo…) is swallowed, and it can't focus the name field.
@@ -106,8 +114,10 @@ clearing the world never touches them.
 
 ## Squiggle
 
-A section of Romp behind its own **Squiggle** button at the top. The game
-hands over a random squiggle and the player finishes it into whatever they
+A section of Romp behind its own **Squiggle** button at the top, which opens
+the gallery with two ways to play: **New squiggle**, where the game hands over
+a random squiggle, and **Make one for a friend**, where one player makes it
+and another finishes it. Either way the player turns it into whatever they
 see in it: a monster, a face, a fish. It lives inside Romp rather than as an
 app of its own because home-screen apps on an iPad don't share storage, and so
 it can use the same drawing pad.
@@ -123,9 +133,17 @@ it can use the same drawing pad.
   (asking twice if something's drawn). **I'm done!** keeps it in the gallery,
   named "Squiggle 7" if no name was typed. **My squiggles** leaves the one in
   progress exactly as it is, for later.
+- **For a friend** (added 21 Nov 2026). One player draws a squiggle in
+  graphite (no colours), up to 3 lines and 3600 units of ink, about what the
+  game's own squiggles use, so it stays a squiggle and not a whole drawing; a
+  line just stops when the ink runs out. Their name goes in the name field.
+  **Pass it on** covers the pad ("Hand the iPad to the other player") until
+  **I'm ready**, then the squiggle scribbles itself in for the other player,
+  headed "Ana made you a squiggle." The rest is a normal turn. **Make one for
+  a friend** asks twice if a drawing is in progress, since it takes its place.
 - **The gallery.** Every finished drawing, newest first, with the squiggle
-  traced in gold. Tap one for a big view with **Before / After**, rename it, or
-  remove it (asks twice). Up to 100.
+  traced in gold, and "squiggle by Ana" under a friend's. Tap one for a big
+  view with **Before / After**, rename it, or remove it (asks twice). Up to 100.
 - **Send to Romp.** The player picks which ones go. **Send to Romp** puts the
   whole drawing (squiggle lines in graphite, the seventh colour, which isn't a
   pen) into the doodle book as a new page; **Play with it** drops it into the
@@ -134,7 +152,7 @@ it can use the same drawing pad.
 
 ## Saved data
 
-Three keys, each with a `v` inside and each going read-only when it meets data
+Four keys, each with a `v` inside and each going read-only when it meets data
 from a newer build:
 
 - `localStorage["romp:world:v1"]` — the world: `{v: 2, layout, chars: [{id,
@@ -142,11 +160,14 @@ from a newer build:
   came from; a v1 world loads unchanged and is saved back as v2.
 - `localStorage["romp:book:v1"]` — the book: `{v: 1, doodles: [{id, name,
   strokes, stars, made, edited?}]}`.
-- `localStorage["romp:squiggle:v1"]` — Squiggle: `{v: 1, count, drawings:
-  [{id, name, seed, base, strokes, made, book}], current: {seed, base,
-  strokes, name} | null}`. `base` is the squiggle's lines, kept as drawn so a
+- `localStorage["romp:squiggle:v1"]` — Squiggle: `{v: 2, count, drawings:
+  [{id, name, seed, base, strokes, made, book, by}], current: {seed, base,
+  strokes, name, by} | null}`. `base` is the squiggle's lines, kept as drawn so a
   later change to the squiggle maker never alters a saved drawing; `book` is
-  the page it was sent to.
+  the page it was sent to; `by` is who made the squiggle (`null`: the game,
+  and `seed` 0 for a friend's). v2 added `by`; a v1 gallery loads with `by: null`.
+- `localStorage["romp:prefs:v1"]` — `{v: 1, penLock}`. No `penLock` yet means
+  nobody has chosen, so the first Pencil turns it on.
 
 Strokes are small integers (pad units, width × 10), so both stay small.
 Sprites and colliders are rebuilt from strokes on load.
@@ -156,6 +177,6 @@ Sprites and colliders are rebuilt from strokes on load.
 `scripts/test/romp.mjs` boots a copy of the page with Planck inlined and
 checks the places, the shape → movement rules, palm rejection, the bridge,
 the spring, the tunnel, the doodle book (keep, rename, change, drop in, send
-home, remove), the Pencil-wins and palm-tap rules, Squiggle (300 squiggles
-against the rules, a turn, the gallery, sending to the book), saving, the v1 →
-v2 migration and the read-only rules.
+home, remove), Pencil only, the Pencil-wins and palm-tap rules, Squiggle (300
+squiggles against the rules, a turn, the gallery, sending to the book, making
+one for a friend), saving, the v1 → v2 migrations and the read-only rules.

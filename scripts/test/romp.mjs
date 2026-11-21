@@ -324,8 +324,11 @@ eq(await g.ev("[2, 3].includes(makeSquiggle(77).strokes.length)"), true, "a squi
 
 /* ---- Squiggle: a turn ---- */
 await g.click("#sqBtn");
+eq(await g.ev("[sqOpen, cardOpen, !document.getElementById('sq').hidden]"), [true, false, true],
+   "the Squiggle door opens the gallery, with both ways to play");
+await g.click("#sqDraw");
 eq(await g.ev("[cardOpen, sqMode, sqBase.length > 1, document.getElementById('card').classList.contains('sq')]"), [true, true, true, true],
-   "the Squiggle door opens the drawing card with a squiggle on it");
+   "'New squiggle' opens the drawing card with a squiggle on it");
 eq(await g.ev("[document.getElementById('done').textContent, document.getElementById('cancel').textContent, document.getElementById('done').disabled]"),
    ["I'm done!", "My squiggles", true], "nothing drawn yet: 'I'm done!' waits");
 const firstBase = await g.ev("JSON.stringify(sqBase)");
@@ -342,7 +345,7 @@ await g.ev("document.getElementById('cancel').click()");
 eq(await g.ev("[cardOpen, sqOpen, !document.getElementById('sq').hidden]"), [false, true, true], "'My squiggles' goes to the gallery");
 eq(await g.ev("document.getElementById('sqDraw').textContent"), "Keep drawing", "with the squiggle in progress waiting");
 const midway = JSON.parse(await g.ev("localStorage.getItem(SQ_KEY)"));
-eq([midway.v, midway.current && midway.current.strokes.length, J(midway.current.base) === firstBase], [1, 1, true],
+eq([midway.v, midway.current && midway.current.strokes.length, J(midway.current.base) === firstBase], [2, 1, true],
    "a squiggle in progress is saved, lines and all");
 await g.click("#sqDraw");
 eq(await g.ev("[sqMode, strokes.length, JSON.stringify(sqBase) === " + J(firstBase) + "]"), [true, 1, true], "and comes back as it was left");
@@ -365,7 +368,7 @@ await g.click("#done");
 eq(await g.ev("sqData.drawings[1].name"), "Squiggle 2", "one with no name gets a number");
 const saved2 = JSON.parse(await g.ev("localStorage.getItem(SQ_KEY)"));
 eq([saved2.v, saved2.drawings.length, saved2.drawings.every(d => d.base.length && d.strokes.length && d.seed), saved2.current],
-   [1, 2, true, null], "the gallery is saved under its own key, each with its squiggle and seed");
+   [2, 2, true, null], "the gallery is saved under its own key, each with its squiggle and seed");
 eq(await g.ev("localStorage.getItem(BOOK_KEY)"), null, "nothing goes to the doodle book by itself");
 
 /* ---- Squiggle: sending one to Romp ---- */
@@ -401,7 +404,7 @@ eq(quiet(g.errors), [], "boots with squiggles without error");
 eq(await g.ev("[sqData.drawings.length, sqData.drawings[0].name, sqData.count]"), [1, "Dino", 2], "the gallery survives a restart");
 g.close();
 
-const newerSq = JSON.stringify({...JSON.parse(keptSq), v: 2, future: true});
+const newerSq = JSON.stringify({...JSON.parse(keptSq), v: 3, future: true});
 g = await boot(FILE, {storage: {[SQ_KEY]: newerSq}});
 await g.ev("paused = true; openSquiggle()");
 await g.ev(drag(16, "pen", [[300, 300], [700, 700]]));
@@ -411,6 +414,82 @@ g.close();
 
 g = await boot(FILE, {storage: {[SQ_KEY]: "{not json"}});
 eq([quiet(g.errors).length, await g.ev("sqData.drawings.length")], [0, 0], "unreadable squiggles just mean an empty gallery");
+g.close();
+
+/* ---- Pencil only: a lock instead of guessing ---- */
+g = await boot(FILE);
+await g.ev("paused = true; openCard()");
+eq(await g.ev("[penLock, document.getElementById('penLock').getAttribute('aria-pressed')]"), [false, "false"], "a new iPad starts unlocked: fingers draw");
+await g.ev(drag(1, "touch", [[100, 100], [300, 300]]));
+eq(await g.ev("strokes.length"), 1, "a finger draws while unlocked");
+await g.ev(drag(2, "pen", [[400, 400], [600, 500]]));
+eq(await g.ev("[penLock, JSON.parse(localStorage.getItem('romp:prefs:v1')).penLock]"), [true, true],
+   "the first Pencil ever turns the lock on by itself, and the iPad remembers");
+await g.ev(drag(3, "touch", [[100, 600], [300, 800]]));
+eq(await g.ev("[strokes.length, document.getElementById('penLock').classList.contains('nudge')]"), [2, true],
+   "locked: a finger leaves no mark, and the lock button shakes to say why");
+await g.ev("swallowUntil = 0; penLiftedAt = -1e9");
+await g.click("#penLock");
+eq(await g.ev("[penLock, JSON.parse(localStorage.getItem('romp:prefs:v1')).penLock]"), [false, false], "a tap on the button unlocks it");
+await g.ev(drag(4, "pen", [[500, 100], [700, 200]]));
+eq(await g.ev("penLock"), false, "once someone has chosen, the Pencil doesn't lock it again");
+await g.ev(drag(5, "touch", [[100, 900], [300, 950]]));
+eq(await g.ev("strokes.length"), 4, "unlocked: fingers and the Pencil both draw");
+await g.click("#penLock");
+const prefs = await g.ev("localStorage.getItem('romp:prefs:v1')");
+g.close();
+g = await boot(FILE, {storage: {"romp:prefs:v1": prefs}});
+await g.ev("paused = true; openCard()");
+eq(await g.ev("[penLock, document.getElementById('penLock').getAttribute('aria-pressed')]"), [true, "true"], "the lock survives a restart");
+await g.ev(drag(1, "touch", [[100, 100], [300, 300]]));
+eq(await g.ev("strokes.length"), 0, "and still keeps fingers off the pad");
+g.close();
+
+/* ---- Squiggle for two: one makes it, the other finishes it ---- */
+g = await boot(FILE);
+await g.ev("paused = true; openSqShelf()");
+await g.click("#sqMake");
+eq(await g.ev("[cardOpen, sqMake, sqMode, document.getElementById('done').textContent, colorIdx]"), [true, true, false, "Pass it on", 6],
+   "'Make one for a friend' opens an empty pad that draws in graphite");
+await g.ev(drag(1, "pen", [[200, 300], [400, 200], [500, 400]]));
+await g.ev(drag(2, "pen", [[500, 400], [700, 600]]));
+await g.ev(drag(3, "pen", [[300, 700], [350, 800]]));
+await g.ev(drag(4, "pen", [[600, 800], [800, 850]]));
+eq(await g.ev("[strokes.length, strokes.every(s => s.c === 6)]"), [3, true], "three lines at most, so it stays a squiggle");
+await g.ev("document.getElementById('undo').click()");
+await g.ev(drag(5, "pen", [[100, 100], [900, 100], [900, 900], [100, 900], [100, 150], [850, 150], [850, 850], [150, 850]]));
+eq(await g.ev("inkOf(strokes) <= SQ_MAKE_INK + 40"), true, "and a little ink: a long line just stops");
+await g.ev("document.getElementById('nameIn').value = 'Ana'");
+await g.click("#done");
+eq(await g.ev("[cardOpen, !document.getElementById('sqPass').hidden, document.getElementById('sqPassWho').textContent.includes('Ana')]"),
+   [false, true, true], "'Pass it on' hides the pad and asks for the other player");
+eq(await g.ev("onWorldDown({pointerId: 1, clientX: 600, clientY: 600}); grab"), null, "nothing behind the hand-off can be grabbed");
+await g.click("#sqReady");
+eq(await g.ev("[sqMode, sqBase.length, strokes.length, sqCurrent.by, colorIdx]"), [true, 3, 0, "Ana", 0],
+   "'I'm ready' gives the other player Ana's squiggle to finish, in their own colours");
+eq(await g.ev("document.getElementById('cardTitle').textContent.startsWith('Ana made you a squiggle')"), true, "the card says who made it");
+await g.ev(drag(6, "pen", [[450, 450], [520, 520]]));
+await g.click("#done");
+eq(await g.ev("[sqData.drawings[0].by, sqData.drawings[0].seed, sqData.drawings[0].base.length]"), ["Ana", 0, 3], "kept in the gallery with Ana's squiggle");
+eq(await g.ev("document.querySelector('#sqShelf .dby').textContent"), "squiggle by Ana", "its card says whose squiggle it was");
+await g.ev("closeSqView()");
+await g.click("#sqMake");
+await g.ev(drag(7, "pen", [[300, 300], [600, 600]]));
+await g.click("#cancel");
+eq(await g.ev("[cardOpen, sqMake, sqOpen, colorIdx, sqCurrent]"), [false, false, true, 0, null], "'Never mind' goes back to the gallery and forgets it");
+await g.ev("openSquiggle()");
+await g.ev(drag(8, "pen", [[300, 300], [600, 600]]));
+await g.ev("closeCard(); openSqShelf()");
+await g.click("#sqMake");
+eq(await g.ev("sqMake"), false, "with a drawing in progress, 'Make one for a friend' asks twice");
+await g.click("#sqMake");
+eq(await g.ev("sqMake"), true, "and the second tap goes ahead");
+g.close();
+
+const v1sq = JSON.stringify({v: 1, count: 1, current: null, drawings: [{id: "s1", name: "Old", seed: 5,
+  base: [{c: 6, p: [100, 100, 120, 300, 300, 120]}], strokes: [{c: 1, p: [200, 200, 80, 400, 400, 80]}], made: 1, book: null}]});
+g = await boot(FILE, {storage: {[SQ_KEY]: v1sq}});
+eq(await g.ev("[sqReadOnly, sqData.drawings[0].by, sqData.drawings[0].name]"), [false, null, "Old"], "a v1 gallery loads, every squiggle the game's");
 g.close();
 
 process.exit(report("romp") ? 0 : 1);
