@@ -189,7 +189,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 
 /* the paper tape: every try, kept */
 .tape{flex:1 1 210px;min-width:0;display:flex;flex-direction:column;border:1px solid var(--rule-2);background:#fffdf6}
-.tape-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px dashed var(--rule-2)}
+.tape-head{display:flex;justify-content:space-between;align-items:center;gap:6px 8px;flex-wrap:wrap;padding:7px 10px;border-bottom:1px dashed var(--rule-2)}
+.tgroup{padding:5px 10px 3px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(11,30,45,.55);background:rgba(11,30,45,.04);border-bottom:1px dashed var(--rule)}
 .tape-head .lbl{color:var(--ink);font-weight:600}
 .tseg{display:flex;gap:1px;background:var(--rule-2);border:1px solid var(--rule-2)}
 .tseg button{appearance:none;border:0;background:#fffdf6;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
@@ -284,7 +286,10 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .or{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(11,30,45,.45);align-self:center}
 .drop2{margin-left:auto;appearance:none;border:0;background:none;font-family:var(--mono);font-size:18px;
   color:rgba(11,30,45,.5);cursor:pointer;padding:4px 8px}
-.addstep{align-self:flex-start;margin-top:2px}
+.addstep{align-self:flex-start;margin-top:8px}
+.lane{border:1px dashed var(--rule-2);padding:8px;margin-bottom:10px;background:rgba(255,255,255,.35)}
+.lanehd{margin:0 0 8px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+.splitbtn{display:block;margin-top:10px}
 .readback{margin:10px 0 8px;font-family:var(--serif);font-size:clamp(20px,3.4vw,28px);line-height:1.2;min-height:1.2em}
 .readback .ph{color:rgba(11,30,45,.35);font-family:"Archivo",sans-serif;font-size:15px}
 
@@ -331,6 +336,8 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items
 .segb.sel{background:var(--ink);color:var(--glass-hi)}
 .segb:disabled{color:rgba(11,30,45,.3);cursor:default}
 .levels .segb{font-size:15px;font-weight:600;letter-spacing:0}
+.seg.levels{display:grid;grid-template-columns:repeat(6,1fr)}
+.seg.levels .segfill{background:var(--glass-hi)}
 
 .wall{max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch}
 .wlevel{padding:8px 12px 4px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -485,8 +492,14 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":
 
 /* ============ rules ============
    A rule is a list of steps done in order; a step is an action and an amount.
-   The amount is a number, or SELF — "the number you put in". That one idea is
-   all an eight-year-old needs for squares: "times itself".
+   The amount is a number, or SELF: "itself", meaning the number so far. That
+   one idea is all an eight-year-old needs for squares: "add 2, then times
+   itself" is (x + 2) squared, which is how a child says it. (Until levels 8+
+   "itself" meant the number put in; in levels 1-7 it only ever comes first,
+   where the two meanings agree, so no machine there changed.)
+
+   A split rule is {even:[steps], odd:[steps]}: the machine looks at the number
+   put in and runs one list for even numbers and the other for odd ones.
 
    The same shape is used for the machine's secret and for the rule the player
    builds out of tiles, so the two are compared by running them, never by how
@@ -495,22 +508,37 @@ const SELF = "self";
 const OPS = {
   add: {word:"add",       tile:"Add",       f:(v, a) => v + a},
   sub: {word:"take away", tile:"Take away", f:(v, a) => v - a},
-  mul: {word:"times",     tile:"Times",     f:(v, a) => v * a}
+  mul: {word:"times",     tile:"Times",     f:(v, a) => v * a},
+  /* division only works when it comes out exact; otherwise the machine jams */
+  div: {word:"divide by", tile:"Divide by", f:(v, a) => a !== 0 && v % a === 0 ? v / a : null}
 };
 const step = (op, n) => ({op, n});
+const isSplit = rule => !Array.isArray(rule);
 
-/* Run a rule. With `jam` on, a step that would go below zero jams the machine
-   and the answer is null: level 2 is take-away without negative numbers. */
-function run(rule, x, jam){
+/* Run a rule; null means the machine jams. A division that doesn't come out
+   exact always jams. With `jam` on, so does going below zero: level 2 is
+   take-away without negative numbers. */
+function runSteps(steps, x, jam){
   let v = x;
-  for(const s of rule){
-    v = OPS[s.op].f(v, s.n === SELF ? x : s.n);
+  for(const s of steps){
+    v = OPS[s.op].f(v, s.n === SELF ? v : s.n);
+    if(v === null) return null;
     if(jam && v < 0) return null;
   }
   return v;
 }
-function ruleKey(rule){ return rule.map(s => s.op + (s.n === SELF ? "S" : s.n)).join(","); }
+function run(rule, x, jam){
+  return isSplit(rule) ? runSteps(x % 2 === 0 ? rule.even : rule.odd, x, jam) : runSteps(rule, x, jam);
+}
+const stepsKey = steps => steps.map(s => s.op + (s.n === SELF ? "S" : s.n)).join(",");
+function ruleKey(rule){
+  return isSplit(rule) ? `even:${stepsKey(rule.even)};odd:${stepsKey(rule.odd)}` : stepsKey(rule);
+}
 function parseKey(k){
+  const m = /^even:([^;]+);odd:(.+)$/.exec(String(k));
+  return m ? {even:parseSteps(m[1]), odd:parseSteps(m[2])} : parseSteps(k);
+}
+function parseSteps(k){
   return String(k).split(",").map(t => {
     const op = t.slice(0, 3), r = t.slice(3);
     if(!OPS[op]) throw new Error("bad rule " + k);
@@ -521,19 +549,26 @@ function parseKey(k){
 }
 const fmt = n => n === null ? "jam" : n < 0 ? "−" + (-n) : String(n);
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const stepsWords = steps => steps.map(s => OPS[s.op].word + " " + (s.n === SELF ? "itself" : fmt(s.n))).join(", then ");
 function sentence(rule){
-  return rule.map((s, i) => {
-    const w = OPS[s.op].word + " " + (s.n === SELF ? "itself" : fmt(s.n));
-    return i ? w : cap(w);
-  }).join(", then ") + ".";
+  return isSplit(rule)
+    ? `Even numbers: ${stepsWords(rule.even)}. Odd numbers: ${stepsWords(rule.odd)}.`
+    : cap(stepsWords(rule)) + ".";
 }
-/* The fewest numbers that can pin a rule down: two for a straight-line rule,
-   three once something is times itself. Crack it in that many and the card
-   gets a gold gear. */
-const par = rule => rule.some(s => s.op === "mul" && s.n === SELF) ? 3 : 2;
+/* The fewest numbers that can pin a rule down: one more than its degree, so
+   two for a straight-line rule and three once something is times itself, and
+   for a split rule, enough for each half. Crack it from that many numbers
+   that came out (jams are free clues) and the card gets a gold gear. */
+function degree(steps){
+  let d = 1;
+  for(const s of steps) if(s.n === SELF){ if(s.op === "mul") d *= 2; else if(s.op === "div") d = 0; }
+  return d;
+}
+const parOf = steps => Math.max(2, degree(steps) + 1);
+const par = rule => isSplit(rule) ? parOf(rule.even) + parOf(rule.odd) : parOf(rule);
 
 /* ============ the ladder ============
-   Seven levels, numbered and never described on screen: saying what kind of
+   Eleven levels, numbered and never described on screen: saying what kind of
    rule a level holds would give the answer away. */
 const L1 = range(1, 10).map(k => [step("add", k)]);
 const L2 = range(1, 9).map(k => [step("sub", k)]);
@@ -545,6 +580,30 @@ const L6 = [[step("mul", SELF)], ...range(1, 5).flatMap(b =>
   [[step("mul", SELF), step("add", b)], [step("mul", SELF), step("sub", b)]])];
 const FIRST = range(1, 9).flatMap(a => range(2, 5).flatMap(b =>
   [[step("add", a), step("mul", b)], [step("sub", a), step("mul", b)]]));
+const SQ = step("mul", SELF);
+const pm = b => [step("add", b), step("sub", b)];
+/* 8: the square moves. "Take away 3, then times itself" falls to 0 and climbs back. */
+const L8 = [...range(1, 5).flatMap(a => [[step("add", a), SQ], [step("sub", a), SQ]]),
+            ...range(2, 5).map(k => [SQ, step("mul", k)])];
+/* 9: three steps around a square */
+const L9 = [
+  ...range(1, 3).flatMap(a => range(1, 5).flatMap(b => pm(a).flatMap(f => pm(b).map(g => [f, SQ, g])))),
+  ...range(2, 3).flatMap(k => range(1, 5).flatMap(b => pm(b).map(g => [SQ, step("mul", k), g]))),
+  ...range(2, 3).flatMap(k => range(1, 3).flatMap(a => pm(a).map(f => [step("mul", k), f, SQ])))
+];
+/* 10: divide, exact only. "Add 1, then divide by 2" jams on the even numbers. */
+const L10 = [
+  ...[2, 3, 4, 5, 10].map(d => [step("div", d)]),
+  ...[1, 3].flatMap(a => pm(a).map(f => [f, step("div", 2)])),
+  ...range(2, 5).flatMap(d => range(1, 5).flatMap(b => pm(b).map(g => [step("div", d), g]))),
+  ...[[2, 3], [2, 5], [3, 2], [3, 4], [3, 5], [4, 3], [4, 5], [5, 2], [5, 3], [5, 4]]
+     .map(([a, d]) => [step("mul", a), step("div", d)])
+];
+/* 11: one thing for even numbers, another for odd ones */
+const EVEN = [[step("div", 2)], ...range(1, 5).map(k => [step("add", k)]), [step("mul", 2)], [step("mul", 3)]];
+const ODD = [...range(1, 5).map(k => [step("add", k)]), ...range(1, 3).map(k => [step("sub", k)]),
+             [step("mul", 2)], [step("mul", 3)], [step("mul", 3), step("add", 1)]];
+const L11 = EVEN.flatMap(e => ODD.filter(o => stepsKey(o) !== stepsKey(e)).map(o => ({even:e, odd:o})));
 const LEVELS = [
   {n:1, rules:L1, jam:false},
   {n:2, rules:L2, jam:true},
@@ -552,17 +611,23 @@ const LEVELS = [
   {n:4, rules:L4, jam:false},
   {n:5, rules:L5, jam:false},
   {n:6, rules:L6, jam:false},
-  {n:7, rules:[...L1, ...L3, ...L4, ...L5, ...L6, ...FIRST], jam:false}
+  {n:7, rules:[...L1, ...L3, ...L4, ...L5, ...L6, ...FIRST], jam:false},
+  {n:8, rules:L8, jam:false},
+  {n:9, rules:L9, jam:false},
+  {n:10, rules:L10, jam:false},
+  {n:11, rules:L11, jam:false}
 ].map(l => ({...l, keys:l.rules.map(ruleKey)}));
 const ROW = 3;               /* rules cracked in a row that move you up a level */
-const CHECK_TO = 100;        /* the behaviour check runs every number 0..100 */
+const CHECK_TO = 1000;       /* the behaviour check runs every number 0..1000 */
 const minusFrom = 3;         /* the pad grows a minus key from level 3 on */
 const lvl = n => LEVELS[n - 1];
 
-/* The verdict. Both rules are run on every number from 0 to 100. Every rule a
-   player can build here is a polynomial of degree three at most, and two of
-   those that agree on more than three numbers agree on all of them, so this is
-   a proof, not a sample. Returns null when they match, or the number to show
+/* The verdict. Both rules are run on every number from 0 to 1000. On even
+   numbers and on odd ones, anything the tiles can build is a polynomial of
+   degree eight at most (three "times itself" steps), and two of those that
+   agree on more than eight numbers agree everywhere. Where they jam repeats in
+   a pattern, and 1000 numbers covers the pattern of any rule worth building,
+   so a pass here means the two rules really are the same. Returns null when they match, or the number to show
    as a counter-example: the smallest one the player can feed in that is not
    already on the tape, since a small number is the easiest one to check. */
 function compare(secret, guess, jam, tried, maxIn){
@@ -600,10 +665,12 @@ let readOnly = false, updateReady = false;
 let mode = "feed";              /* feed | build | predict | verdict */
 let buf = "";                   /* what is typed on the pad, not an <input> */
 let message = null;             /* {html, kind} for the band, or null for the default line */
-let builder = {steps:[{op:null, n:null}], active:0};
+const blankStep = () => ({op:null, n:null});
+const MAX_STEPS = 3, MAX_SPLIT = 2;   /* steps in a rule; in each half of a split rule */
+let builder = {lanes:[[blankStep()]], l:0, active:0};   /* one lane, or two: even, odd */
 let predict = null;             /* {x, buf, right, asked:[]} */
 let verdict = null;             /* what the verdict panel shows */
-let tapeView = "new";           /* new | order | gaps */
+let tapeView = "new";           /* new | order | gaps | eo (evens, then odds) */
 let freshAt = -1;               /* tape index that just arrived, for its highlight */
 let lastKey = null;
 
@@ -681,7 +748,7 @@ function newRound(n){
   lastKey = key;
   state.round = {level:n, key, no:state.machines, tape:[], cranks:0, wrong:0, hint:0, done:false};
   mode = "feed"; buf = ""; message = null; verdict = null; predict = null; freshAt = -1;
-  builder = {steps:[{op:null, n:null}], active:0};
+  builder = {lanes:[[blankStep()]], l:0, active:0};
   tapeView = "new";
   save(); paintAll(); setOut(null, true);
   /* A new build is waiting: this is the round boundary, everything is saved
@@ -716,8 +783,11 @@ function crank(x){
 
 /* ---- proving it: building ---- */
 const complete = steps => steps.every(s => s.op && s.n !== null && s.n !== "");
+const laneRule = steps => steps.map(s => ({op:s.op, n:s.n === SELF ? SELF : Number(s.n)}));
 function guessRule(){
-  return complete(builder.steps) ? builder.steps.map(s => ({op:s.op, n:s.n === SELF ? SELF : Number(s.n)})) : null;
+  const L = builder.lanes;
+  if(!L.every(complete)) return null;
+  return L.length === 2 ? {even:laneRule(L[0]), odd:laneRule(L[1])} : laneRule(L[0]);
 }
 function checkGuess(guess){
   const r = state.round;
@@ -782,7 +852,8 @@ function crack(guess){
   r.done = true;
   const k = cardKey(r.level, r.key);
   const before = state.wall[k];
-  const gold = r.cranks <= par(s) && r.wrong === 0;
+  const outs = r.tape.filter(t => t.src === "crank" && t.y !== null).length;
+  const gold = outs <= par(s) && r.wrong === 0;
   const card = before
     ? {...before, best:Math.min(before.best, r.cranks), gold:before.gold || gold, times:(before.times | 0) + 1}
     : {level:r.level, rule:r.key, best:r.cranks, gold, times:1, first:Date.now()};
@@ -816,6 +887,7 @@ function showMe(){
 /* ---- hints: how to hunt for a rule, never what it is ---- */
 function hintText(n){
   const t = new Set(tried()), max = state.maxIn;
+  if(n >= 3) return hint3();
   if(n === 1){
     if(!t.has(0)) return `Try <span class="num in">0</span>. Zero shows what the machine adds on its own.`;
     if(!t.has(1)) return `Try <span class="num in">1</span>. It's the next best number after zero.`;
@@ -831,14 +903,33 @@ function hintText(n){
     const a = x === undefined ? 3 : x;
     return `Try two numbers next to each other, like <span class="num in">${a}</span> and <span class="num in">${a + 1}</span>. How far apart are the numbers that come out? That's the times part.`;
   }
-  return `Look at the gaps on the tape, between numbers next to each other. If the gap stays the same, it tells you the times part (a gap of 1 means no times at all). If the gap keeps growing, the number is being multiplied by itself.`;
+}
+/* The third hint looks at what is on the tape (never at the secret) and says
+   which way of looking at it would help: jams, a zigzag, or the gaps. */
+let hintView = "gaps";
+function hint3(){
+  const out = new Map(state.round.tape.map(t => [t.x, t.y]));
+  hintView = "order";
+  if([...out.values()].some(y => y === null))
+    return `Jams are clues. Look at the numbers that got through and the ones that jammed. What do the ones that got through have in common?`;
+  /* how the gaps change, wherever three neighbours are on the tape */
+  const d2 = [...out.keys()].filter(x => out.has(x + 1) && out.has(x + 2))
+    .map(x => out.get(x + 2) - 2 * out.get(x + 1) + out.get(x));
+  if(d2.some(d => d > 0) && d2.some(d => d < 0)){
+    hintView = "eo";
+    return `The tape zigzags. Try looking at the even numbers and the odd numbers on their own.`;
+  }
+  hintView = "gaps";
+  if(d2.length && d2.every(d => d === d2[0]) && d2[0] !== 0)
+    return `The gaps grow by the same amount each time (${fmt(d2[0])}). That happens when a number gets multiplied by itself.`;
+  return `Look at the gaps on the tape, between numbers next to each other. If the gap stays the same, it tells you the times part. If the gaps grow by the same amount each time, a number is being multiplied by itself. If they jump up and down, try the even numbers and the odd numbers on their own.`;
 }
 function hint(){
   const r = state.round;
   if(!r || r.done) return;
   r.hint = Math.min(3, r.hint + 1);
-  if(r.hint >= 3) tapeView = "gaps";
   message = {kind:"hint", html:hintText(r.hint)};
+  if(r.hint >= 3) tapeView = hintView;
   save(); paintAll();
 }
 
@@ -875,7 +966,7 @@ function paintIn(){
 function paintTape(){
   const r = state.round, body = $("#tapeBody");
   const seg = $("#tapeSeg");
-  seg.innerHTML = [["new", "Newest"], ["order", "In order"], ["gaps", "Gaps"]].map(([id, l]) =>
+  seg.innerHTML = [["new", "Newest"], ["order", "In order"], ["gaps", "Gaps"], ["eo", "Even · odd"]].map(([id, l]) =>
     `<button data-v="${id}" class="${tapeView === id ? "sel" : ""}">${l}</button>`).join("");
   if(!r) return;
   const yours = mode === "build" && !!guessRule();
@@ -890,7 +981,10 @@ function paintTape(){
     const seen = new Map();
     for(const t of rows) if(!seen.has(t.x)) seen.set(t.x, t);
     rows = [...seen.values()].sort((a, b) => a.x - b.x);
+    if(tapeView === "eo") rows = [...rows.filter(t => t.x % 2 === 0), ...rows.filter(t => t.x % 2 === 1)];
   }
+  /* the gaps view marks neighbours; the even/odd view marks neighbours two apart */
+  const apart = tapeView === "eo" ? 2 : tapeView === "gaps" ? 1 : 0;
   const jam = level().jam;
   const row = t => {
     const g = yours ? run(guessRule(), t.x, jam) : undefined;
@@ -903,7 +997,9 @@ function paintTape(){
   let html = `<div class="trow cols"><span class="x">in</span><span></span><span>out</span>${yours ? `<span class="yo">yours</span>` : ""}</div>`;
   rows.forEach((t, j) => {
     const prev = rows[j - 1];
-    if(tapeView === "gaps" && prev && t.x === prev.x + 1 && t.y !== null && prev.y !== null){
+    if(tapeView === "eo" && (!prev || prev.x % 2 !== t.x % 2))
+      html += `<div class="tgroup">${t.x % 2 ? "Odd numbers" : "Even numbers"}</div>`;
+    if(apart && prev && t.x === prev.x + apart && t.y !== null && prev.y !== null){
       const d = t.y - prev.y;
       html += `<div class="gap"><span></span><span></span><span>${d >= 0 ? "+" + d : "−" + (-d)}</span>${yours ? "<span></span>" : ""}</div>`;
     }
@@ -961,20 +1057,27 @@ function paintControls(){
 }
 
 function builderMarkup(){
-  const st = builder.steps;
-  const stepHtml = (s, i) => {
-    const acts = Object.keys(OPS).map(op => `<button class="act${s.op === op ? " sel" : ""}" data-op="${op}" data-i="${i}">${OPS[op].tile}</button>`).join("");
+  const L = builder.lanes, split = L.length === 2, max = split ? MAX_SPLIT : MAX_STEPS;
+  const stepHtml = (s, i, l) => {
+    const on = builder.l === l && builder.active === i, at = `data-i="${i}" data-l="${l}"`;
+    const acts = Object.keys(OPS).map(op => `<button class="act${s.op === op ? " sel" : ""}" data-op="${op}" ${at}>${OPS[op].tile}</button>`).join("");
     const isSelf = s.n === SELF;
-    const slot = `<button class="slot${builder.active === i && !isSelf ? " sel" : ""}" data-slot="${i}" aria-label="How much">${s.n !== null && s.n !== "" && !isSelf ? esc(s.n) : `<span class="ph">?</span>`}</button>`;
-    return `<div class="step${builder.active === i ? " on" : ""}" data-step="${i}">`
+    const slot = `<button class="slot${on && !isSelf ? " sel" : ""}" data-slot="${i}" data-l="${l}" aria-label="How much">${s.n !== null && s.n !== "" && !isSelf ? esc(s.n) : `<span class="ph">?</span>`}</button>`;
+    return `<div class="step${on ? " on" : ""}">`
       + `<span class="stepno">${i ? "Then" : "First"}</span><div class="acts">${acts}</div>`
-      + `<div class="amt">${slot}<span class="or">or</span><button class="self${isSelf ? " sel" : ""}" data-self="${i}">itself</button></div>`
-      + (i ? `<button class="drop2" data-drop="${i}" aria-label="Remove this step">×</button>` : "")
+      + `<div class="amt">${slot}<span class="or">or</span><button class="self${isSelf ? " sel" : ""}" data-self="${i}" data-l="${l}">itself</button></div>`
+      + (i ? `<button class="drop2" data-drop="${i}" data-l="${l}" aria-label="Remove this step">×</button>` : "")
       + `</div>`;
   };
+  const lane = (steps, l) => `<div class="steps">${steps.map((s, i) => stepHtml(s, i, l)).join("")}</div>`
+    + (steps.length < max ? `<button class="btn addstep" data-add="${l}"${l ? "" : ` id="addStep"`}>+ Then another step</button>` : "");
   const g = guessRule();
-  return `<div class="builder"><div class="steps">${st.map(stepHtml).join("")}</div>`
-    + (st.length < 2 ? `<button class="btn addstep" id="addStep">+ Then another step</button>` : "")
+  const body = split
+    ? `<div class="lane"><p class="lanehd">Even numbers</p>${lane(L[0], 0)}</div>`
+      + `<div class="lane"><p class="lanehd">Odd numbers</p>${lane(L[1], 1)}</div>`
+      + `<button class="linkish splitbtn" id="unsplit">Same rule for every number</button>`
+    : lane(L[0], 0) + `<button class="linkish splitbtn" id="split">Different for even and odd numbers</button>`;
+  return `<div class="builder">${body}`
     + `<p class="readback">${g ? esc(sentence(g)) : `<span class="ph">Your rule will be read out here.</span>`}</p></div>`;
 }
 
@@ -1033,7 +1136,7 @@ function paintRail(){
   $("#levelSeg").innerHTML = LEVELS.map(l => {
     const cur = state.round && state.round.level === l.n;
     return `<button class="segb${cur ? " sel" : ""}" data-l="${l.n}" aria-label="Level ${l.n}">${l.n}</button>`;
-  }).join("");
+  }).join("") + `<span class="segfill"></span>`.repeat((6 - LEVELS.length % 6) % 6);   /* six to a row */
   const seg = (id, opts, cur) => $(id).innerHTML = opts.map(o =>
     `<button class="segb${o.id === cur ? " sel" : ""}" data-v="${o.id}">${o.label}</button>`).join("");
   seg("#proveSeg", PROVES, state.prove);
@@ -1135,7 +1238,7 @@ function feedKey(k){
   buf = next; paintIn(); paintControls();
 }
 function buildKey(k){
-  const s = builder.steps[builder.active];
+  const s = (builder.lanes[builder.l] || [])[builder.active];
   if(!s) return;
   let cur = s.n === SELF || s.n === null ? "" : String(s.n);
   if(k === "del") cur = cur.slice(0, -1);
@@ -1182,12 +1285,16 @@ $("#controls").addEventListener("click", e => {
   }
   if(b.id === "backBtn"){ mode = "feed"; predict = null; message = null; paintAll(); return; }
   if(b.id === "checkBtn"){ const g = guessRule(); if(g) checkGuess(g); return; }
-  if(b.id === "addStep"){ builder.steps.push({op:null, n:null}); builder.active = builder.steps.length - 1; paintControls(); paintTape(); return; }
   if(b.id === "nextBtn") return newRound(state.level);
-  if(b.dataset.op){ const i = +b.dataset.i; builder.steps[i].op = b.dataset.op; builder.active = i; paintControls(); paintTape(); return; }
-  if(b.dataset.slot !== undefined){ const i = +b.dataset.slot; builder.active = i; if(builder.steps[i].n === SELF) builder.steps[i].n = null; paintControls(); paintTape(); return; }
-  if(b.dataset.self !== undefined){ const i = +b.dataset.self; builder.steps[i].n = SELF; builder.active = i; paintControls(); paintTape(); return; }
-  if(b.dataset.drop !== undefined){ builder.steps.splice(+b.dataset.drop, 1); builder.active = 0; paintControls(); paintTape(); return; }
+  /* the builder: every tile names its lane (0, or 1 for odd numbers) and step */
+  const lane = +(b.dataset.l || 0), at = (i, l) => { builder.l = l; builder.active = i; paintControls(); paintTape(); };
+  if(b.dataset.add !== undefined){ const l = +b.dataset.add; builder.lanes[l].push(blankStep()); return at(builder.lanes[l].length - 1, l); }
+  if(b.id === "split"){ builder.lanes = [builder.lanes[0].slice(0, MAX_SPLIT), [blankStep()]]; return at(0, 1); }
+  if(b.id === "unsplit"){ builder.lanes = [builder.lanes[0]]; return at(0, 0); }
+  if(b.dataset.op){ const i = +b.dataset.i; builder.lanes[lane][i].op = b.dataset.op; return at(i, lane); }
+  if(b.dataset.slot !== undefined){ const i = +b.dataset.slot, st = builder.lanes[lane][i]; if(st.n === SELF) st.n = null; return at(i, lane); }
+  if(b.dataset.self !== undefined){ const i = +b.dataset.self; builder.lanes[lane][i].n = SELF; return at(i, lane); }
+  if(b.dataset.drop !== undefined){ builder.lanes[lane].splice(+b.dataset.drop, 1); return at(0, lane); }
 });
 $("#machine").addEventListener("click", () => { audio(); if(mode === "feed" && buf !== "") crank(Number(buf)); });
 $("#tapeSeg").addEventListener("click", e => {
