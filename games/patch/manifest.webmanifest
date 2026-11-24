@@ -1,0 +1,18 @@
+{
+  "name": "Patch — test a skincare claim",
+  "short_name": "Patch",
+  "description": "Build a model of skin, then use it to find out whether a skincare claim holds up.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFF8F9",
+  "theme_color": "#FFF8F9",
+  "categories": ["education", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png",          "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png",          "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
