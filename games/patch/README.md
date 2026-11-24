@@ -33,9 +33,10 @@ proof.
 version, a first confidence (no default position, locked once you move on), the
 parts of the model it depends on, the chain, the evidence one item at a time,
 size and cost, unknowns, a new confidence, what moved you, what would change your
-mind, and a decision. The result is a saved card tied with a bow, and a
-shareable verdict image. The card gets a gold edge when the number moved because
-of a named piece of evidence, or held still for a stated reason. There's no score
+mind, and a decision. The result is a saved card stamped with the patch, and a
+shareable verdict image. The card gets a gold edge and a bow when the number
+moved because of a named piece of evidence, or held still for a stated reason.
+The bow appears nowhere else: the patch is the game's mark, the bow is earned. There's no score
 for landing on the "right" number.
 
 ## Adding a claim
