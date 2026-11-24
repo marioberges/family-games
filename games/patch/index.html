@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Patch — test a skincare claim</title>
+<meta name="description" content="Build a model of skin, then use it to find out whether a skincare claim holds up.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FFF8F9">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Patch">
+
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<!-- launch screens: without these iOS shows a white flash on every cold start -->
+<link rel="apple-touch-startup-image" href="icons/splash/320x568@2x.png" media="screen and (device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x667@2x.png" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x736@3x.png" media="screen and (device-width:414px) and (device-height:736px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x812@3x.png" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/390x844@3x.png" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/393x852@3x.png" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/402x874@3x.png" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@2x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@3x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/428x926@3x.png" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/430x932@3x.png" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/440x956@3x.png" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/744x1133@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1133x744@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/768x1024@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x768@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/810x1080@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1080x810@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/820x1180@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1180x820@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1112@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1112x834@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1194@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1194x834@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x1366@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1366x1024@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1032x1376@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1376x1032@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+
+<style>
+:root{
+  --milk:#FFF8F9;      /* ground */
+  --blush:#FBE4E9;     /* quiet surfaces */
+  --blush-2:#F7D3DC;   /* pressed / selected */
+  --ribbon:#E98AA2;    /* bows, the accent you see */
+  --cherry:#9E2B4E;    /* the accent you read: buttons, links, numbers */
+  --ink:#3B2830;       /* body text, a plum brown, never black */
+  --mute:#80606B;      /* secondary text */
+  --line:#F0CBD5;
+  --gold:#C3933A;      /* a card that earned its edge */
+  --ok:#3F7D5C; --ok-bg:#E4F2EA;
+  --serif: ui-serif, "New York", "Iowan Old Style", "Palatino", Georgia, serif;
+  --round: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, -apple-system, sans-serif;
+  --r-card:28px; --r-panel:18px;
+  --pad: clamp(18px, 4vw, 36px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--milk)}
+body{
+  margin:0; color:var(--ink); background:var(--milk);
+  font:17px/1.55 var(--round);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-tap-highlight-color:transparent;
+}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ribbon);outline-offset:2px;border-radius:10px}
+a{color:var(--cherry)}
+p{margin:0 0 .8em}
+h1,h2,h3{font-family:var(--serif);font-weight:500;color:var(--ink);margin:0;letter-spacing:-.01em}
+h2{font-size:1.55rem;line-height:1.2}
+h3{font-size:1.15rem;line-height:1.3}
+.wrap{max-width:1100px;margin:0 auto;padding:18px var(--pad) 48px}
+.narrow{max-width:640px}
+.mute{color:var(--mute)}
+.small{font-size:.9rem}
+[hidden]{display:none!important}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:0;border-radius:999px;padding:13px 24px;min-height:48px;
+  background:var(--cherry);color:#fff;font-weight:600;font-size:1rem;text-decoration:none;
+}
+.btn:disabled{background:var(--blush-2);color:var(--mute);cursor:default}
+.btn.soft{background:var(--blush);color:var(--cherry)}
+.btn.ghost{background:transparent;color:var(--cherry);padding-left:4px;padding-right:4px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:12px}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;align-items:center;gap:12px;min-height:52px;margin-bottom:10px}
+.bar .back{border:0;background:var(--blush);color:var(--cherry);border-radius:999px;
+  width:44px;height:44px;font-size:1.3rem;line-height:1;display:grid;place-items:center}
+.bar .where{flex:1;min-width:0}
+.bar .where b{display:block;font-family:var(--serif);font-weight:500;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .where span{font-size:.85rem;color:var(--mute)}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.done{background:var(--ribbon)}
+.dots i.now{background:var(--cherry)}
+@media (max-width:600px){ .bar .dots{display:none} }
+
+/* ---------- home ---------- */
+.brand{display:flex;align-items:center;gap:10px;margin:6px 0 22px}
+.brand svg{width:40px;height:28px}
+.brand b{font-family:var(--serif);font-weight:500;font-size:1.7rem;letter-spacing:-.02em}
+.hero{
+  position:relative;background:#fff;border-radius:var(--r-card);
+  padding:44px var(--pad) 30px;margin:0 0 34px;border:1.5px solid var(--line);
+}
+.hero .bow{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:84px;height:56px}
+.hero .lede{color:var(--mute);margin:0 0 10px}
+.hero q{display:block;font-family:var(--serif);font-size:clamp(1.7rem,4.4vw,2.6rem);line-height:1.15;
+  letter-spacing:-.015em;quotes:"\201C" "\201D";margin:0 0 22px;max-width:22ch}
+.hero .meta{margin-top:14px;font-size:.9rem;color:var(--mute)}
+.section{margin:0 0 34px}
+.section > h2{margin:0 0 4px}
+.section > .mute{margin:0 0 14px}
+.claims{display:grid;gap:10px}
+.claimrow{display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  background:var(--blush);border:0;border-radius:var(--r-panel);padding:14px 16px}
+.claimrow b{font-weight:600;display:block}
+.claimrow span{font-size:.9rem;color:var(--mute)}
+.claimrow .st{margin-left:auto;font-size:.85rem;color:var(--cherry);white-space:nowrap}
+ol.lessons{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:l}
+ol.lessons button{display:flex;gap:14px;align-items:center;width:100%;text-align:left;border:0;
+  background:transparent;padding:10px 4px;border-bottom:1px solid var(--line);border-radius:0}
+ol.lessons .n{font-family:var(--serif);font-size:1.4rem;color:var(--ribbon);width:1.4em;text-align:center}
+ol.lessons .t{flex:1}
+ol.lessons .t b{display:block;font-weight:600}
+ol.lessons .t span{font-size:.9rem;color:var(--mute)}
+ol.lessons .tick{color:var(--ok);font-size:.9rem}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{border:0;background:var(--blush);border-radius:var(--r-panel);padding:18px;text-align:left}
+.tile b{display:block;font-family:var(--serif);font-weight:500;font-size:1.2rem;margin-bottom:2px}
+.tile span{font-size:.9rem;color:var(--mute)}
+
+/* ---------- the wall of patches ---------- */
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px 16px;padding-top:16px}
+.patch{
+  position:relative;border:1.5px solid var(--line);background:#fff;border-radius:22px;
+  padding:26px 16px 16px;text-align:left;width:100%;
+}
+.patch.gold{border:2.5px solid var(--gold);box-shadow:inset 0 0 0 4px #FBF1DC}
+.patch .bow{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:54px;height:36px}
+.patch b{display:block;font-family:var(--serif);font-weight:500;font-size:1.05rem;line-height:1.25;margin-bottom:8px}
+.patch .conf{font-size:.9rem;color:var(--mute)}
+.empty{border:1.5px dashed var(--line);border-radius:22px;padding:22px;color:var(--mute);text-align:center}
+
+/* ---------- the stage: diagram + panel ---------- */
+.stage{display:grid;gap:22px;align-items:start}
+@media (min-width:900px){ .stage{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)} .stage.solo{grid-template-columns:minmax(0,640px)} }
+.figure{background:#fff;border-radius:var(--r-card);border:1.5px solid var(--line);padding:10px;position:sticky;top:10px}
+@media (max-width:899px){ .figure{position:static} }
+.figure svg{display:block;width:100%;height:auto}
+.figure .cap{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px 2px;font-size:.88rem;color:var(--mute)}
+.figure .cap button{border:0;background:none;color:var(--cherry);font-weight:600;padding:6px}
+.panel{background:transparent}
+.panel h2{margin:0 0 10px}
+.panel .body p{max-width:60ch}
+.stat{display:inline-block;font-size:.82rem;border-radius:999px;padding:3px 11px;margin:0 0 12px;background:var(--ok-bg);color:var(--ok)}
+.stat.active{background:#FFF1DA;color:#8A5A12}
+.stat.emerging{background:#EFE7FB;color:#5B3F8C}
+.more{border:0;background:none;color:var(--cherry);font-weight:600;padding:8px 0}
+.used{margin-top:14px;font-size:.92rem}
+.used button{border:0;background:var(--blush);color:var(--cherry);border-radius:999px;padding:7px 14px;margin:4px 6px 0 0;font-weight:600}
+
+/* ---------- skin diagram ---------- */
+.skin [data-node]{cursor:pointer;transition:opacity .25s}
+.skin.focus [data-node]:not(.on){opacity:.22}
+.skin [data-node].picked .hit{fill:var(--cherry);fill-opacity:.16;stroke:var(--cherry);stroke-width:2.5}
+.skin [data-node].right .hit{stroke:var(--ok);stroke-width:2.5;fill:var(--ok);fill-opacity:.12}
+.skin .hit{fill:transparent;stroke:none}
+.skin .lbl{display:none;pointer-events:none;font:600 17px var(--round);fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+.skin.labels .lbl, .skin .lbl.on{display:inline}
+.skin.focus.labels .lbl:not(.on){fill:var(--mute)}
+.skin .route{fill:none;stroke:var(--cherry);stroke-width:3.5;stroke-dasharray:8 7;stroke-linecap:round}
+@media (prefers-reduced-motion:no-preference){
+  .skin .route{animation:march 1.2s linear infinite}
+  @keyframes march{to{stroke-dashoffset:-30}}
+}
+
+/* ---------- steps ---------- */
+.step h2{margin:0 0 12px}
+.step .q{font-family:var(--serif);font-size:1.35rem;line-height:1.3;margin:0 0 16px}
+.opts{display:grid;gap:10px;margin:0 0 16px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:14px 16px}
+.opt[aria-pressed="true"]{border-color:var(--cherry);background:var(--blush)}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt:disabled{cursor:default}
+.why{background:var(--blush);border-radius:16px;padding:14px 16px;margin:0 0 16px}
+.why.good{background:var(--ok-bg)}
+.why p:last-child{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px}
+.chip[aria-pressed="true"]{border-color:var(--cherry);background:var(--blush);color:var(--cherry);font-weight:600}
+.brush{display:inline-block;border:0;background:none;color:var(--cherry);font-weight:600;padding:6px 0;margin:0 0 10px}
+textarea{width:100%;min-height:110px;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff;resize:vertical}
+textarea:focus{border-color:var(--ribbon);outline:none}
+input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff}
+.nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:18px}
+
+/* the confidence slider: no thumb until you touch it */
+.conf-wrap{margin:8px 0 18px}
+.slider{position:relative;height:56px;touch-action:none;user-select:none;-webkit-user-select:none}
+.slider .track{position:absolute;left:14px;right:14px;top:24px;height:8px;border-radius:8px;
+  background:linear-gradient(90deg,#F6D3DB,#E98AA2 50%,#9E2B4E)}
+.slider .thumb,.slider .ghost{position:absolute;top:12px;width:32px;height:32px;margin-left:-16px;border-radius:50%}
+.slider .thumb{background:#fff;border:3px solid var(--cherry);box-shadow:0 1px 3px rgba(80,20,40,.25)}
+.slider .ghost{border:2px dashed var(--mute);background:transparent}
+.slider .ghost::after{content:attr(data-v);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.8rem;color:var(--mute)}
+.slider:focus-visible{outline-offset:4px}
+.ends{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mute);padding:0 4px}
+.big{font-family:var(--serif);font-size:2.6rem;line-height:1;color:var(--cherry)}
+.lock{font-size:.88rem;color:var(--mute)}
+
+/* chain */
+.chain{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:10px}
+.chain li{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px}
+.chain li.trial{border-color:var(--ribbon);background:#FFF0F3}
+.chain .lt{display:flex;gap:10px;align-items:baseline;margin-bottom:8px}
+.chain .lt i{font-style:normal;font-family:var(--serif);color:var(--ribbon);font-size:1.1rem;min-width:1.2em}
+.chain .seg{display:flex;flex-wrap:wrap;gap:6px}
+.chain .seg button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:.9rem}
+.chain .seg button[aria-pressed="true"]{border-color:var(--cherry);background:var(--blush);color:var(--cherry);font-weight:600}
+.chain .mine{font-size:.9rem;margin-top:8px;color:var(--mute)}
+.chain .mine b{color:var(--ink);font-weight:600}
+.flag{font-size:.8rem;color:var(--cherry);font-weight:600}
+
+/* evidence */
+.ev{background:#fff;border:1.5px solid var(--line);border-radius:var(--r-panel);padding:18px;margin:0 0 16px}
+.ev .kind{font-size:.85rem;color:var(--cherry);font-weight:600;margin:0 0 4px}
+.ev h3{margin:0 0 4px}
+.ev .src{font-size:.88rem;margin:0 0 12px}
+.ev .catch{border-left:3px solid var(--ribbon);padding-left:12px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.9rem;margin:12px 0 0}
+.facts dt{color:var(--mute)}
+.facts dd{margin:0}
+.aside{background:#FFF4E6;border-radius:16px;padding:14px 16px;margin:0 0 14px}
+.aside h3{font-size:1.05rem;margin:0 0 6px}
+ul.list{margin:0 0 16px;padding-left:1.2em}
+ul.list li{margin-bottom:6px}
+
+/* barrier simulator */
+.sim{background:#fff;border:1.5px solid var(--line);border-radius:var(--r-panel);padding:14px;margin:0 0 16px}
+.sim svg{width:100%;height:auto;display:block}
+.sim label{display:grid;grid-template-columns:9.5em 1fr;align-items:center;gap:10px;font-size:.92rem;margin:8px 0}
+.sim input[type=range]{width:100%;accent-color:var(--cherry)}
+.meter{display:flex;gap:14px;flex-wrap:wrap;font-size:.95rem;margin:8px 0 2px}
+.meter b{color:var(--cherry)}
+
+/* card */
+.card{position:relative;max-width:560px;margin:36px auto 0;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-card);padding:44px var(--pad) 28px}
+.card.gold{border:3px solid var(--gold);box-shadow:inset 0 0 0 6px #FBF1DC}
+.card > .bow{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:96px;height:64px}
+@media (prefers-reduced-motion:no-preference){
+  .card.fresh > .bow{animation:tie .9s cubic-bezier(.3,1.6,.5,1) both}
+  @keyframes tie{0%{transform:translateX(-50%) scale(.2) rotate(-25deg);opacity:0}100%{transform:translateX(-50%) scale(1) rotate(0);opacity:1}}
+}
+.card .heard{font-family:var(--serif);font-size:1.45rem;line-height:1.2;margin:0 0 6px}
+.card .verdict{font-size:1.15rem;font-weight:600;color:var(--cherry);margin:0 0 18px}
+.move{display:flex;align-items:center;gap:14px;margin:0 0 18px}
+.move svg{flex:1;height:40px}
+.move .n{font-family:var(--serif);font-size:2rem;line-height:1}
+.card dl{margin:0;display:grid;gap:12px}
+.card dt{font-size:.85rem;color:var(--mute)}
+.card dd{margin:0}
+.goldnote{font-size:.9rem;color:#7A5A1E;background:#FBF1DC;border-radius:12px;padding:10px 12px;margin:0 0 16px}
+
+/* journal */
+.entry{border-bottom:1px solid var(--line);padding:14px 0}
+.entry .when{font-size:.85rem;color:var(--mute)}
+.entry p{white-space:pre-wrap;margin:4px 0 8px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--ink);color:#fff;border-radius:999px;padding:10px 18px;font-size:.92rem;z-index:9}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- the bow: two loops, two tails, a knot. Used on the hero note and on every finished card. -->
+    <symbol id="bow" viewBox="0 0 120 80">
+      <path d="M58 36 C40 10 8 6 8 28 C8 46 36 48 58 40Z" fill="#E98AA2"/>
+      <path d="M62 36 C80 10 112 6 112 28 C112 46 84 48 62 40Z" fill="#E98AA2"/>
+      <path d="M58 36 C44 22 20 18 18 28 C17 36 36 40 58 39Z" fill="#F4B6C6"/>
+      <path d="M62 36 C76 22 100 18 102 28 C103 36 84 40 62 39Z" fill="#F4B6C6"/>
+      <path d="M55 42 L36 76 L46 72 L52 78 L60 44Z" fill="#D9718D"/>
+      <path d="M65 42 L84 76 L74 72 L68 78 L60 44Z" fill="#D9718D"/>
+      <rect x="51" y="30" width="18" height="16" rx="6" fill="#C9587A"/>
+    </symbol>
+  </defs>
+</svg>
+<main id="app" class="wrap"></main>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script>
+(async function(){
+"use strict";
+
+/* =====================================================================
+   CONTENT. All the science lives here, apart from the claims, which live in
+   claims.json so a new one can ship without touching this file. Sources for
+   every fact are in notes/patch-sources.md.
+   status: solid = well established; active = established, details still
+   being worked out; emerging = evidence exists, picture still changing.
+   ===================================================================== */
+const STATUS = {
+  solid:    {label:"Well established", cls:""},
+  active:   {label:"Established, details still being worked out", cls:"active"},
+  emerging: {label:"Emerging science", cls:"emerging"}
+};
+
+const NODES = {
+  "stratum-corneum": {name:"Stratum corneum", layer:"Epidermis, the very top", status:"solid",
+    intuition:"The outermost layer: flattened, dead cells stacked like bricks in a fatty mortar. It keeps water in and most things out.",
+    core:"<p>The bricks are corneocytes: skin cells that have finished their journey, flattened out and filled with tough keratin. The mortar is a mix of fats, mostly ceramides, cholesterol and fatty acids.</p><p>It's thinner than a sheet of paper, but it does most of the barrier's work. Damage the mortar and water escapes faster. Scientists call that water loss TEWL: transepidermal water loss.</p>",
+    deeper:"<p>Inside the bricks sit natural moisturizing factors, small water-holding molecules made as the cells mature. The fats in the mortar pack into tight, orderly layers, and how tightly they pack changes how well the barrier works. Researchers measure TEWL with a probe that senses the humidity just above the skin.</p>"},
+  "keratinocytes": {name:"Keratinocytes", layer:"Epidermis, the living part", status:"solid",
+    intuition:"The main cells of the epidermis. They're born at the bottom, rise for about a month, flatten, and become the surface.",
+    core:"<p>New keratinocytes come from the basal layer, the bottom row of the epidermis. As they move up they fill with keratin, flatten and eventually die, turning into the bricks of the stratum corneum. Then they flake off, mostly without you noticing.</p><p>The epidermis has no blood vessels. Its living cells get food and oxygen that seep up from the dermis below.</p>",
+    deeper:"<p>The trip from the basal layer to flaking off takes roughly four weeks in young skin, and slows with age. Keratinocytes also release signals that call in immune cells when skin is hurt, so they're part of the alarm system, not just building material.</p>"},
+  "melanocyte": {name:"Melanocyte", layer:"Bottom of the epidermis", status:"solid",
+    intuition:"The pigment makers. They pack melanin into tiny parcels and hand them to the keratinocytes around them.",
+    core:"<p>Melanocytes sit in the bottom row of the epidermis and reach out with long arms. Melanin absorbs UV light, and sun makes melanocytes produce more: that's a tan.</p><p>People of every skin color have a similar number of melanocytes. Skin color differs mainly in how much melanin they make, and which kind.</p>",
+    deeper:"<p>The parcels are called melanosomes. A dark spot can have different causes: sun damage, the mark a pimple leaves behind as it heals (post-inflammatory hyperpigmentation), or hormones. Different causes respond to different treatments.</p>"},
+  "dermis-matrix": {name:"Collagen and elastin", layer:"Dermis", status:"solid",
+    intuition:"The dermis is the thick, strong layer under the epidermis: a web of collagen for strength and elastin for snap-back.",
+    core:"<p>The dermis makes up about 90 percent of the skin's thickness. Collagen fibres give it strength, elastin fibres let it stretch and spring back, and a water-holding gel fills the gaps.</p><p>Wrinkle and firmness claims are almost always claims about this layer.</p>",
+    deeper:"<p>Most of the collagen here is a kind called type I. It's replaced slowly, over months to years, which is one reason real changes to it take time to show. Sunlight raises the enzymes that break collagen down, a big part of how sun ages skin.</p>"},
+  "fibroblast": {name:"Fibroblast", layer:"Dermis", status:"active",
+    intuition:"The dermis's builders. Fibroblasts make collagen and elastin, and break old fibres down too.",
+    core:"<p>Fibroblasts are scattered through the dermis. They build the collagen and elastin web and keep remodelling it, especially after an injury.</p><p>Lots of products claim to 'boost collagen'. To do that for real, they'd have to change what fibroblasts do, deep below the surface.</p>",
+    deeper:"<p>Fibroblasts respond to signals from nearby cells and from the fibres they sit in. Over the years, and faster with lots of sun, they make less collagen while the enzymes that break it down stay busy, so the balance tips.</p>"},
+  "capillary": {name:"Blood vessels", layer:"Dermis", status:"solid",
+    intuition:"Tiny vessels loop up through the dermis to feed the skin. The epidermis above has none of its own.",
+    core:"<p>Capillaries rise into little bumps of dermis that poke up into the epidermis. Food and oxygen seep up from them to the living cells above.</p><p>Anything you eat or drink that reaches your skin arrives this way: through the blood, from below.</p>",
+    deeper:"<p>Skin vessels also help control body temperature. They widen to shed heat, which is why you flush, and narrow to keep it in. Redness in many skin problems comes from these vessels widening.</p>"},
+  "nerve": {name:"Nerves", layer:"Dermis", status:"solid",
+    intuition:"Nerve endings sense touch, pressure, heat, cold, itch and pain.",
+    core:"<p>Some nerve endings are bare. Others are wrapped in tiny capsules tuned to pressure or vibration. A few bare endings reach right up into the epidermis.</p><p>That's why a product can sting or tingle. A tingle tells you something reached a nerve, not that the product is working.</p>",
+    deeper:"<p>Itch travels along nerve fibres that are partly separate from pain's. Damaged skin often feels more sensitive, partly because irritants get through to nerve endings more easily.</p>"},
+  "sweat-gland": {name:"Sweat gland", layer:"Deep dermis", status:"solid",
+    intuition:"A coiled tube deep in the skin that sends watery sweat up a duct to the surface to cool you.",
+    core:"<p>Most sweat glands sit deep in the dermis, coiled like a dropped string. As sweat evaporates from the surface, it carries heat away.</p><p>Sweat comes out through its own tiny opening, not through the pore of a hair follicle.</p>",
+    deeper:"<p>A second kind of sweat gland, found mostly in the armpits, does open into hair follicles. Its sweat doesn't smell by itself; bacteria on the skin break it down into the smell.</p>"},
+  "follicle": {name:"Hair follicle (pore)", layer:"Epidermis, dipping into the dermis", status:"active",
+    intuition:"A pocket of epidermis that dips deep into the dermis and grows a hair. Its opening at the surface is what we call a pore.",
+    core:"<p>Most follicles have an oil gland attached. On the face, many grow only tiny, fine hairs, but they still make and release oil.</p><p>A breakout starts here: cells lining the follicle shed in clumps, mix with oil, and plug the opening.</p>",
+    deeper:"<p>Acne involves four things at once: extra oil, follicle-lining cells that shed in clumps, a common skin bacterium (<i>Cutibacterium acnes</i>) thriving in the plug, and inflammation. Different treatments go after different parts of that list.</p><p>A pore isn't a door that hot or cold water can open or close. It can look bigger when it's stretched by oil and debris.</p>"},
+  "sebaceous": {name:"Oil gland", layer:"Dermis", status:"solid",
+    intuition:"Sebaceous glands make sebum, an oily mix that empties into the follicle and spreads over the skin.",
+    core:"<p>Sebum helps keep the skin's surface soft and waterproof. Oil glands get much more active in puberty, driven by hormones, which is a big reason acne so often starts in the teen years.</p><p>Oil isn't dirt. Washing it all away doesn't stop it being made, and harsh scrubbing can damage the barrier.</p>",
+    deeper:"<p>Sebum is made by whole gland cells filling up with oil and bursting. Oral isotretinoin, a prescription acne medicine, shrinks these glands a lot. Retinoids put on the skin barely change how much oil is made.</p>"},
+  "hypodermis": {name:"Hypodermis (fat layer)", layer:"Below the skin", status:"solid",
+    intuition:"Fat cells under the dermis that cushion you, keep you warm and store energy.",
+    core:"<p>The hypodermis connects skin to the muscle and bone beneath it. Its fat cells pad you against bumps and help hold heat in.</p><p>It also shapes your face. Some of the change people call aging comes from fat shifting down here, not only from wrinkles in the skin.</p>",
+    deeper:"<p>Fat cells here also release hormones and other signals. Hair follicles often reach down to the top of this layer.</p>"},
+  "microbiome": {name:"Skin microbes", layer:"On the surface", status:"emerging",
+    intuition:"Bacteria, fungi and other microbes live on everyone's skin, most of them harmlessly.",
+    core:"<p>Different parts of your body host different communities: oily, damp and dry spots each have their own. Bacteria aren't automatically bad; some help keep harmful ones out.</p><p>Claims about 'balancing your microbiome' are hard to test, because scientists are still working out what a healthy balance even is.</p>",
+    deeper:"<p>Studies link changes in skin microbes to conditions like eczema and acne, but it's often unclear whether the microbes cause the change or follow it.</p>"}
+};
+const NODE_ORDER = ["stratum-corneum","keratinocytes","melanocyte","dermis-matrix","fibroblast","capillary","nerve","sweat-gland","follicle","sebaceous","hypodermis","microbiome"];
+const DERMIS = ["dermis-matrix","fibroblast","capillary","nerve","sweat-gland","sebaceous"];
+
+/* The chain from lesson 4. Each claim carries its own version with ratings. */
+const CHAIN = [
+  "In the jar: the ingredient is listed",
+  "On the skin: it's used as directed",
+  "Intact: it's still active when applied",
+  "Released: it leaves the cream",
+  "Enough reaches the target",
+  "The target cells respond",
+  "A change shows up when measured",
+  "The change is big enough to matter"
+];
+
+/* Step types: read, choice, tap, sim, chain, handoff.
+   choice: exactly one option has ok:true. tap: answer lists every node that counts. */
+const LESSONS = [
+  {id:"organ", title:"Three layers, one organ", sub:"What lives where", nodes:NODE_ORDER,
+   steps:[
+    {t:"read", h:"Skin is an organ",
+     body:"<p>Your skin is your largest organ. It isn't a wrapper: it's alive and busy. It keeps water in and germs out, senses touch and heat, cools you down, makes pigment, and calls in the immune system when something gets through.</p><p>It comes in three layers: the epidermis on top, the dermis under it, and a layer of fat below. Tap around the picture to meet what lives in each.</p>"},
+    {t:"choice", q:"If skin were only a raincoat, which of these would be hardest to explain?",
+     opts:[
+      {text:"It keeps bathwater out.", why:"A raincoat does that too."},
+      {text:"It tans after a week at the beach.", ok:true, why:"A raincoat doesn't notice the sun. Skin senses UV and makes more pigment: a living response."},
+      {text:"It gets wet on the outside in the rain.", why:"Raincoats get wet too."}]},
+    {t:"tap", q:"Tap a part of the layer that has blood vessels running through it.",
+     answer:DERMIS,
+     notes:{"keratinocytes":"This is the epidermis. Surprisingly, it has no blood vessels at all.",
+            "stratum-corneum":"The very top of the epidermis: no blood vessels here.",
+            "hypodermis":"Close: the fat layer has vessels too, but the skin's own feeding vessels loop up through the dermis.",
+            "melanocyte":"This sits in the epidermis, which has no blood vessels.",
+            "follicle":"The follicle dips into the dermis, but it's made of epidermis. Try the layer around it."},
+     why:"The dermis. Its vessels loop up close to the epidermis, but never into it."},
+    {t:"choice", q:"The epidermis has no blood vessels. So how do its living cells get food and oxygen?",
+     opts:[
+      {text:"They make their own from sunlight.", why:"That's plants."},
+      {text:"It seeps up to them from vessels in the dermis.", ok:true, why:"Food and oxygen diffuse up from the dermis. That's one reason the epidermis stays thin."},
+      {text:"They don't need any, because they're dead.", why:"Only the outermost layer is dead. Below it, the cells are very much alive."}]},
+    {t:"choice", q:"Which makes up most of the skin's thickness?",
+     opts:[
+      {text:"The epidermis", why:"The epidermis is thin: on most of the body, less than a millimetre."},
+      {text:"The dermis", ok:true, why:"About 90 percent of the skin's thickness is dermis."},
+      {text:"About half each", why:"Not even close: the dermis is many times thicker."}]}
+   ]},
+  {id:"barrier", title:"The barrier", sub:"Bricks, mortar and water loss", nodes:["stratum-corneum","keratinocytes"],
+   steps:[
+    {t:"read", h:"Bricks and mortar",
+     body:"<p>The outermost layer, the stratum corneum, works like a brick wall. The bricks are flattened dead cells. The mortar is fat: ceramides, cholesterol and fatty acids.</p><p>Water is always slowly leaving through it. That's called transepidermal water loss, or TEWL. A healthy wall keeps it slow. The comparison isn't perfect, but it's useful.</p>"},
+    {t:"choice", q:"Predict: if the mortar gets damaged, what happens to water loss?",
+     opts:[
+      {text:"It goes up.", ok:true, why:"Gaps in the mortar let water out faster, and let irritants in more easily."},
+      {text:"It stays the same.", why:"The mortar is what slows water down, so damaging it changes things."},
+      {text:"It goes down.", why:"The opposite: gaps let more water out."}]},
+    {t:"sim", q:"Try the wall yourself",
+     body:"<p>This is a cartoon, not real numbers. Change one thing at a time and watch the water.</p>"},
+    {t:"choice", q:"Why can a harsh foaming cleanser leave your face feeling tight?",
+     opts:[
+      {text:"It strips fat out of the mortar, so water escapes and the surface dries and stiffens.", ok:true, why:"Exactly. Tightness is the barrier drying out."},
+      {text:"It shrinks your pores.", why:"Pores don't shrink like that. The tight feeling comes from the surface drying."},
+      {text:"It's working: tight means clean.", why:"Tight is your barrier complaining, not a sign of anything good."}]},
+    {t:"choice", q:"A thick layer of petroleum jelly cuts water loss a lot. Has it repaired the barrier?",
+     opts:[
+      {text:"Yes, the barrier is fixed.", why:"Wipe it off and water loss jumps back up."},
+      {text:"Not by itself. It's a lid on top that slows water loss while it's there.", ok:true, why:"Lids are useful: while water loss is slowed, the skin underneath gets a calmer chance to rebuild its mortar. But the lid isn't the repair."},
+      {text:"No, because it can't change water loss at all.", why:"It can: a waxy layer on top is one of the best ways to slow water loss."}]}
+   ]},
+  {id:"change", title:"Skin keeps changing", sub:"Cells on the move", nodes:["keratinocytes","stratum-corneum","fibroblast","dermis-matrix"],
+   steps:[
+    {t:"read", h:"A month-long journey",
+     body:"<p>New cells are born at the bottom of the epidermis. They rise, flatten, fill with keratin and die, becoming the bricks on top. Then they flake off.</p><p>The whole trip takes about a month. Down in the dermis, collagen is replaced far more slowly: over months to years.</p>"},
+    {t:"tap", q:"Tap where new epidermis cells are born.", answer:["keratinocytes"],
+     notes:{"stratum-corneum":"That's where they end up, not where they start.",
+            "fibroblast":"Fibroblasts are dermis cells; they build collagen, not epidermis."},
+     why:"The bottom row of the epidermis, the basal layer, is where new keratinocytes are made."},
+    {t:"choice", q:"A cream changes how new cells form at the bottom of the epidermis. When could you first expect to see a difference on the surface?",
+     opts:[
+      {text:"Overnight", why:"The changed cells haven't reached the surface yet."},
+      {text:"After a few weeks", ok:true, why:"The new cells need weeks to travel up. That's one reason acne trials usually last 12 weeks."},
+      {text:"Never", why:"They do get there. It just takes time."}]},
+    {t:"choice", q:"An ad says a cream rebuilt collagen in 7 days. What's most likely going on?",
+     opts:[
+      {text:"It rebuilt the collagen in 7 days.", why:"Collagen is replaced over months to years. A week is very fast."},
+      {text:"Something quicker, like extra water plumping the surface, made skin look smoother.", ok:true, why:"Moisturizing can smooth fine lines within hours. That's real, but it isn't rebuilt collagen, and it fades when the moisture does."},
+      {text:"The ad must be lying about everything.", why:"Maybe the skin really did look smoother. The questions are why, and whether it lasts."}]}
+   ]},
+  {id:"jar", title:"From jar to target", sub:"Eight links between a product and a result", nodes:["stratum-corneum"],
+   steps:[
+    {t:"chain", h:"The chain",
+     body:"<p>For a product to do what it claims, a whole chain has to hold. Break any link and the claim fails, however good the ingredient sounds.</p>"},
+    {t:"choice", q:"A vitamin C serum turned brown after a month in a sunny bathroom. Which link is most at risk?",
+     opts:[
+      {text:"In the jar", why:"It's still listed on the label."},
+      {text:"Intact", ok:true, why:"Vitamin C breaks down in light and air, and turning brown is a sign it has. Packaging matters."},
+      {text:"Enough reaches the target", why:"That might be a problem too, but the brown color points to an earlier link."}]},
+    {t:"choice", q:"A face wash with an active ingredient is rinsed off after 30 seconds. Which link is weakest?",
+     opts:[
+      {text:"In the jar", why:"The ingredient is in there; that's not the problem."},
+      {text:"Enough reaches the target", ok:true, why:"Thirty seconds is very little contact time. Most of the ingredient goes down the drain."},
+      {text:"Released", why:"It's released fine. It just has almost no time to do anything."}]},
+    {t:"choice", q:"Which is more likely to get through the stratum corneum: a small, oil-friendly molecule or a giant protein like collagen?",
+     opts:[
+      {text:"The small, oil-friendly molecule", ok:true, why:"Molecules heavier than about 500 daltons rarely cross healthy skin well. A whole collagen molecule weighs roughly 300,000. Collagen in a cream mostly stays on top, where it can hold water."},
+      {text:"Collagen", why:"Collagen is enormous: hundreds of times too big to slip through."},
+      {text:"Both, equally", why:"Size makes a huge difference at the barrier."}]},
+    {t:"read", h:"A selective barrier, not a sponge",
+     body:"<p>Size, whether a molecule likes oil or water, how much is in the product, how long it stays on, and whether the skin is damaged all change what gets through.</p><p>So “contains X” is the first link of the chain, not the last.</p>"}
+   ]},
+  {id:"proof", title:"Mechanism is not proof", sub:"Why a good reason isn't a result", nodes:["fibroblast"],
+   steps:[
+    {t:"read", h:"A reason to test, not a result",
+     body:"<p>“Ingredient X switches on collagen-making in fibroblasts” can be completely true. A plausible mechanism makes a claim worth testing.</p><p>It still doesn't tell you whether enough X reaches fibroblasts in a real face, whether skin changes, or whether the change is big enough to notice. Only a test in people can.</p>"},
+    {t:"choice", q:"In a lab dish, an ingredient made fibroblasts produce more collagen. What do we still not know?",
+     opts:[
+      {text:"Nothing. It works.", why:"A dish has no stratum corneum to cross and no real-life dose problem."},
+      {text:"Whether enough reaches fibroblasts in real skin, and whether wrinkles change.", ok:true, why:"Those are the links a dish can't test."},
+      {text:"Whether fibroblasts make collagen.", why:"That part we do know."}]},
+    {t:"choice", q:"Which would best convince you that a cream reduces breakouts?",
+     opts:[
+      {text:"A lab study showing it kills acne bacteria in a dish.", why:"A good reason, but not a result in skin."},
+      {text:"A 12-week trial where some people used the cream and others the same cream without the ingredient, and the people counting spots didn't know who had which.", ok:true, why:"That's a randomized, blinded trial against the plain cream: the strongest single kind of test."},
+      {text:"Five hundred five-star reviews.", why:"Happy reviewers can't know what would have happened anyway, and unhappy customers often don't post."}]},
+    {t:"handoff", h:"Ready for a real claim",
+     body:"<p>You've got the model and the chain. Now pick a claim and find out how it holds up.</p>"}
+   ]}
+];
+const LESSON = Object.fromEntries(LESSONS.map(l => [l.id, l]));
+
+/* Short asides opened by "Why does this matter?" in an investigation. */
+const ASIDES = {
+  guideline:{h:"What's a guideline?", body:"Experts review all the trials on a question and grade how strong the evidence is. Guidelines are a great place to start, because someone has already weighed the studies. Check exactly what they recommend: the product's name matters."},
+  review:{h:"A study of studies", body:"A systematic review searches for every trial on a question and sums them up. It's only as good as the trials that go into it."},
+  meta:{h:"Pooling the numbers", body:"A meta-analysis is a review that pools the trials' numbers into one answer. Pooling makes small effects easier to spot, but it also mixes good trials with weak ones unless the authors separate them."},
+  blinding:{h:"Who knew?", body:"If the people counting spots know who got the real treatment, they can count differently without meaning to. Blinding hides that. Double-blind means neither the people in the trial nor the researchers know."},
+  vehicle:{h:"The plain-gel group", body:"In skin trials, the comparison is often the same cream or gel without the active ingredient, called the vehicle. It shows how much improvement comes from moisturizing, time and attention alone. Only the difference between the two groups belongs to the ingredient."},
+  regulator:{h:"What approval means", body:"To sell a medicine, a company must show regulators trial evidence that it works and is safe enough. Cosmetics and supplements don't have to do that before they're sold."},
+  absence:{h:"No evidence isn't evidence of no", body:"Missing trials mean we don't know, not that it fails. But “we don't know” is still a fair reason to choose something that has been tested."},
+  funding:{h:"Who paid?", body:"Companies pay for a lot of research, and plenty of company-funded studies are fine. But when results change depending on who paid, that's a warning sign worth taking seriously."},
+  rebuttal:{h:"Hearing the other side", body:"Weigh a reply by its specific points, not by who's making it. A seller has a reason to object, and can still be right about a particular mistake."},
+  pubbias:{h:"The missing studies", body:"Studies that find nothing are less likely to get published. Then the published ones look better, on average, than the truth. Reviewers have tests to spot that gap."},
+  effect:{h:"How big is big?", body:"A result can be real and still small. Researchers often give a standard size: about 0.2 is small, 0.5 medium and 0.8 large. Always ask: would I notice?"},
+  regression:{h:"Spots come and go", body:"People usually try a new product when their skin is at its worst. It often gets better anyway, because bad weeks don't last. That's why a comparison group is needed."}
+};
+
+const SOURCES = ["TikTok or another app", "A friend", "An ad", "A store shelf or product page", "A parent or doctor", "Somewhere else"];
+const RATINGS = [{id:"plausible", label:"Plausible"}, {id:"unclear", label:"Unclear"}, {id:"implausible", label:"Implausible"}];
+const DECISIONS = ["I'd try it", "Not for me", "I'd ask a pharmacist or doctor first", "I want to learn more first"];
+const MATTERS = ["Yes", "A little", "Not really"];
+const EV_TYPES = {guideline:"Guideline", review:"Review of many studies", trial:"Single trial", regulator:"Regulator", gap:"A gap in the evidence", rebuttal:"Reply from the industry"};
+const INV_STEPS = ["The claim", "Make it precise", "Your first guess", "Find it on the model", "Walk the chain", "The evidence",
+                   "How big, at what cost", "What's still unknown", "Your new number", "What moved you", "What would change your mind", "Your decision"];
+const BRUSH = {3:"organ", 4:"jar", 5:"proof"};   /* investigation step -> the lesson that helps */
+
+/* =====================================================================
+   ENGINE
+   ===================================================================== */
+const MIN = 60 * 1000;
+const app = document.getElementById("app");
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad2 = n => String(n).padStart(2, "0");
+const ymd = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const niceDate = s => { const [y, m, d] = String(s).split("-").map(Number); return m ? `${d} ${MONTHS[m - 1]} ${y}` : ""; };
+const bow = (cls = "bow") => `<svg class="${cls}" aria-hidden="true"><use href="#bow"/></svg>`;
+let toastTimer = 0;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+
+/* ============ storage ============ */
+const KEY = "patch:state:v1";          /* namespaced: the origin is shared by every game */
+const CLAIMS_KEY = "patch:claims";     /* last good claims.json, for offline play without the worker */
+const STATE_V = 1;
+const MIGRATIONS = {};                 /* v -> fn(blob) returning the v+1 shape */
+const defaults = () => ({v:STATE_V, lessons:{}, inv:{}, cards:{}, journal:[], at:null});
+let state = defaults();
+let readOnly = false, updateReady = false;
+const store = (() => {
+  try{ localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return localStorage; }catch(e){}
+  return null;
+})();
+function save(){
+  if(readOnly || !store) return;
+  try{ store.setItem(KEY, JSON.stringify(state)); }catch(e){ console.warn("save failed:", e); }
+}
+let saveTimer = 0;
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+function load(){
+  let blob = null;
+  try{ const s = store && store.getItem(KEY); blob = s ? JSON.parse(s) : null; }catch(e){ blob = null; }
+  if(!blob || typeof blob !== "object") return;
+  let v = blob.v || 1;
+  if(v > STATE_V){
+    /* Written by a newer build: play, but never write over fields we don't know. */
+    readOnly = true;
+    console.warn(`saved data is v${v}, this build speaks v${STATE_V}: running read-only`);
+  }else{
+    while(v < STATE_V && MIGRATIONS[v]){ blob = MIGRATIONS[v](blob); v++; }
+  }
+  const obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : {};
+  state = {...defaults(), ...blob,
+    lessons:obj(blob.lessons), inv:obj(blob.inv), cards:obj(blob.cards),
+    journal:Array.isArray(blob.journal) ? blob.journal.filter(e => e && typeof e.text === "string") : [],
+    v:readOnly ? blob.v : STATE_V};
+}
+
+/* ============ claims, from the repo ============ */
+let CLAIMS = [];
+let claimsState = "loading";           /* loading | ok | none */
+const RATING_IDS = ["plausible", "unclear", "implausible", "trials"];
+function validClaim(c){
+  try{
+    if(!c || typeof c.id !== "string" || !c.heard || !/^\d{4}-\d{2}-\d{2}$/.test(c.opens)) return false;
+    if(!Array.isArray(c.precise) || c.precise.filter(p => p.ok).length !== 1) return false;
+    if(!c.nodes || !Array.isArray(c.nodes.answer) || !c.nodes.answer.length || !c.nodes.answer.every(n => NODES[n])) return false;
+    if(!Array.isArray(c.chain) || c.chain.length !== CHAIN.length || !c.chain.every(l => RATING_IDS.includes(l.rating))) return false;
+    if(!Array.isArray(c.evidence) || !c.evidence.length) return false;
+    if(!c.evidence.every(e => e.id && e.label && EV_TYPES[e.type] && e.source && /^https:\/\//.test(e.source.url))) return false;
+    if(!c.effect || !Array.isArray(c.costs) || !Array.isArray(c.unknowns) || !c.stands) return false;
+    return true;
+  }catch(e){ return false; }
+}
+function setClaims(data){
+  const list = data && Array.isArray(data.claims) ? data.claims : [];
+  const good = list.filter(c => { const ok = validClaim(c); if(!ok) console.warn("claim skipped:", c && c.id); return ok; });
+  if(!good.length) return false;
+  CLAIMS = good; claimsState = "ok";
+  return true;
+}
+async function loadClaims(){
+  const before = claimsState;
+  let ok = false;
+  try{
+    const res = await fetch("claims.json", {cache:"no-cache"});
+    if(res.ok){
+      const data = await res.json();
+      ok = setClaims(data);
+      if(ok && store){ try{ store.setItem(CLAIMS_KEY, JSON.stringify(data)); }catch(e){} }
+    }
+  }catch(e){ /* offline, or the sandboxed preview */ }
+  if(!ok){
+    try{ const s = store && store.getItem(CLAIMS_KEY); if(s) ok = setClaims(JSON.parse(s)); }catch(e){}
+  }
+  if(!ok && claimsState === "loading") claimsState = "none";
+  /* Repaint only where claims show and nothing is being typed: home always,
+     other screens only when they were waiting for the first load. */
+  if(view && (view.s === "home" || (before === "loading" && view.s !== "journal" && view.s !== "card"))) render();
+}
+const openClaims = () => CLAIMS.filter(c => c.opens <= ymd()).sort((a, b) => b.opens.localeCompare(a.opens));
+const nextOpening = () => CLAIMS.filter(c => c.opens > ymd()).map(c => c.opens).sort()[0] || null;
+const claimById = id => CLAIMS.find(c => c.id === id && c.opens <= ymd()) || null;
+
+/* ============ the skin diagram ============
+   A schematic, not a picture: only structures any anatomy text shows, placed
+   where the NCI's public-domain "Anatomy of the skin" puts them. Each part is a
+   group with data-node, so lessons can dim, pick and light up parts. */
+const W = 800, H = 556;
+const wave = x => 160 - 10 * Math.sin(2 * Math.PI * x / 80);
+const r1 = n => Math.round(n * 10) / 10;
+function wavy(x0, x1, y, amp, per, ph){
+  let d = "";
+  for(let x = x0; x <= x1; x += 5) d += (x === x0 ? "M" : "L") + x + "," + r1(y + amp * Math.sin((x + ph) / per));
+  return d;
+}
+function skinSVG(){
+  /* Names sit in their own layer on top, so dimming a part never hides a name. */
+  const names = [];
+  const g = (id, inner, hit, lbl) => {
+    const n = NODES[id];
+    names.push(`<text class="lbl" data-for="${id}" x="${lbl[0]}" y="${lbl[1]}" text-anchor="${lbl[2] || "start"}">${esc(n.name.replace(/ \(.*\)/, ""))}</text>`);
+    return `<g data-node="${id}" role="button" tabindex="0" aria-label="${esc(n.name)}">${inner}${hit}</g>`;
+  };
+  const line = d => `<path class="hit line" d="${d}"/>`;
+  let s = `<svg class="skin" viewBox="0 0 ${W} ${H}" role="group" aria-label="Cross-section of skin">`;
+  /* hypodermis */
+  let fat = "";
+  for(let row = 0; row < 4; row++) for(let i = 0; i < 19; i++){
+    const cx = 12 + i * 46 + (row % 2 ? 23 : 0), cy = 424 + row * 38;
+    fat += `<circle cx="${cx}" cy="${cy}" r="21" fill="#FDE6B0" stroke="#EECB82" stroke-width="1.5"/>`;
+  }
+  s += g("hypodermis", `<rect x="0" y="400" width="${W}" height="${H - 400}" fill="#FFF1D6"/>${fat}`,
+         `<rect class="hit" x="0" y="400" width="${W}" height="${H - 400}"/>`, [16, 540]);
+  /* living epidermis: basal row on the wave, upper rows flattening as they rise */
+  let cells = `<rect x="0" y="92" width="${W}" height="100" fill="#FCE0DA"/>`;
+  for(let x = 6; x < W; x += 14) cells += `<circle cx="${x}" cy="${r1(wave(x) - 7)}" r="6.5" fill="#F9CFC5" stroke="#E9AC9F"/>`;
+  [[.78, 10, 6, 20, 10], [.58, 12, 5.5, 24, 0], [.38, 15, 4.5, 30, 15], [.18, 20, 3.2, 40, 0]].forEach(([f, rx, ry, step, off]) => {
+    for(let x = off; x < W + rx; x += step){
+      const y = 92 + (wave(x) - 7 - 92) * f;
+      cells += `<ellipse cx="${x}" cy="${r1(y)}" rx="${rx}" ry="${ry}" fill="#FAD6CD" stroke="#ECB2A5"/>`;
+    }
+  });
+  s += g("keratinocytes", cells, `<rect class="hit" x="0" y="92" width="${W}" height="88"/>`, [16, 126]);
+  /* dermis: background under the wavy junction, collagen bundles, elastin */
+  let jd = "M0," + r1(wave(0));
+  for(let x = 4; x <= W; x += 4) jd += "L" + x + "," + r1(wave(x));
+  jd += `L${W},400L0,400Z`;
+  let fib = "";
+  const SEG = [[10, 170], [200, 325], [365, 520], [640, 790]];
+  [205, 236, 268, 300, 332, 364, 388].forEach((y, k) => SEG.forEach(([a, b], j) => {
+    const sh = (k + j) % 2 ? 14 : -8;
+    fib += `<path d="${wavy(a + sh + 8, b + sh - 8, y, 4, 14, k * 37)}" fill="none" stroke="#EEB2BF" stroke-width="5.5" stroke-linecap="round" opacity=".85"/>`;
+  }));
+  [220, 284, 348].forEach((y, k) => SEG.forEach(([a, b]) => {
+    fib += `<path d="${wavy(a + 30, b - 40, y, 3, 5, k * 11)}" fill="none" stroke="#C98AA6" stroke-width="1.6" stroke-linecap="round"/>`;
+  }));
+  s += g("dermis-matrix", `<path d="${jd}" fill="#FCE6E8"/>${fib}`, `<path class="hit" d="${jd}"/>`, [452, 226]);
+  /* blood vessels: a vessel along the lower dermis, loops rising into three papillae */
+  let ves = `<path d="${wavy(0, 520, 336, 3, 40, 0)}" fill="none" stroke="#D8475F" stroke-width="5" stroke-linecap="round"/>`;
+  let vesHit = line(wavy(0, 520, 336, 3, 40, 0));
+  [100, 260, 420].forEach(x => {
+    const d = `M${x - 6},336L${x - 6},170Q${x},152 ${x + 6},170L${x + 6},336`;
+    ves += `<path d="${d}" fill="none" stroke="#D8475F" stroke-width="3.2"/>`;
+    vesHit += line(d);
+  });
+  s += g("capillary", ves, vesHit, [70, 326]);
+  /* nerve: deep receptor capsule, a fibre rising, bare endings near the epidermis */
+  const nd = "M30,402C70,362 150,352 170,300S190,222 205,190";
+  s += g("nerve",
+    `<ellipse cx="58" cy="380" rx="10" ry="7" fill="#F5D89A" stroke="#E2B04F" stroke-width="1.5"/>` +
+    `<path d="${nd}" fill="none" stroke="#E2B04F" stroke-width="3.2" stroke-linecap="round"/>` +
+    `<path d="M205,190L197,168M205,190L213,166M205,190L224,178" fill="none" stroke="#E2B04F" stroke-width="2" stroke-linecap="round"/>`,
+    line(nd) + line("M205,190L197,168M205,190L213,166M205,190L224,178"), [128, 284, "end"]);
+  /* fibroblast */
+  s += g("fibroblast",
+    `<path d="M286,264L300,258M360,246L376,239" stroke="#E27B95" stroke-width="2.2" stroke-linecap="round"/>` +
+    `<path d="M300,258Q330,236 360,246Q332,266 300,258Z" fill="#E27B95"/>` +
+    `<ellipse cx="331" cy="251" rx="8" ry="3.6" fill="#A83D5C" transform="rotate(-12 331 251)"/>`,
+    `<ellipse class="hit" cx="330" cy="252" rx="44" ry="22"/>`, [330, 288, "middle"]);
+  /* melanocyte in the basal row, arms reaching up between keratinocytes */
+  s += g("melanocyte",
+    `<path d="M420,146L404,124M420,146L413,116M420,146L431,118M420,146L442,128" stroke="#A06A5C" stroke-width="2.6" stroke-linecap="round"/>` +
+    `<circle cx="420" cy="146" r="7.5" fill="#A06A5C"/>`,
+    `<circle class="hit" cx="422" cy="134" r="20"/>`, [446, 112]);
+  /* stratum corneum: three courses of bricks in mortar */
+  let sc = `<rect x="0" y="70" width="${W}" height="22" fill="#F1BDB8"/>`;
+  [[73, 0], [79.5, 21], [86, 0]].forEach(([y, off]) => {
+    for(let x = -off; x < W; x += 42) sc += `<rect x="${x + 2}" y="${y}" width="38" height="5" rx="2" fill="#FFF3EF"/>`;
+  });
+  s += g("stratum-corneum", sc, `<rect class="hit" x="0" y="68" width="${W}" height="24"/>`, [16, 58]);
+  /* sweat gland: a coil deep in the dermis, its duct spiralling out through the epidermis */
+  const duct = "M236,380C228,350 248,320 238,290S230,220 240,190S246,160 242,150L247,140L238,130L247,120L238,110L247,100L241,92L242,70";
+  s += g("sweat-gland",
+    `<ellipse cx="232" cy="388" rx="22" ry="10" fill="none" stroke="#8DB4DC" stroke-width="4"/>` +
+    `<ellipse cx="226" cy="392" rx="15" ry="8" fill="none" stroke="#8DB4DC" stroke-width="4" transform="rotate(30 226 392)"/>` +
+    `<ellipse cx="241" cy="384" rx="14" ry="7" fill="none" stroke="#8DB4DC" stroke-width="4" transform="rotate(-25 241 384)"/>` +
+    `<path d="${duct}" fill="none" stroke="#8DB4DC" stroke-width="3" stroke-linejoin="round"/>`,
+    `<ellipse class="hit" cx="232" cy="388" rx="34" ry="20"/>` + line(duct), [266, 404]);
+  /* hair follicle: a pocket of epidermis down to a bulb, hair shaft out through the pore */
+  s += g("follicle",
+    `<path d="M566,70C579,92 578,130 577,170L576,418C558,426 562,458 590,460C618,458 622,426 604,418L603,170C602,130 601,92 614,70Z" fill="#F6D2C8" stroke="#DFA193" stroke-width="1.5"/>` +
+    `<ellipse cx="590" cy="446" rx="9" ry="7" fill="#E98AA2"/>` +
+    `<path d="M590,452L590,96Q592,60 606,8" fill="none" stroke="#5E4039" stroke-width="4.5" stroke-linecap="round"/>`,
+    `<path class="hit" d="M560,6L620,6L620,70L608,170L608,470L572,470L572,170L560,70Z"/>`, [626, 318]);
+  /* oil gland, opening into the follicle */
+  s += g("sebaceous",
+    `<path d="M560,206Q570,200 577,196" stroke="#DDB55B" stroke-width="4" fill="none"/>` +
+    `<circle cx="548" cy="200" r="15" fill="#F6DA97" stroke="#DDB55B"/><circle cx="536" cy="224" r="14" fill="#F6DA97" stroke="#DDB55B"/>` +
+    `<circle cx="553" cy="243" r="12" fill="#F6DA97" stroke="#DDB55B"/><circle cx="562" cy="220" r="10" fill="#F6DA97" stroke="#DDB55B"/>`,
+    `<circle class="hit" cx="548" cy="222" r="32"/>`, [512, 256, "end"]);
+  /* microbes on the surface */
+  let mic = "", micHit = "";
+  [[70, 82, 94], [300, 311], [470, 481, 493], [690, 702]].forEach(xs => {
+    xs.forEach((x, i) => { mic += `<ellipse cx="${x}" cy="${i % 2 ? 64 : 66}" rx="4.2" ry="2.3" fill="#A98AD0"/>`; });
+    micHit += `<rect class="hit" x="${xs[0] - 10}" y="52" width="${xs[xs.length - 1] - xs[0] + 20}" height="18"/>`;
+  });
+  s += g("microbiome", mic, micHit, [700, 46, "middle"]);
+  /* routes a claim takes: through the pore, or through the blood */
+  s += `<defs><marker id="rt" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="#9E2B4E"/></marker></defs>`;
+  s += `<path class="route" data-route="topical" d="M650,24C620,30 596,44 592,76L588,190" marker-end="url(#rt)" hidden/>`;
+  s += `<path class="route" data-route="oral" d="M8,318L180,318C240,318 284,300 312,268" marker-end="url(#rt)" hidden/>`;
+  return s + `<g class="names" aria-hidden="true">${names.join("")}</g></svg>`;
+}
+let labelsOn = false;
+function figure(cap){
+  return `<div class="figure">${skinSVG()}<div class="cap"><span id="capText">${cap || "Tap a part to see what it is."}</span>` +
+    `<button data-act="labels" aria-pressed="${labelsOn}">${labelsOn ? "Hide names" : "Show names"}</button></div></div>`;
+}
+function applySkin({focus = [], picked = [], right = [], route = null} = {}){
+  const svg = $(".skin"); if(!svg) return;
+  svg.classList.toggle("labels", labelsOn);
+  svg.classList.toggle("focus", focus.length > 0);
+  $$("[data-node]", svg).forEach(n => {
+    const id = n.dataset.node;
+    n.classList.toggle("on", focus.includes(id));
+    n.classList.toggle("picked", picked.includes(id));
+    n.classList.toggle("right", right.includes(id));
+  });
+  $$(".lbl", svg).forEach(t => {
+    const id = t.dataset.for;
+    t.classList.toggle("on", focus.includes(id) || picked.includes(id) || right.includes(id));
+  });
+  /* SVG elements have no .hidden property: toggle the attribute itself */
+  $$(".route", svg).forEach(r => { if(r.dataset.route === route) r.removeAttribute("hidden"); else r.setAttribute("hidden", ""); });
+}
+
+/* ============ navigation ============ */
+let view = {s:"home"};
+let peek = null;          /* node id shown in the caption on lesson screens */
+let tapPick = [];         /* nodes picked but not yet checked */
+let sim = {lip:90, hum:50, harsh:10, occl:false};
+let fresh = false;        /* a card that was just saved: tie the bow */
+function validView(v){
+  if(!v || typeof v !== "object") return false;
+  if(v.s === "home" || v.s === "journal") return true;
+  if(v.s === "explore") return !v.node || !!NODES[v.node];
+  if(v.s === "lesson") return !!LESSON[v.id];
+  if(v.s === "inv" || v.s === "card") return typeof v.id === "string";
+  return false;
+}
+function go(v){
+  view = v; peek = null; tapPick = []; fresh = false;
+  state.at = v; save();
+  /* A new build is waiting, and this is a screen boundary: everything is saved
+     and nothing is on screen to lose. Switch now, silently. */
+  if(updateReady){ try{ location.reload(); return; }catch(e){} }
+  render(); try{ window.scrollTo(0, 0); }catch(e){}
+}
+function render(){
+  const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen}[view.s] || home;
+  r();
+}
+function bar(title, sub, dots){
+  return `<div class="bar"><button class="back" data-act="home" aria-label="Back to home">‹</button>` +
+    `<div class="where"><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ""}</div>${dots || ""}</div>`;
+}
+
+/* ============ home ============ */
+function home(){
+  const open = openClaims();
+  const pick = open.find(c => !state.cards[c.id]) || null;
+  let hero;
+  if(claimsState === "loading") hero = `<p class="lede">Fetching this week's claim…</p>`;
+  else if(claimsState === "none") hero = `<p class="lede">Claims arrive the first time Patch is online. Connect once, then it works anywhere.</p>`;
+  else if(pick){
+    const inv = state.inv[pick.id];
+    const going = inv && inv.i > 0;
+    hero = `<p class="lede">${esc(pick.teaser)} Want to look into it?</p><q>${esc(pick.heard)}</q>` +
+      `<div class="row"><button class="btn" data-act="inv" data-id="${pick.id}">${going ? "Carry on investigating" : "Look into it"}</button>` +
+      `${lessonsDone() < 2 ? `<button class="btn ghost" data-act="lesson" data-id="organ">Learn the skin first</button>` : ""}</div>` +
+      `<p class="meta">${going ? `You're on step ${inv.i + 1} of ${INV_STEPS.length}: ${esc(INV_STEPS[inv.i])}.` : "About 15 minutes. Stop whenever you like; it all saves."}</p>`;
+  }else{
+    const nx = nextOpening();
+    hero = `<p class="lede">You've investigated every claim so far.</p><q>Nice work.</q>` +
+      `<p class="meta">${nx ? `The next claim opens on ${esc(niceDate(nx))}.` : "A new claim arrives soon."}</p>`;
+  }
+  const cards = Object.values(state.cards).sort((a, b) => String(b.done).localeCompare(String(a.done)));
+  const others = open.filter(c => c !== pick);
+  app.className = "wrap";
+  app.innerHTML =
+    `<div class="brand">${bow("")}<b>Patch</b></div>` +
+    `<section class="hero">${bow()}${hero}</section>` +
+    (others.length ? `<section class="section"><h2>More claims</h2><p class="mute">Every claim so far. Pick any.</p><div class="claims">` +
+      others.map(c => `<button class="claimrow" data-act="${state.cards[c.id] ? "card" : "inv"}" data-id="${c.id}"><div><b>${esc(c.title)}</b><span>${esc(c.heard)}</span></div>` +
+        `<span class="st">${state.cards[c.id] ? "Done" : state.inv[c.id] ? "In progress" : "New"}</span></button>`).join("") + `</div></section>` : "") +
+    `<section class="section"><h2>Your patches</h2><p class="mute">One for every claim you've investigated.</p>` +
+    (cards.length ? `<div class="wall">${cards.map(patchTile).join("")}</div>` :
+      `<div class="empty">Finish an investigation and its card lands here, tied with a bow.</div>`) + `</section>` +
+    `<section class="section"><h2>Learn the skin</h2><p class="mute">Five short lessons. Take them in order, or dip in when a claim needs one.</p>` +
+    `<ol class="lessons">${LESSONS.map((l, i) => `<li><button data-act="lesson" data-id="${l.id}"><span class="n">${i + 1}</span>` +
+      `<span class="t"><b>${esc(l.title)}</b><span>${esc(l.sub)}</span></span>` +
+      `${state.lessons[l.id] && state.lessons[l.id].done ? `<span class="tick">Done</span>` : ""}</button></li>`).join("")}</ol></section>` +
+    `<section class="tiles"><button class="tile" data-act="explore"><b>Explore skin</b><span>Tap any part to see what it does</span></button>` +
+    `<button class="tile" data-act="journal"><b>Journal</b><span>Private, unless you share an entry</span></button></section>`;
+}
+const lessonsDone = () => LESSONS.filter(l => state.lessons[l.id] && state.lessons[l.id].done).length;
+function patchTile(c){
+  return `<button class="patch${c.gold ? " gold" : ""}" data-act="card" data-id="${esc(c.id)}">${bow()}` +
+    `<b>${esc(c.title)}</b><span class="conf">${c.initial} to ${c.updated}</span></button>`;
+}
+
+/* ============ explore ============ */
+function explore(){
+  const id = view.node, n = id && NODES[id];
+  const depth = view.depth || 0;
+  let panel;
+  if(!n){
+    panel = `<h2>Explore skin</h2><p>Tap any part of the picture, or pick one here.</p><div class="chips">` +
+      NODE_ORDER.map(k => `<button class="chip" data-act="node" data-id="${k}">${esc(NODES[k].name)}</button>`).join("") + `</div>` +
+      `<p class="small mute">The drawing is a simplified diagram, not to scale. Compare it with a real medical illustration: <a href="https://commons.wikimedia.org/wiki/File:Layers_of_the_skin.jpg" target="_blank" rel="noopener">the NCI's public-domain drawing</a>.</p>`;
+  }else{
+    const st = STATUS[n.status];
+    const used = openClaims().filter(c => c.nodes.answer.includes(id));
+    panel = `<p class="mute small">${esc(n.layer)}</p><h2>${esc(n.name)}</h2><span class="stat ${st.cls}">${esc(st.label)}</span>` +
+      `<div class="body"><p>${esc(n.intuition)}</p>${depth >= 1 ? n.core : ""}${depth >= 2 ? n.deeper : ""}</div>` +
+      (depth < 2 ? `<button class="more" data-act="deeper">${depth ? "Go deeper" : "Tell me more"}</button>` : "") +
+      (used.length ? `<div class="used">Used in:<br>${used.map(c => `<button data-act="inv" data-id="${c.id}">${esc(c.title)}</button>`).join("")}</div>` : "");
+  }
+  app.className = "wrap";
+  app.innerHTML = bar("Explore skin", "A cross-section, from the surface down") +
+    `<div class="stage">${figure(n ? esc(n.name) : "")}<div class="panel">${panel}</div></div>`;
+  applySkin({focus:id ? [id] : []});
+}
+
+/* ============ lessons ============ */
+const L = id => state.lessons[id] || (state.lessons[id] = {i:0, done:false, a:{}});
+function lessonScreen(){
+  const les = LESSON[view.id], rec = L(les.id);
+  const i = Math.min(rec.i, les.steps.length);
+  const dots = `<div class="dots" aria-label="Step ${Math.min(i + 1, les.steps.length)} of ${les.steps.length}">` +
+    les.steps.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("") + `</div>`;
+  const num = LESSONS.indexOf(les) + 1;
+  app.className = "wrap";
+  if(i >= les.steps.length){
+    const nxt = LESSONS[num];
+    app.innerHTML = bar(`${num}. ${les.title}`, "Done", dots) +
+      `<div class="narrow step"><h2>Lesson done</h2><p>${esc(les.title)} is part of your model now.</p><div class="row">` +
+      (view.ret ? `<button class="btn" data-act="inv" data-id="${esc(view.ret)}">Back to your investigation</button>` :
+        nxt ? `<button class="btn" data-act="lesson" data-id="${nxt.id}">Next: ${esc(nxt.title)}</button>` : "") +
+      `<button class="btn soft" data-act="redo" data-id="${les.id}">Go through it again</button>` +
+      `<button class="btn ghost" data-act="home">Home</button></div></div>`;
+    return;
+  }
+  const st = les.steps[i];
+  const ans = rec.a[i];
+  let body = "", solo = st.t === "sim" || st.t === "chain" || st.t === "handoff";
+  const next = (label = "Next") => `<div class="nav"><button class="btn ghost" data-act="lprev" ${i ? "" : "hidden"}>Back</button>` +
+    `<button class="btn" id="next" data-act="lnext">${label}</button></div>`;
+  if(st.t === "read"){
+    body = `<h2>${esc(st.h)}</h2>${st.body}${next()}`;
+  }else if(st.t === "choice"){
+    body = choiceBlock(st.q, st.opts, ans, "lpick") + (ans != null ? next() : "");
+  }else if(st.t === "tap"){
+    if(ans == null){
+      body = `<p class="q">${esc(st.q)}</p><p class="mute small">Tap the picture, then check.</p>` +
+        `<div class="nav"><span></span><button class="btn" id="check" data-act="lcheck" ${tapPick.length ? "" : "disabled"}>Check</button></div>`;
+    }else{
+      const ok = st.answer.includes(ans);
+      body = `<p class="q">${esc(st.q)}</p><div class="why${ok ? " good" : ""}"><p><b>${ok ? "Yes." : "Here's the catch."}</b> ` +
+        `${esc(ok ? st.why : (st.notes && st.notes[ans]) || st.why)}</p>${ok ? "" : `<p>${esc(st.why)}</p>`}</div>${next()}`;
+    }
+  }else if(st.t === "sim"){
+    body = `<h2>${esc(st.q)}</h2>${st.body}${simBlock()}${next()}`;
+  }else if(st.t === "chain"){
+    body = `<h2>${esc(st.h)}</h2>${st.body}<ol class="chain">${CHAIN.map((t, k) =>
+      `<li class="${k >= 6 ? "trial" : ""}"><div class="lt"><i>${k + 1}</i><span>${esc(t)}</span></div>` +
+      `${k >= 6 ? `<span class="flag">Only a test in people can show this</span>` : ""}</li>`).join("")}</ol>${next()}`;
+  }else if(st.t === "handoff"){
+    const open = openClaims();
+    body = `<h2>${esc(st.h)}</h2>${st.body}<div class="claims">${open.length ? open.map(c =>
+      `<button class="claimrow" data-act="inv" data-id="${c.id}"><div><b>${esc(c.title)}</b><span>${esc(c.heard)}</span></div><span class="st">Investigate</span></button>`).join("") :
+      `<p class="mute">Claims arrive the first time Patch is online.</p>`}</div>` + next("Finish the lesson");
+  }
+  app.innerHTML = bar(`${num}. ${les.title}`, `Step ${i + 1} of ${les.steps.length}`, dots) +
+    (solo ? `<div class="narrow step">${body}</div>` :
+      `<div class="stage">${figure(peek ? `<b>${esc(NODES[peek].name)}.</b> ${esc(NODES[peek].intuition)}` : "")}<div class="panel step">${body}</div></div>`);
+  if(!solo){
+    if(st.t === "tap") applySkin(ans == null ? {picked:tapPick} : {picked:[ans], right:st.answer.includes(ans) ? [ans] : []});
+    else applySkin({focus:peek ? [peek] : []});
+  }
+  if(st.t === "sim") paintSim();
+}
+function choiceBlock(q, opts, ans, act){
+  const answered = ans != null;
+  return `<p class="q">${esc(q)}</p><div class="opts">` + opts.map((o, k) => {
+    const cls = answered && o.ok ? " right" : "";
+    return `<button class="opt${cls}" data-act="${act}" data-k="${k}" aria-pressed="${ans === k}" ${answered ? "disabled" : ""}>${esc(o.text)}</button>`;
+  }).join("") + `</div>` + (answered ? (() => {
+    const o = opts[ans], right = opts.find(x => x.ok);
+    return `<div class="why${o.ok ? " good" : ""}"><p><b>${o.ok ? "Yes." : "Here's the catch."}</b> ${esc(o.why)}</p>` +
+      (o.ok ? "" : `<p><b>${esc(right.text)}</b> ${esc(right.why)}</p>`) + `</div>`;
+  })() : "");
+}
+function simBlock(){
+  return `<div class="sim"><svg id="simArt" viewBox="0 0 400 150" aria-label="The barrier wall and the water leaving it"></svg>` +
+    `<div class="meter" id="simMeter" aria-live="polite"></div>` +
+    `<label>Mortar intact<input type="range" min="0" max="100" value="${sim.lip}" data-sim="lip"></label>` +
+    `<label>Air humidity<input type="range" min="0" max="100" value="${sim.hum}" data-sim="hum"></label>` +
+    `<label>Cleanser harshness<input type="range" min="0" max="100" value="${sim.harsh}" data-sim="harsh"></label>` +
+    `<label>Occlusive layer<span><input type="checkbox" data-sim="occl" ${sim.occl ? "checked" : ""}> petroleum jelly on top</span></label></div>`;
+}
+/* The barrier cartoon. Not physiology in numbers: just the right directions. */
+function simModel({lip, hum, harsh, occl}){
+  const eff = (lip / 100) * (1 - 0.6 * harsh / 100);
+  let loss = (0.2 + 0.8 * (1 - eff)) * (1.15 - 0.45 * hum / 100) * (occl ? 0.35 : 1);
+  loss = Math.max(0, Math.min(1, loss));
+  return {eff, loss, irrit:1 - eff};
+}
+const level3 = v => v < 0.34 ? "Low" : v < 0.67 ? "Medium" : "High";
+function paintSim(){
+  const art = $("#simArt"); if(!art) return;
+  const m = simModel(sim);
+  const gap = 2 + (1 - m.eff) * 9;
+  let s = `<rect x="0" y="0" width="400" height="150" fill="#fff"/>`;
+  if(sim.occl) s += `<rect x="0" y="86" width="400" height="10" rx="3" fill="#F3E3B8"/>`;
+  for(let row = 0; row < 3; row++){
+    const y = 98 + row * 16;
+    s += `<rect x="0" y="${y - gap / 2}" width="400" height="${14 + gap}" fill="#F1BDB8" opacity="${0.35 + 0.65 * m.eff}"/>`;
+    for(let x = row % 2 ? -25 : 0; x < 400; x += 50) s += `<rect x="${x + gap / 2}" y="${y}" width="${50 - gap}" height="12" rx="3" fill="#FFF3EF" stroke="#ECB2A5"/>`;
+  }
+  const drops = Math.round(m.loss * 12);
+  for(let k = 0; k < drops; k++){
+    const x = 20 + ((k * 137) % 360), y = 70 - ((k * 53) % 50);
+    s += `<path d="M${x},${y}c-5,7 -5,12 0,12c5,0 5,-5 0,-12z" fill="#8DB4DC"/>`;
+  }
+  art.innerHTML = s;
+  $("#simMeter").innerHTML = `<span>Water loss: <b>${level3(m.loss)}</b></span><span>Irritants getting in: <b>${level3(m.irrit)}</b></span>`;
+}
+
+/* ============ investigations ============ */
+function I(id){
+  return state.inv[id] || (state.inv[id] = {i:0, sub:0, f:{ev:{}, chain:{}, unknowns:[]}, started:ymd()});
+}
+function canNext(c, inv){
+  const f = inv.f;
+  switch(inv.i){
+    case 0: return !!f.source;
+    case 1: return f.preciseOk === true;
+    case 2: return f.initial != null;
+    case 3: return !!f.nodesChecked;
+    case 4: return !!f.chainShown;
+    case 5: return !!f.ev[c.evidence[Math.min(inv.sub, c.evidence.length - 1)].id];
+    case 6: return !!f.matters;
+    case 7: return true;
+    case 8: return f.updated != null;
+    case 9: return !!f.mover && !!(f.belief || "").trim();
+    case 10: return !!(f.changeMind || "").trim();
+    case 11: return !!f.decision && !!(f.verdict || "").trim();
+  }
+  return false;
+}
+function invScreen(){
+  const c = claimById(view.id);
+  app.className = "wrap";
+  if(!c){
+    app.innerHTML = bar("Investigation", "") + `<div class="narrow"><p>${claimsState === "loading" ? "Fetching the claim…" :
+      "This claim isn't available right now. Connect to the internet once and try again."}</p><button class="btn" data-act="home">Home</button></div>`;
+    return;
+  }
+  if(state.cards[c.id] && !state.inv[c.id]){ go({s:"card", id:c.id}); return; }
+  const inv = I(c.id), f = inv.f, i = inv.i;
+  if(i === 3 && !f.nodesChecked && !tapPick.length && Array.isArray(f.nodes)) tapPick = f.nodes.filter(n => NODES[n]);
+  const dots = `<div class="dots" aria-label="Step ${i + 1} of ${INV_STEPS.length}">` +
+    INV_STEPS.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("") + `</div>`;
+  const brush = BRUSH[i] ? `<button class="brush" data-act="lesson" data-id="${BRUSH[i]}" data-ret="${c.id}">Brush up: ${esc(LESSON[BRUSH[i]].title)}</button>` : "";
+  const nextLabel = i === 11 ? "Save my card" : i === 5 && inv.sub < c.evidence.length - 1 ? "Next piece of evidence" : "Next";
+  const nav = `<div class="nav"><button class="btn ghost" data-act="iprev" ${i || inv.sub ? "" : "hidden"}>Back</button>` +
+    `<button class="btn" id="next" data-act="inext" ${canNext(c, inv) ? "" : "disabled"}>${nextLabel}</button></div>`;
+  let body = "", withFig = i === 3 || i === 4;
+  const ask = (h, q) => `<h2>${esc(h)}</h2>${q ? `<p class="q">${esc(q)}</p>` : ""}`;
+  switch(i){
+    case 0:
+      body = `<h2>The claim</h2><p class="q">“${esc(c.heard)}”</p><p>Where did you come across it, or something like it?</p>` +
+        `<div class="chips">${SOURCES.map(s => `<button class="chip" data-act="field" data-f="source" data-v="${esc(s)}" aria-pressed="${f.source === s}">${esc(s)}</button>`).join("")}</div>` +
+        (!(state.lessons.jar && state.lessons.jar.done) ? `<p class="small mute">Lesson 4, From jar to target, makes step 5 easier. <button class="brush" data-act="lesson" data-id="jar" data-ret="${c.id}">Take it now</button></p>` : "");
+      break;
+    case 1: {
+      const picked = f.precisePick;
+      body = ask("Make it precise", "Which version could a study actually test?") + `<div class="opts">` + c.precise.map((p, k) =>
+        `<button class="opt${f.preciseOk && p.ok ? " right" : ""}" data-act="precise" data-k="${k}" aria-pressed="${picked === k}" ${f.preciseOk ? "disabled" : ""}>${esc(p.text)}</button>`).join("") + `</div>` +
+        (picked != null ? `<div class="why${c.precise[picked].ok ? " good" : ""}"><p><b>${c.precise[picked].ok ? "That's the one." : "Not that one."}</b> ${esc(c.precise[picked].why)}</p>` +
+          `${c.precise[picked].ok ? "" : `<p>Try another.</p>`}</div>` : "");
+      break;
+    }
+    case 2:
+      body = ask("Your first guess", null) + `<p>How sure are you that this is true?</p><blockquote class="q">${esc(preciseText(c))}</blockquote>` +
+        sliderBlock("initial", f.initial, null, !!f.locked) +
+        `<p class="lock">${f.locked ? "Locked in. You'll get to pick a new number after the evidence." : "No right answer. This number locks in when you move on, so you can see later how far you've come."}</p>`;
+      break;
+    case 3:
+      body = ask("Find it on the model", "Tap every part of the skin this claim depends on.") + brush +
+        (f.nodesChecked ? `<div class="why"><p>${esc(c.nodes.why)}</p>${(f.nodes || []).filter(n => !c.nodes.answer.includes(n) && c.nodes.notes && c.nodes.notes[n]).map(n =>
+          `<p><b>${esc(NODES[n].name)}:</b> ${esc(c.nodes.notes[n])}</p>`).join("")}</div>` :
+          `<p class="mute small">${tapPick.length ? `Picked: ${tapPick.map(n => esc(NODES[n].name)).join(", ")}.` : "Nothing picked yet."}</p>` +
+          `<button class="btn soft" data-act="nodescheck" ${tapPick.length ? "" : "disabled"}>Compare with the model</button>`);
+      break;
+    case 4:
+      body = ask("Walk the chain", "Rate each link. Links 7 and 8 need a test in people, so for those, rate your hunch.") + brush +
+        `<ol class="chain">${c.chain.map((l, k) => `<li class="${l.rating === "trials" ? "trial" : ""}"><div class="lt"><i>${k + 1}</i><span>${esc(l.text)}</span></div>` +
+          `<div class="seg" role="group" aria-label="Link ${k + 1}">${RATINGS.map(r => `<button data-act="rate" data-k="${k}" data-v="${r.id}" aria-pressed="${f.chain[k] === r.id}" ${f.chainShown ? "disabled" : ""}>${r.label}</button>`).join("")}</div>` +
+          (f.chainShown ? `<p class="mine"><b>${l.rating === "trials" ? "Needs a test in people." : "Our take: " + esc(RATINGS.find(r => r.id === l.rating).label) + "."}</b> ${esc(l.why)}</p>` : "") + `</li>`).join("")}</ol>` +
+        (f.chainShown ? "" : `<button class="btn soft" data-act="chainshow" ${Object.keys(f.chain).length === c.chain.length ? "" : "disabled"}>Compare with our take</button>`);
+      break;
+    case 5: {
+      const k = Math.min(inv.sub, c.evidence.length - 1), e = c.evidence[k], a = ASIDES[e.aside];
+      body = `<h2>The evidence <span class="mute small">${k + 1} of ${c.evidence.length}</span></h2>` + brush +
+        `<article class="ev"><p class="kind">${esc(EV_TYPES[e.type])}, ${e.year}</p><h3>${esc(e.label)}</h3>` +
+        `<p class="src"><a href="${esc(e.source.url)}" target="_blank" rel="noopener">${esc(e.source.name)}</a></p>` +
+        `<p>${esc(e.found)}</p><p class="catch">${esc(e.catch)}</p>` +
+        `<dl class="facts"><dt>People</dt><dd>${esc(e.people)}</dd><dt>Blinded</dt><dd>${esc(e.blinded)}</dd>` +
+        `<dt>How long</dt><dd>${esc(e.duration)}</dd><dt>Paid for by</dt><dd>${esc(e.funding)}</dd></dl></article>` +
+        (a ? (view.aside === e.id ? `<div class="aside"><h3>${esc(a.h)}</h3><p>${esc(a.body)}</p></div>` :
+          `<button class="brush" data-act="aside" data-id="${e.id}">Why does this matter?</button>`) : "") +
+        `<p>What does this do to how sure you are?</p><div class="chips">` +
+        [["up", "Makes me more sure"], ["down", "Makes me less sure"], ["same", "No change"]].map(([v, t]) =>
+          `<button class="chip" data-act="evreact" data-id="${e.id}" data-v="${v}" aria-pressed="${f.ev[e.id] === v}">${t}</button>`).join("") + `</div>`;
+      break;
+    }
+    case 6:
+      body = ask("How big, and at what cost", null) + `<p>${esc(c.effect.text)}</p><div class="why"><p>${esc(c.effect.compare)}</p></div>` +
+        (view.aside === "effect" ? `<div class="aside"><h3>${esc(ASIDES.effect.h)}</h3><p>${esc(ASIDES.effect.body)}</p></div>` :
+          `<button class="brush" data-act="aside" data-id="effect">How big is big?</button>`) +
+        `<h3>What it costs</h3><ul class="list">${c.costs.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` +
+        `<p>Would a change that size be worth it to you?</p><div class="chips">${MATTERS.map(m =>
+          `<button class="chip" data-act="field" data-f="matters" data-v="${m}" aria-pressed="${f.matters === m}">${m}</button>`).join("")}</div>`;
+      break;
+    case 7:
+      body = ask("What's still unknown", "Which of these gaps matter most to you? Pick any.") +
+        `<div class="opts">${c.unknowns.map((u, k) => `<button class="opt" data-act="unknown" data-k="${k}" aria-pressed="${(f.unknowns || []).includes(k)}">${esc(u)}</button>`).join("")}</div>` +
+        `<label for="ownUnknown">Anything else you'd want to know?</label><textarea id="ownUnknown" data-field="ownUnknown" placeholder="Optional">${esc(f.ownUnknown || "")}</textarea>`;
+      break;
+    case 8:
+      body = ask("Your new number", null) + `<p>Now that you've seen the evidence, how sure are you?</p><blockquote class="q">${esc(preciseText(c))}</blockquote>` +
+        sliderBlock("updated", f.updated, f.initial, false) + `<p class="lock">The dashed circle is where you started.</p>`;
+      break;
+    case 9:
+      body = ask("What moved you", "Which piece of evidence moved your number most?") +
+        `<div class="chips">${c.evidence.map(e => `<button class="chip" data-act="field" data-f="mover" data-v="${e.id}" aria-pressed="${f.mover === e.id}">${esc(e.label)}</button>`).join("")}` +
+        `<button class="chip" data-act="field" data-f="mover" data-v="none" aria-pressed="${f.mover === "none"}">None of them</button></div>` +
+        `<label for="belief">${moved(f) >= 5 ? "What moved your number?" : "Why didn't your number move much?"} Any honest answer counts.</label>` +
+        `<textarea id="belief" data-field="belief">${esc(f.belief || "")}</textarea>`;
+      break;
+    case 10:
+      body = ask("What would change your mind?", null) + `<p>Describe a piece of evidence that would make you more sure, or less.</p>` +
+        `<textarea id="changeMind" data-field="changeMind" aria-label="What would change your mind">${esc(f.changeMind || "")}</textarea>`;
+      break;
+    case 11:
+      body = ask("Your decision", "Being sure and deciding are different things. A cheap, low-risk thing can be worth trying even when the evidence is thin.") +
+        `<p>Is acting on it reasonable for you?</p><div class="chips">${DECISIONS.map(d =>
+          `<button class="chip" data-act="field" data-f="decision" data-v="${esc(d)}" aria-pressed="${f.decision === d}">${esc(d)}</button>`).join("")}</div>` +
+        `<label for="verdict">Your verdict in one line. This is what goes on the image you can share.</label>` +
+        `<input type="text" id="verdict" data-field="verdict" maxlength="110" value="${esc(f.verdict || "")}" placeholder="${esc(c.title)}: …">`;
+      break;
+  }
+  app.innerHTML = bar(c.title, `Step ${i + 1} of ${INV_STEPS.length}: ${INV_STEPS[i]}`, dots) +
+    (withFig ? `<div class="stage">${figure(f.nodesChecked ? "Lit up: the parts this claim depends on." : "")}<div class="panel step">${body}${nav}</div></div>` :
+      `<div class="narrow step">${body}${nav}</div>`);
+  if(withFig){
+    if(f.nodesChecked) applySkin({focus:c.nodes.answer, right:(f.nodes || []).filter(n => c.nodes.answer.includes(n)), route:c.route});
+    else applySkin({picked:tapPick});
+  }
+}
+const preciseText = c => c.precise.find(p => p.ok).text;
+const moved = f => f.initial == null || f.updated == null ? 0 : Math.abs(f.updated - f.initial);
+
+/* the confidence slider: no thumb until it's touched, so there is no default answer */
+function sliderBlock(field, v, ghost, locked){
+  const pos = x => `left:calc(14px + (100% - 28px) * ${x / 100})`;
+  return `<div class="conf-wrap"><div class="spread"><span class="big" id="bigN">${v == null ? "?" : v}</span><span class="mute small">out of 100</span></div>` +
+    `<div class="slider" role="slider" tabindex="${locked ? -1 : 0}" aria-label="How sure are you, from 0 to 100" aria-valuemin="0" aria-valuemax="100"` +
+    ` aria-valuenow="${v == null ? "" : v}" aria-valuetext="${v == null ? "Not set yet" : v}" ${locked ? 'aria-disabled="true"' : ""} data-slider="${field}">` +
+    `<div class="track"></div>${ghost != null ? `<div class="ghost" style="${pos(ghost)}" data-v="${ghost}"></div>` : ""}` +
+    `${v != null ? `<div class="thumb" style="${pos(v)}"></div>` : ""}</div>` +
+    `<div class="ends"><span>Sure it's false</span><span>No idea</span><span>Sure it's true</span></div></div>`;
+}
+function setSlider(el, v){
+  v = Math.max(0, Math.min(100, Math.round(v)));
+  const c = claimById(view.id); if(!c) return;
+  const inv = I(c.id);
+  inv.f[el.dataset.slider] = v;
+  let th = $(".thumb", el);
+  if(!th){ th = document.createElement("div"); th.className = "thumb"; el.appendChild(th); }
+  th.style.left = `calc(14px + (100% - 28px) * ${v / 100})`;
+  el.setAttribute("aria-valuenow", v); el.setAttribute("aria-valuetext", v);
+  const big = $("#bigN"); if(big) big.textContent = v;
+  const nx = $("#next"); if(nx) nx.disabled = !canNext(c, inv);
+  saveSoon();
+}
+function sliderFromPoint(el, clientX){
+  const t = $(".track", el).getBoundingClientRect();
+  if(!t.width) return;
+  setSlider(el, (clientX - t.left) / t.width * 100);
+}
+let dragging = null;
+app.addEventListener("pointerdown", e => {
+  const el = e.target.closest(".slider");
+  if(!el || el.getAttribute("aria-disabled") === "true") return;
+  dragging = el;
+  try{ el.setPointerCapture(e.pointerId); }catch(err){}
+  sliderFromPoint(el, e.clientX); e.preventDefault();
+});
+app.addEventListener("pointermove", e => { if(dragging) sliderFromPoint(dragging, e.clientX); });
+app.addEventListener("pointerup", () => { if(dragging){ dragging = null; save(); } });
+app.addEventListener("pointercancel", () => { dragging = null; });
+
+function invNext(c, inv){
+  if(!canNext(c, inv)) return;
+  if(inv.i === 2) inv.f.locked = true;
+  if(inv.i === 5 && inv.sub < c.evidence.length - 1){ inv.sub++; view.aside = null; save(); render(); scrollTop(); return; }
+  if(inv.i === 11){ finishCard(c, inv); return; }
+  inv.i++; view.aside = null; tapPick = [];
+  if(inv.i === 3 && inv.f.nodes && !inv.f.nodesChecked) tapPick = inv.f.nodes.slice();
+  state.at = view; save();
+  if(updateReady){ try{ location.reload(); return; }catch(e){} }
+  render(); scrollTop();
+}
+function invPrev(c, inv){
+  if(inv.i === 5 && inv.sub > 0){ inv.sub--; }
+  else if(inv.i > 0){ inv.i--; if(inv.i === 5) inv.sub = c.evidence.length - 1; }
+  view.aside = null; save(); render(); scrollTop();
+}
+const scrollTop = () => { try{ window.scrollTo(0, 0); }catch(e){} };
+
+function finishCard(c, inv){
+  const f = inv.f, m = moved(f);
+  const ev = c.evidence.find(e => e.id === f.mover);
+  /* Updating is the achievement: a number that moved because of a named piece
+     of evidence, or one that held still for a stated reason. */
+  const gold = (m >= 5 && !!ev) || (m < 5 && (f.belief || "").trim().length >= 20);
+  const card = {id:c.id, title:c.title, heard:c.heard, precise:preciseText(c), source:f.source || "",
+    initial:f.initial, updated:f.updated, verdict:(f.verdict || "").trim(), mover:ev ? ev.label : "None of them",
+    belief:(f.belief || "").trim(), changeMind:(f.changeMind || "").trim(), decision:f.decision,
+    matters:f.matters || "", stands:c.stands, gold, evidence:c.evidence.length, done:ymd()};
+  state.cards[c.id] = card;
+  state.journal.unshift({id:"j" + Date.now().toString(36), at:ymd(), claim:c.id, kind:"card",
+    text:`${c.title}: ${card.verdict}\nMy confidence went from ${card.initial} to ${card.updated}. ${card.belief}`});
+  delete state.inv[c.id];
+  view = {s:"card", id:c.id}; state.at = view; save();
+  fresh = true; render(); scrollTop();
+}
+
+/* ============ the card ============ */
+function cardScreen(){
+  const c = state.cards[view.id];
+  app.className = "wrap";
+  if(!c){ app.innerHTML = bar("Card", "") + `<p>No card here yet.</p><button class="btn" data-act="home">Home</button>`; return; }
+  const x = v => 20 + v * 2.6;
+  const arrow = `<svg viewBox="0 0 300 40" aria-hidden="true"><line x1="20" y1="20" x2="280" y2="20" stroke="#F0CBD5" stroke-width="6" stroke-linecap="round"/>` +
+    `<circle cx="${x(c.initial)}" cy="20" r="8" fill="#fff" stroke="#80606B" stroke-width="2" stroke-dasharray="3 2"/>` +
+    (c.initial !== c.updated ? `<line x1="${x(c.initial)}" y1="20" x2="${x(c.updated)}" y2="20" stroke="#9E2B4E" stroke-width="3"/>` : "") +
+    `<circle cx="${x(c.updated)}" cy="20" r="9" fill="#9E2B4E"/></svg>`;
+  app.innerHTML = bar(c.title, `Investigated ${niceDate(c.done)}`) +
+    `<article class="card${c.gold ? " gold" : ""}${fresh ? " fresh" : ""}">${bow()}` +
+    `<p class="heard">“${esc(c.heard)}”</p><p class="verdict">${esc(c.verdict)}</p>` +
+    `<div class="move" aria-label="Confidence went from ${c.initial} to ${c.updated}"><span class="n mute">${c.initial}</span>${arrow}<span class="n">${c.updated}</span></div>` +
+    (c.gold ? `<p class="goldnote">Gold edge: ${moved(c) >= 5 ? "your number moved, and you said which evidence moved it." : "your number held, and you said why."}</p>` : "") +
+    `<dl><div><dt>The precise claim</dt><dd>${esc(c.precise)}</dd></div>` +
+    `<div><dt>Where you heard it</dt><dd>${esc(c.source)}</dd></div>` +
+    `<div><dt>What moved you most</dt><dd>${esc(c.mover)}. ${esc(c.belief)}</dd></div>` +
+    `<div><dt>What would change your mind</dt><dd>${esc(c.changeMind)}</dd></div>` +
+    `<div><dt>Your decision</dt><dd>${esc(c.decision)}</dd></div>` +
+    `<div><dt>Where the evidence stands</dt><dd>${esc(c.stands)}</dd></div></dl></article>` +
+    `<div class="row" style="justify-content:center;margin-top:22px"><button class="btn" data-act="sharecard" data-id="${esc(c.id)}">Share my verdict</button>` +
+    `<button class="btn soft" data-act="home">Home</button></div>`;
+}
+
+/* The verdict image: one line, the claim, the two numbers. Small enough to send. */
+function wrapText(ctx, text, maxW){
+  const words = String(text).split(/\s+/), lines = [];
+  let cur = "";
+  words.forEach(w => { const t = cur ? cur + " " + w : w; if(ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t; });
+  if(cur) lines.push(cur);
+  return lines;
+}
+const BOW_PATHS = [
+  ["M58 36 C40 10 8 6 8 28 C8 46 36 48 58 40Z", "#E98AA2"], ["M62 36 C80 10 112 6 112 28 C112 46 84 48 62 40Z", "#E98AA2"],
+  ["M58 36 C44 22 20 18 18 28 C17 36 36 40 58 39Z", "#F4B6C6"], ["M62 36 C76 22 100 18 102 28 C103 36 84 40 62 39Z", "#F4B6C6"],
+  ["M55 42 L36 76 L46 72 L52 78 L60 44Z", "#D9718D"], ["M65 42 L84 76 L74 72 L68 78 L60 44Z", "#D9718D"]];
+function verdictCanvas(c){
+  const cv = document.createElement("canvas"); cv.width = 1080; cv.height = 1350;
+  const ctx = cv.getContext && cv.getContext("2d");
+  if(!ctx) return null;
+  const SERIF = 'ui-serif, "New York", "Iowan Old Style", Georgia, serif', ROUND = 'ui-rounded, "SF Pro Rounded", system-ui, sans-serif';
+  ctx.fillStyle = "#FFF8F9"; ctx.fillRect(0, 0, 1080, 1350);
+  const rr = (x, y, w, h, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
+  rr(70, 150, 940, 1110, 60); ctx.fillStyle = "#fff"; ctx.fill();
+  ctx.lineWidth = c.gold ? 14 : 5; ctx.strokeStyle = c.gold ? "#C3933A" : "#F0CBD5"; ctx.stroke();
+  ctx.save(); ctx.translate(540 - 156, 64); ctx.scale(2.6, 2.6);
+  if(typeof Path2D === "function") BOW_PATHS.forEach(([d, fill]) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); });
+  ctx.fillStyle = "#C9587A"; ctx.fillRect(51, 30, 18, 16); ctx.restore();
+  ctx.textAlign = "center"; ctx.fillStyle = "#80606B"; ctx.font = `40px ${ROUND}`; ctx.fillText("I looked into", 540, 340);
+  ctx.fillStyle = "#3B2830"; ctx.font = `62px ${SERIF}`;
+  let y = 430;
+  wrapText(ctx, `“${c.heard}”`, 800).slice(0, 4).forEach(l => { ctx.fillText(l, 540, y); y += 76; });
+  y += 40; ctx.fillStyle = "#9E2B4E"; ctx.font = `600 54px ${ROUND}`;
+  wrapText(ctx, c.verdict, 820).slice(0, 4).forEach(l => { ctx.fillText(l, 540, y); y += 68; });
+  y = Math.max(y + 60, 1000);
+  ctx.fillStyle = "#80606B"; ctx.font = `38px ${ROUND}`; ctx.fillText("How sure I was, before and after", 540, y);
+  ctx.font = `92px ${SERIF}`; ctx.fillStyle = "#80606B"; ctx.fillText(String(c.initial), 380, y + 120);
+  ctx.fillStyle = "#9E2B4E"; ctx.fillText(String(c.updated), 700, y + 120);
+  ctx.strokeStyle = "#E98AA2"; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(470, y + 88); ctx.lineTo(600, y + 88); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(585, y + 70); ctx.lineTo(610, y + 88); ctx.lineTo(585, y + 106); ctx.stroke();
+  ctx.fillStyle = "#80606B"; ctx.font = `32px ${ROUND}`; ctx.fillText("Checked with Patch", 540, 1310);
+  return cv;
+}
+async function shareCard(id){
+  const c = state.cards[id]; if(!c) return;
+  const cv = verdictCanvas(c);
+  if(!cv){ toast("Images can't be made here."); return; }
+  const blob = await new Promise(res => cv.toBlob(res, "image/png"));
+  if(!blob){ toast("The image didn't work. Try again."); return; }
+  const file = new File([blob], `patch-${c.id}.png`, {type:"image/png"});
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:`${c.title}: my verdict`}); return; }
+  }catch(e){ if(e && e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("Saved the image.");
+}
+
+/* ============ journal ============ */
+function journalScreen(){
+  app.className = "wrap";
+  app.innerHTML = bar("Journal", "Private. Nothing leaves this device unless you share it.") +
+    `<div class="narrow"><label for="note"><h3>Add a note</h3></label>` +
+    `<textarea id="note" data-note placeholder="Something you noticed, wondered, or changed your mind about">${esc(state.noteDraft || "")}</textarea>` +
+    `<div class="row" style="margin:10px 0 24px"><button class="btn" data-act="addnote">Save note</button>` +
+    (state.journal.length ? `<button class="btn soft" data-act="copyall">Copy my whole journal</button>` : "") + `</div>` +
+    (state.journal.length ? state.journal.map(e => `<div class="entry"><span class="when">${esc(niceDate(e.at))}</span><p>${esc(e.text)}</p>` +
+      `<button class="btn ghost" data-act="shareentry" data-id="${esc(e.id)}">Share this entry with a parent</button></div>`).join("") :
+      `<div class="empty">Your notes and finished investigations show up here.</div>`) + `</div>`;
+}
+async function shareText(title, text){
+  try{
+    if(navigator.share){ await navigator.share({title, text}); return; }
+  }catch(e){ if(e && e.name === "AbortError") return; }
+  try{ await navigator.clipboard.writeText(text); toast("Copied. Paste it into a message."); }
+  catch(e){ toast("Sharing isn't available here."); }
+}
+
+/* ============ input ============ */
+function tapNode(id){
+  if(view.s === "explore"){ view.node = id; view.depth = 0; state.at = view; save(); render(); return; }
+  if(view.s === "lesson"){
+    const les = LESSON[view.id], rec = L(les.id), st = les.steps[rec.i];
+    if(st && st.t === "tap" && rec.a[rec.i] == null){
+      tapPick = [id]; applySkin({picked:tapPick});
+      const b = $("#check"); if(b) b.disabled = false;
+      return;
+    }
+    peek = id; const cap = $("#capText");
+    if(cap) cap.innerHTML = `<b>${esc(NODES[id].name)}.</b> ${esc(NODES[id].intuition)}`;
+    applySkin({focus:[id]});
+    return;
+  }
+  if(view.s === "inv"){
+    const c = claimById(view.id); if(!c) return;
+    const inv = I(c.id);
+    if(inv.i === 3 && !inv.f.nodesChecked){
+      tapPick = tapPick.includes(id) ? tapPick.filter(n => n !== id) : [...tapPick, id];
+      inv.f.nodes = tapPick.slice(); saveSoon(); render();
+      return;
+    }
+    const cap = $("#capText");
+    if(cap) cap.innerHTML = `<b>${esc(NODES[id].name)}.</b> ${esc(NODES[id].intuition)}`;
+  }
+}
+app.addEventListener("click", e => {
+  const n = e.target.closest("[data-node]");
+  if(n && n.closest(".skin")){ tapNode(n.dataset.node); return; }
+  const a = e.target.closest("[data-act]");
+  if(!a || a.disabled) return;
+  act(a.dataset.act, a);
+});
+app.addEventListener("keydown", e => {
+  const n = e.target.closest && e.target.closest("[data-node]");
+  if(n && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); tapNode(n.dataset.node); return; }
+  const s = e.target.closest && e.target.closest(".slider");
+  if(s && s.getAttribute("aria-disabled") !== "true"){
+    const cur = Number(s.getAttribute("aria-valuenow"));
+    const base = s.getAttribute("aria-valuenow") === "" ? 50 : cur;
+    const d = {ArrowRight:5, ArrowUp:5, ArrowLeft:-5, ArrowDown:-5, PageUp:10, PageDown:-10}[e.key];
+    if(d != null){ e.preventDefault(); setSlider(s, s.getAttribute("aria-valuenow") === "" ? 50 : base + d); }
+    else if(e.key === "Home"){ e.preventDefault(); setSlider(s, 0); }
+    else if(e.key === "End"){ e.preventDefault(); setSlider(s, 100); }
+  }
+});
+app.addEventListener("input", e => {
+  const t = e.target;
+  if(t.dataset.sim){ sim[t.dataset.sim] = t.type === "checkbox" ? t.checked : Number(t.value); paintSim(); return; }
+  if(t.hasAttribute("data-note")){ state.noteDraft = t.value; saveSoon(); return; }
+  if(t.dataset.field && view.s === "inv"){
+    const c = claimById(view.id); if(!c) return;
+    const inv = I(c.id);
+    inv.f[t.dataset.field] = t.value; saveSoon();
+    const nx = $("#next"); if(nx) nx.disabled = !canNext(c, inv);
+  }
+});
+app.addEventListener("change", e => { if(e.target.dataset.sim){ sim[e.target.dataset.sim] = e.target.type === "checkbox" ? e.target.checked : Number(e.target.value); paintSim(); } });
+
+function act(name, el){
+  const id = el.dataset.id;
+  switch(name){
+    case "home": go({s:"home"}); return;
+    case "explore": go({s:"explore"}); return;
+    case "journal": go({s:"journal"}); return;
+    case "node": view.node = id; view.depth = 0; save(); render(); return;
+    case "deeper": view.depth = (view.depth || 0) + 1; render(); return;
+    case "labels": labelsOn = !labelsOn; el.textContent = labelsOn ? "Hide names" : "Show names"; el.setAttribute("aria-pressed", labelsOn);
+      $(".skin") && $(".skin").classList.toggle("labels", labelsOn); return;
+    case "lesson": go({s:"lesson", id, ret:el.dataset.ret || null}); return;
+    case "redo": state.lessons[id] = {i:0, done:true, a:{}}; go({s:"lesson", id}); return;
+    case "lpick": { const rec = L(view.id); rec.a[rec.i] = Number(el.dataset.k); save(); render(); return; }
+    case "lcheck": { const rec = L(view.id); if(!tapPick.length) return; rec.a[rec.i] = tapPick[0]; tapPick = []; save(); render(); return; }
+    case "lnext": { const les = LESSON[view.id], rec = L(les.id); rec.i++; if(rec.i >= les.steps.length) rec.done = true;
+      peek = null; tapPick = []; state.at = view; save();
+      if(updateReady){ try{ location.reload(); return; }catch(e){} }
+      render(); scrollTop(); return; }
+    case "lprev": { const rec = L(view.id); rec.i = Math.max(0, rec.i - 1); peek = null; save(); render(); scrollTop(); return; }
+    case "inv": go({s:"inv", id}); return;
+    case "card": go({s:"card", id}); return;
+    case "sharecard": shareCard(id); return;
+    case "addnote": { const t = (state.noteDraft || "").trim(); if(!t){ toast("Write something first."); return; }
+      state.journal.unshift({id:"j" + Date.now().toString(36), at:ymd(), kind:"note", text:t}); state.noteDraft = ""; save(); render(); return; }
+    case "shareentry": { const e = state.journal.find(x => x.id === id); if(e) shareText("From my Patch journal", `${niceDate(e.at)}\n${e.text}`); return; }
+    case "copyall": shareText("My Patch journal", state.journal.map(e => `${niceDate(e.at)}\n${e.text}`).join("\n\n")); return;
+  }
+  /* investigation actions */
+  const c = claimById(view.id); if(!c) return;
+  const inv = I(c.id), f = inv.f;
+  switch(name){
+    case "field": f[el.dataset.f] = el.dataset.v; save(); render(); return;
+    case "precise": { const k = Number(el.dataset.k); if(f.precisePick == null && f.preciseFirst == null) f.preciseFirst = k;
+      f.precisePick = k; if(c.precise[k].ok) f.preciseOk = true; save(); render(); return; }
+    case "nodescheck": f.nodes = tapPick.slice(); f.nodesChecked = true; tapPick = []; save(); render(); return;
+    case "rate": f.chain[el.dataset.k] = el.dataset.v; save(); render(); return;
+    case "chainshow": f.chainShown = true; save(); render(); return;
+    case "aside": view.aside = id; render(); return;
+    case "evreact": f.ev[id] = el.dataset.v; save(); render(); return;
+    case "unknown": { const k = Number(el.dataset.k); f.unknowns = (f.unknowns || []).includes(k) ? f.unknowns.filter(x => x !== k) : [...(f.unknowns || []), k]; save(); render(); return; }
+    case "inext": invNext(c, inv); return;
+    case "iprev": invPrev(c, inv); return;
+  }
+}
+
+/* ============ boot ============ */
+load();
+if(validView(state.at)) view = state.at;
+render();
+loadClaims();
+
+/* ---- update delivery ----
+   Cache-first shell, and iOS freezes rather than relaunches a home-screen app,
+   so check for a new worker when the app comes back, and switch to it at the
+   next screen boundary (go, and the step buttons), where everything is saved. */
+if("serviceWorker" in navigator){
+  try{
+    const reg = await navigator.serviceWorker.register("sw.js", {updateViaCache:"none"});
+    reg.addEventListener("updatefound", () => {
+      const sw = reg.installing;
+      if(!sw) return;
+      sw.addEventListener("statechange", () => {
+        if(sw.state === "installed" && navigator.serviceWorker.controller) updateReady = true;
+      });
+    });
+    let lastCheck = 0;
+    const maybeCheck = () => {
+      if(document.visibilityState !== "visible") return;
+      if(Date.now() - lastCheck < 15 * MIN) return;
+      lastCheck = Date.now();
+      reg.update().catch(() => {});
+      loadClaims();     /* a new weekly claim may have been pushed */
+    };
+    document.addEventListener("visibilitychange", maybeCheck);
+    window.addEventListener("pageshow", maybeCheck);
+    maybeCheck();
+  }
+  catch(e){ console.warn("Service worker didn't register:", e); }
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+{
+  "v": 1,
+  "note": "Claims for Patch. A claim appears in the game on its `opens` date (the player's local date). Every figure here is sourced in notes/patch-sources.md. Add a claim, push, and every player gets it the next time they're online.",
+  "claims": [
+    {
+      "id": "retinol-acne",
+      "opens": "2026-11-23",
+      "title": "Retinol for breakouts",
+      "heard": "This retinol serum clears breakouts.",
+      "teaser": "Heard that a retinol serum clears up breakouts?",
+      "route": "topical",
+      "precise": [
+        {"text": "Retinol is good for skin.", "ok": false,
+         "why": "Good how, for whom, and by how much? A claim this loose can't be tested, so it can never be wrong."},
+        {"text": "Using this retinol serum every night for 12 weeks leaves teens with mild acne with fewer spots than the same serum without the retinol.", "ok": true,
+         "why": "This one names who (teens with mild acne), what is measured (number of spots), how long (12 weeks) and what it's compared with (the same serum minus the retinol)."},
+        {"text": "Retinol is a form of vitamin A.", "ok": false,
+         "why": "True, but it's a fact about retinol, not a claim about what the serum does to breakouts."}
+      ],
+      "nodes": {
+        "answer": ["follicle", "keratinocytes"],
+        "why": "A spot starts inside a hair follicle, the opening you'd call a pore. Cells lining the follicle shed in clumps and plug it with oil, and the plug becomes a blackhead or whitehead. Retinoids mainly change how those cells grow and shed, so the plug is less likely to form.",
+        "notes": {
+          "sebaceous": "Close. Oil is part of the story, but retinoids you put on the skin don't shrink oil glands much. They mostly act on the cells lining the follicle.",
+          "stratum-corneum": "The serum has to cross this first, so it matters for delivery. The spot itself forms deeper, inside the follicle.",
+          "dermis-matrix": "Collagen is where wrinkle claims live. A breakout claim is about the follicle.",
+          "fibroblast": "Fibroblasts matter for wrinkle claims. For breakouts the action is in the follicle."
+        }
+      },
+      "chain": [
+        {"text": "In the jar: the label lists retinol", "rating": "unclear",
+         "why": "It's listed, but many serums don't say how much. 'Contains retinol' could mean a lot or a trace."},
+        {"text": "On the skin: used every night as directed", "rating": "plausible",
+         "why": "Easy to do, though peeling in the first weeks makes many people stop."},
+        {"text": "Intact: still active when you put it on", "rating": "unclear",
+         "why": "Retinol breaks down in light and air. Opaque, airtight packaging helps; a clear dropper bottle in a sunny bathroom doesn't."},
+        {"text": "Released: it leaves the serum", "rating": "plausible",
+         "why": "Nothing suggests the serum holds on to it."},
+        {"text": "Enough reaches the follicle", "rating": "plausible",
+         "why": "Retinol is a small, oil-friendly molecule, the kind that gets into the outer skin and down into oily follicles."},
+        {"text": "The cells respond", "rating": "unclear",
+         "why": "Skin has to convert retinol, step by step, into retinoic acid, the form cells respond to. Only some of it gets converted."},
+        {"text": "Fewer spots, when counted", "rating": "trials", "why": "Only a trial that counts spots can tell."},
+        {"text": "Enough fewer to matter to you", "rating": "trials", "why": "Only a trial can tell, and only you can say what's worth it."}
+      ],
+      "evidence": [
+        {"id": "aad", "type": "guideline", "label": "Dermatologists' guideline", "year": 2024,
+         "title": "Guidelines of care for the management of acne vulgaris",
+         "source": {"name": "Journal of the American Academy of Dermatology, May 2024", "url": "https://doi.org/10.1016/j.jaad.2023.12.017"},
+         "found": "America's dermatologists strongly recommend topical retinoids for acne, along with benzoyl peroxide and topical antibiotics.",
+         "catch": "The retinoids behind that recommendation are medicines: tretinoin, adapalene, tazarotene, trifarotene. Cosmetic retinol isn't one of them.",
+         "people": "A review of many trials", "blinded": "Not applicable (a guideline)", "duration": "Not applicable", "funding": "Professional society",
+         "aside": "guideline"},
+        {"id": "kolli", "type": "review", "label": "Review of 54 trials", "year": 2019,
+         "title": "Topical Retinoids in Acne Vulgaris: A Systematic Review",
+         "source": {"name": "American Journal of Clinical Dermatology, 2019", "url": "https://pubmed.ncbi.nlm.nih.gov/30674002/"},
+         "found": "Across 54 trials, retinoid medicines beat a plain base, and worked best combined with benzoyl peroxide. Adapalene was the easiest on the skin.",
+         "catch": "Again: adapalene, tretinoin and tazarotene. No retinol.",
+         "people": "54 trials", "blinded": "Most of the trials included", "duration": "Mostly 12 weeks", "funding": "Not stated in the summary we read",
+         "aside": "review"},
+        {"id": "adapalene-trial", "type": "trial", "label": "Adapalene vs tretinoin trial", "year": 1996,
+         "title": "A comparison of the efficacy and safety of adapalene gel 0.1% and tretinoin gel 0.025% in the treatment of acne vulgaris",
+         "source": {"name": "Journal of the American Academy of Dermatology, 1996", "url": "https://pubmed.ncbi.nlm.nih.gov/8609263/"},
+         "found": "After 12 weeks, total spots fell by 49% with adapalene and 37% with tretinoin.",
+         "catch": "Both groups got a real medicine, so this compares two retinoids. It doesn't say how much is the drug and how much is acne changing on its own.",
+         "people": "323", "blinded": "The people counting spots didn't know who had which gel", "duration": "12 weeks", "funding": "Not stated in the summary we read",
+         "aside": "blinding"},
+        {"id": "vehicle", "type": "trial", "label": "Trial with a plain-gel group", "year": 2016,
+         "title": "Adapalene 0.3%/benzoyl peroxide 2.5% gel for moderate and severe inflammatory acne",
+         "source": {"name": "American Journal of Clinical Dermatology, 2016", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4863916"},
+         "found": "After 12 weeks, red, swollen spots fell 69% with the medicine gel. In the group using the same gel with no medicine in it, they still fell 39%.",
+         "catch": "A plain gel 'worked' too. Skin care, time and acne's natural ups and downs all count, which is why trials need a plain-gel group.",
+         "people": "503", "blinded": "Double-blind: neither patients nor doctors knew", "duration": "12 weeks", "funding": "Not stated in the summary we read",
+         "aside": "vehicle"},
+        {"id": "fda", "type": "regulator", "label": "FDA approval", "year": 2016,
+         "title": "FDA approves Differin Gel 0.1% for over-the-counter use to treat acne",
+         "source": {"name": "U.S. Food and Drug Administration, 2016", "url": "https://www.fda.gov/newsevents/newsroom/pressannouncements/ucm510362.htm"},
+         "found": "Adapalene 0.1% gel became the first retinoid sold without a prescription for acne, for people 12 and older.",
+         "catch": "So a retinoid with strong acne evidence is already on drugstore shelves. It just isn't retinol.",
+         "people": "Not a study", "blinded": "Not applicable", "duration": "Not applicable", "funding": "Government regulator",
+         "aside": "regulator"},
+        {"id": "gap", "type": "gap", "label": "The missing retinol trial", "year": 2026,
+         "title": "Retinol for acne: what we looked for and didn't find",
+         "source": {"name": "Patch's own search, November 2026", "url": "https://pubmed.ncbi.nlm.nih.gov/?term=retinol+acne+randomized"},
+         "found": "We looked for a trial comparing retinol with a plain serum for acne, and found no good one. Retinol is sold as a cosmetic, so nobody has to prove it treats acne.",
+         "catch": "Not finding evidence isn't the same as finding it doesn't work. It means nobody has checked properly.",
+         "people": "None", "blinded": "None", "duration": "None", "funding": "None",
+         "aside": "absence"}
+      ],
+      "effect": {
+        "text": "For adapalene, the retinoid with the best evidence, a big trial saw spots fall by about half over 12 weeks. Part of that would have happened with a plain gel too. For retinol, nobody knows the size, because it hasn't been measured.",
+        "compare": "Think of it as fewer spots by spring, not clear skin by next week."
+      },
+      "costs": [
+        "Dryness, redness and peeling, worst in the first few weeks",
+        "At least 12 weeks before you can judge it fairly",
+        "Retinoid labels tell you to use sunscreen and avoid sunburn",
+        "Serums with retinol often cost more than drugstore adapalene"
+      ],
+      "unknowns": [
+        "Nobody has tested this retinol serum, or retinol in general, against a plain serum for acne",
+        "How much retinol is in the bottle, and how much is still active",
+        "Few trials included people with darker skin",
+        "Acne changes by itself, so a few good weeks prove little"
+      ],
+      "stands": "Retinoid medicines like adapalene have strong evidence for acne. Cosmetic retinol for acne is barely tested."
+    },
+    {
+      "id": "collagen-drinks",
+      "opens": "2026-11-23",
+      "title": "Collagen drinks",
+      "heard": "Collagen powder in your smoothie gives you younger-looking skin.",
+      "teaser": "Collagen drinks are everywhere. Do they do anything for skin?",
+      "route": "oral",
+      "precise": [
+        {"text": "Collagen is good for you.", "ok": false,
+         "why": "Good for what, and by how much? There's nothing here a study could catch out."},
+        {"text": "Drinking collagen peptides every day for 12 weeks improves measured skin moisture, stretchiness or wrinkles in healthy adults, compared with a look-alike drink without collagen.", "ok": true,
+         "why": "This one names who, for how long, what gets measured, and what it's compared with. A study could prove it wrong."},
+        {"text": "Your skin is full of collagen.", "ok": false,
+         "why": "True, but it doesn't say what drinking collagen does."}
+      ],
+      "nodes": {
+        "answer": ["capillary", "fibroblast", "dermis-matrix"],
+        "why": "You swallow it, so it never crosses the skin's surface. Whatever survives digestion travels in the blood to the dermis, where fibroblasts make and remodel the collagen that keeps skin firm.",
+        "notes": {
+          "stratum-corneum": "A drink never touches the surface. It reaches skin from the inside, through the blood.",
+          "keratinocytes": "These are surface-building cells. Collagen claims are about the dermis below them.",
+          "follicle": "Follicles matter for breakouts. Collagen claims are about the dermis."
+        }
+      },
+      "chain": [
+        {"text": "In the tub: the label lists collagen peptides", "rating": "plausible",
+         "why": "It's in there, though supplements don't need approval for what they claim before they're sold."},
+        {"text": "Swallowed every day", "rating": "plausible", "why": "Easy: it's a powder in a drink."},
+        {"text": "Digested into small pieces", "rating": "plausible",
+         "why": "Certain, in fact. Your gut breaks protein into building blocks and short fragments. So the collagen in the tub never reaches your skin as collagen."},
+        {"text": "The pieces get into the blood", "rating": "plausible",
+         "why": "Some short collagen fragments do show up in the blood after a drink."},
+        {"text": "They reach the dermis", "rating": "plausible", "why": "Blood flows through the dermis, so yes."},
+        {"text": "Fibroblasts make more collagen", "rating": "unclear",
+         "why": "In lab dishes, some fragments nudge fibroblasts. Whether that happens in people, and by how much, is the open question."},
+        {"text": "Skin changes, when measured", "rating": "trials", "why": "Only a trial can tell."},
+        {"text": "It changes enough to matter to you", "rating": "trials", "why": "Only a trial can tell, and only you can say what's worth it."}
+      ],
+      "evidence": [
+        {"id": "nutrients-2023", "type": "review", "label": "2023 review", "year": 2023,
+         "title": "Effects of Oral Collagen for Skin Anti-Aging: A Systematic Review and Meta-Analysis",
+         "source": {"name": "Nutrients, 2023", "url": "https://pubmed.ncbi.nlm.nih.gov/37432180/"},
+         "found": "Pooling 26 trials, collagen drinkers had better skin moisture and stretchiness than people on a look-alike drink.",
+         "catch": "The authors also found signs of bias in the trials they pooled.",
+         "people": "1,721 in 26 trials", "blinded": "Placebo-controlled trials", "duration": "Varied", "funding": "Not stated in the summary we read",
+         "aside": "meta"},
+        {"id": "ajm-2025", "type": "review", "label": "2025 review", "year": 2025,
+         "title": "Effects of Collagen Supplements on Skin Aging: A Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+         "source": {"name": "The American Journal of Medicine, 2025 (as reported by CosmeticsDesign)", "url": "https://www.cosmeticsdesign.com/Article/2025/08/26/industry-reacts-to-meta-analysis-concluding-collagen-supplements-show-no-proven-benefit-for-skin-aging"},
+         "found": "All 23 trials together showed a benefit. But in trials not paid for by supplement companies, the benefit disappeared, and in the higher-quality trials too.",
+         "catch": "Same question as the 2023 review, different answer, and the difference is who paid and how carefully the trials were run.",
+         "people": "1,474 in 23 trials", "blinded": "Placebo-controlled trials", "duration": "Varied", "funding": "Not stated in the report we read",
+         "aside": "funding"},
+        {"id": "industry", "type": "rebuttal", "label": "The industry replies", "year": 2025,
+         "title": "Supplement makers respond to the 2025 review",
+         "source": {"name": "CosmeticsDesign, August 2025", "url": "https://www.cosmeticsdesign.com/Article/2025/08/26/industry-reacts-to-meta-analysis-concluding-collagen-supplements-show-no-proven-benefit-for-skin-aging"},
+         "found": "Supplement groups said some trials were wrongly labelled as industry-funded, and that lumping different collagen products together compares apples and oranges. They noted 17 of the 23 trials were in Asia, at lower doses.",
+         "catch": "These are the people who sell collagen, so weigh it with that in mind. But a critic with a reason to object can still be right about a specific mistake.",
+         "people": "Not a study", "blinded": "Not applicable", "duration": "Not applicable", "funding": "Supplement industry",
+         "aside": "rebuttal"},
+        {"id": "jcd-2026", "type": "review", "label": "2026 review", "year": 2026,
+         "title": "Oral Collagen Peptides and Skin Rejuvenation: A Systematic Review and an Updated Meta-Analysis of Randomized Controlled Trials",
+         "source": {"name": "Journal of Cosmetic Dermatology, 2026 (as reported by Dermatology Times)", "url": "https://www.dermatologytimes.com/view/oral-collagen-improves-skin-hydration-and-elasticity-but-benefits-for-wrinkles-remain-unproven"},
+         "found": "Moisture and stretchiness improved, mostly after about 12 weeks. Wrinkles didn't, once a few unusual trials were set aside. How long people took it mattered more than how much.",
+         "catch": "The authors found signs that small studies with no effect went unpublished, which makes the average look better than it is.",
+         "people": "Trials up to November 2025", "blinded": "Placebo-controlled trials", "duration": "Mostly 4 to 12 weeks", "funding": "Not stated in the article we read",
+         "aside": "pubbias"}
+      ],
+      "effect": {
+        "text": "In the 2026 review, moisture improved by a small-to-moderate amount and stretchiness by a moderate one. Wrinkles: about zero.",
+        "compare": "If you started exactly average for skin moisture, 12 weeks of collagen might move you to roughly 67th out of 100. Your wrinkles would stay where they were."
+      },
+      "costs": [
+        "A tub costs money every month, for as long as you keep drinking it",
+        "Effects, where there are any, take about 12 weeks",
+        "The trials were in adults; none we read tested teenagers",
+        "Supplements don't have to prove they work before they're sold"
+      ],
+      "unknowns": [
+        "Whether industry funding explains the positive results",
+        "Whether different collagen products work differently",
+        "Whether anything lasts after you stop",
+        "Whether 'younger-looking' changes at all, since wrinkles didn't"
+      ],
+      "stands": "Collagen drinks may modestly help skin moisture and stretchiness after about 12 weeks. They don't reduce wrinkles, and the evidence is disputed."
+    }
+  ]
+}

@@ -50,7 +50,17 @@ PRESSED = (0xD5, 0x4A, 0x5E) # the same wax where the stamp pressed it — a rea
 # with a star on it — the same seal a president's portrait gets on the wall
 # once all seven of their cards are won. Hopper draws the gold gear a blueprint
 # earns when a rule is cracked from just enough clues.
+MILK = (0xFF, 0xF8, 0xF9)     # Patch's ground, and its splash background
+BLUSH = (0xFB, 0xE4, 0xE9)
+RIBBON = (0xE9, 0x8A, 0xA2); RIBBON_HI = (0xF4, 0xB6, 0xC6)
+RIBBON_LO = (0xD9, 0x71, 0x8D); KNOT = (0xC9, 0x58, 0x7A)
+
 SPECS = {
+    "patch": {
+        # Patch draws the bow every finished card is tied with.
+        "icon": dict(bg=BLUSH, mark="bow"),
+        "splash": dict(bg=MILK, mark="bow"),
+    },
     "romp": {
         "icon": dict(bg=INK, body=GOLD, line=INK, eye=GLASS_HI, mark="doodle"),
         "splash": dict(bg=GLASS, body=GOLD, line=INK, eye=(0xFF, 0xFF, 0xFF), mark="doodle"),
@@ -264,6 +274,35 @@ def draw_doodle(cv, cx, cy, box, spec):
         cv.circle(cx + ex * r + 0.03 * r, by - 0.19 * r, 0.075 * r, spec["line"])
 
 
+def cubic(p0, p1, p2, p3, n=24):
+    """Points along a cubic Bezier, end point included, start point left out."""
+    out = []
+    for i in range(1, n + 1):
+        t = i / n; u = 1 - t
+        out.append((u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0],
+                    u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]))
+    return out
+
+
+def draw_bow(cv, cx, cy, box, spec):
+    """The bow from Patch's index.html (#bow, a 120 x 80 symbol), as polygons."""
+    k = box / 120.0
+    ox, oy = cx - 60 * k, cy - 42 * k
+    P = lambda pts: [(ox + x * k, oy + y * k) for x, y in pts]
+    def loop(a, c1, c2, b, c3, c4, e):
+        return P([a] + cubic(a, c1, c2, b) + cubic(b, c3, c4, e))
+    for sign in (1, -1):
+        m = (lambda x: x) if sign == 1 else (lambda x: 120 - x)
+        L = lambda pts: [(m(x), y) for x, y in pts]
+        cv.polygon(P(L([(55, 42), (36, 76), (46, 72), (52, 78), (60, 44)])), RIBBON_LO)
+    for sign in (1, -1):
+        m = (lambda x: x) if sign == 1 else (lambda x: 120 - x)
+        q = lambda x, y: (m(x), y)
+        cv.polygon(loop(q(58, 36), q(40, 10), q(8, 6), q(8, 28), q(8, 46), q(36, 48), q(58, 40)), RIBBON)
+        cv.polygon(loop(q(58, 36), q(44, 22), q(20, 18), q(18, 28), q(17, 36), q(36, 40), q(58, 39)), RIBBON_HI)
+    cv.polygon(P([(51, 30), (69, 30), (69, 46), (51, 46)]), KNOT)
+
+
 def draw_mark(cv, cx, cy, box, spec):
     """A cols x rows lattice of dots, centred on (cx, cy) and fitted to `box`
     (the length of the square the mark may occupy)."""
@@ -275,6 +314,8 @@ def draw_mark(cv, cx, cy, box, spec):
         return draw_gear(cv, cx, cy, box, spec)
     if spec.get("mark") == "doodle":
         return draw_doodle(cv, cx, cy, box, spec)
+    if spec.get("mark") == "bow":
+        return draw_bow(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
