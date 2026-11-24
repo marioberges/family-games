@@ -126,6 +126,8 @@ typeIn("#verdict", "Collagen drinks: a bit for dryness, nothing for wrinkles.");
 g.click("#next");
 eq(g.ev("view.s"), "card", "saving opens the card");
 ok(g.ev(`state.cards["collagen-drinks"].gold`), "moved 40 points and named the evidence: gold edge");
+ok(!!g.$(".card.gold > .bow") && !g.$(".card > .sticker"), "a gold card gets the bow, not the patch");
+ok(/#patch/.test(g.ev(`cardMark({gold:false})`)) && !/#bow/.test(g.ev(`cardMark({gold:false})`)), "a plain card gets the patch, not the bow");
 eq(g.ev(`[state.cards["collagen-drinks"].initial, state.cards["collagen-drinks"].updated]`), [70, 30], "the card keeps both numbers");
 ok(g.ev(`!state.inv["collagen-drinks"]`), "the finished investigation is cleared");
 eq(g.ev(`state.journal[0].kind`), "card", "the card lands in the journal");
@@ -150,6 +152,7 @@ g.close();
 
 /* ---- journal ---- */
 g = boot(FILE);
+eq(g.all(".brand use, .hero use").map(u => u.getAttribute("href")), ["#patch", "#patch"], "home wears the patch, not the bow");
 g.ev(`go({s:"journal"})`);
 const note = g.$("#note"); note.value = "Pores don't open and close."; note.dispatchEvent(new g.win.Event("input", {bubbles:true}));
 g.click('[data-act="addnote"]');

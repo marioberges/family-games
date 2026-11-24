@@ -54,7 +54,7 @@
   --milk:#FFF8F9;      /* ground */
   --blush:#FBE4E9;     /* quiet surfaces */
   --blush-2:#F7D3DC;   /* pressed / selected */
-  --ribbon:#E98AA2;    /* bows, the accent you see */
+  --ribbon:#E98AA2;    /* the patch's rim, and the bow on gold cards */
   --cherry:#9E2B4E;    /* the accent you read: buttons, links, numbers */
   --ink:#3B2830;       /* body text, a plum brown, never black */
   --mute:#80606B;      /* secondary text */
@@ -115,13 +115,14 @@ h3{font-size:1.15rem;line-height:1.3}
 
 /* ---------- home ---------- */
 .brand{display:flex;align-items:center;gap:10px;margin:6px 0 22px}
-.brand svg{width:40px;height:28px}
+.brand svg{width:34px;height:34px}
 .brand b{font-family:var(--serif);font-weight:500;font-size:1.7rem;letter-spacing:-.02em}
 .hero{
   position:relative;background:#fff;border-radius:var(--r-card);
   padding:44px var(--pad) 30px;margin:0 0 34px;border:1.5px solid var(--line);
 }
-.hero .bow{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:84px;height:56px}
+/* a patch stuck on the note's corner, a little crooked, the way you'd put one on */
+.hero .sticker{position:absolute;top:-20px;right:26px;width:56px;height:56px;transform:rotate(-8deg)}
 .hero .lede{color:var(--mute);margin:0 0 10px}
 .hero q{display:block;font-family:var(--serif);font-size:clamp(1.7rem,4.4vw,2.6rem);line-height:1.15;
   letter-spacing:-.015em;quotes:"\201C" "\201D";margin:0 0 22px;max-width:22ch}
@@ -155,6 +156,7 @@ ol.lessons .tick{color:var(--ok);font-size:.9rem}
   padding:26px 16px 16px;text-align:left;width:100%;
 }
 .patch.gold{border:2.5px solid var(--gold);box-shadow:inset 0 0 0 4px #FBF1DC}
+.patch .sticker{position:absolute;top:-15px;right:16px;width:36px;height:36px;transform:rotate(-8deg)}
 .patch .bow{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:54px;height:36px}
 .patch b{display:block;font-family:var(--serif);font-weight:500;font-size:1.05rem;line-height:1.25;margin-bottom:8px}
 .patch .conf{font-size:.9rem;color:var(--mute)}
@@ -265,9 +267,12 @@ ul.list li{margin-bottom:6px}
 /* card */
 .card{position:relative;max-width:560px;margin:36px auto 0;background:#fff;border:1.5px solid var(--line);border-radius:var(--r-card);padding:44px var(--pad) 28px}
 .card.gold{border:3px solid var(--gold);box-shadow:inset 0 0 0 6px #FBF1DC}
+.card > .sticker{position:absolute;top:-26px;right:30px;width:64px;height:64px;transform:rotate(-8deg)}
 .card > .bow{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:96px;height:64px}
 @media (prefers-reduced-motion:no-preference){
   .card.fresh > .bow{animation:tie .9s cubic-bezier(.3,1.6,.5,1) both}
+  .card.fresh > .sticker{animation:stick .5s cubic-bezier(.3,1.4,.5,1) both}
+  @keyframes stick{0%{transform:rotate(-8deg) scale(1.5);opacity:0}100%{transform:rotate(-8deg) scale(1);opacity:1}}
   @keyframes tie{0%{transform:translateX(-50%) scale(.2) rotate(-25deg);opacity:0}100%{transform:translateX(-50%) scale(1) rotate(0);opacity:1}}
 }
 .card .heard{font-family:var(--serif);font-size:1.45rem;line-height:1.2;margin:0 0 6px}
@@ -291,7 +296,14 @@ ul.list li{margin-bottom:6px}
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- the bow: two loops, two tails, a knot. Used on the hero note and on every finished card. -->
+    <!-- the patch: a clear round patch with a spot under it. Patch's mark: the icon,
+         the name, the claim note and every finished card. -->
+    <symbol id="patch" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="29" fill="#FFF8F9" stroke="#E98AA2" stroke-width="3"/>
+      <circle cx="32" cy="32" r="19" fill="#F7D3DC"/>
+      <circle cx="32" cy="32" r="5" fill="#9E2B4E"/>
+    </symbol>
+    <!-- the bow: two loops, two tails, a knot. Only on gold cards: the bow is earned. -->
     <symbol id="bow" viewBox="0 0 120 80">
       <path d="M58 36 C40 10 8 6 8 28 C8 46 36 48 58 40Z" fill="#E98AA2"/>
       <path d="M62 36 C80 10 112 6 112 28 C112 46 84 48 62 40Z" fill="#E98AA2"/>
@@ -539,6 +551,9 @@ const ymd = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const niceDate = s => { const [y, m, d] = String(s).split("-").map(Number); return m ? `${d} ${MONTHS[m - 1]} ${y}` : ""; };
 const bow = (cls = "bow") => `<svg class="${cls}" aria-hidden="true"><use href="#bow"/></svg>`;
+const patchMark = (cls = "sticker") => `<svg class="${cls}" aria-hidden="true"><use href="#patch"/></svg>`;
+/* every finished card gets the patch; a gold card gets the bow instead */
+const cardMark = c => c.gold ? bow() : patchMark();
 let toastTimer = 0;
 function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.hidden = false;
@@ -776,7 +791,7 @@ let view = {s:"home"};
 let peek = null;          /* node id shown in the caption on lesson screens */
 let tapPick = [];         /* nodes picked but not yet checked */
 let sim = {lip:90, hum:50, harsh:10, occl:false};
-let fresh = false;        /* a card that was just saved: tie the bow */
+let fresh = false;        /* a card that was just saved: stick the patch, or tie the bow */
 function validView(v){
   if(!v || typeof v !== "object") return false;
   if(v.s === "home" || v.s === "journal") return true;
@@ -825,14 +840,14 @@ function home(){
   const others = open.filter(c => c !== pick);
   app.className = "wrap";
   app.innerHTML =
-    `<div class="brand">${bow("")}<b>Patch</b></div>` +
-    `<section class="hero">${bow()}${hero}</section>` +
+    `<div class="brand">${patchMark("")}<b>Patch</b></div>` +
+    `<section class="hero">${patchMark()}${hero}</section>` +
     (others.length ? `<section class="section"><h2>More claims</h2><p class="mute">Every claim so far. Pick any.</p><div class="claims">` +
       others.map(c => `<button class="claimrow" data-act="${state.cards[c.id] ? "card" : "inv"}" data-id="${c.id}"><div><b>${esc(c.title)}</b><span>${esc(c.heard)}</span></div>` +
         `<span class="st">${state.cards[c.id] ? "Done" : state.inv[c.id] ? "In progress" : "New"}</span></button>`).join("") + `</div></section>` : "") +
     `<section class="section"><h2>Your patches</h2><p class="mute">One for every claim you've investigated.</p>` +
     (cards.length ? `<div class="wall">${cards.map(patchTile).join("")}</div>` :
-      `<div class="empty">Finish an investigation and its card lands here, tied with a bow.</div>`) + `</section>` +
+      `<div class="empty">Finish an investigation and its card lands here. Change your mind for a good reason and it gets a gold edge and a bow.</div>`) + `</section>` +
     `<section class="section"><h2>Learn the skin</h2><p class="mute">Five short lessons. Take them in order, or dip in when a claim needs one.</p>` +
     `<ol class="lessons">${LESSONS.map((l, i) => `<li><button data-act="lesson" data-id="${l.id}"><span class="n">${i + 1}</span>` +
       `<span class="t"><b>${esc(l.title)}</b><span>${esc(l.sub)}</span></span>` +
@@ -842,7 +857,7 @@ function home(){
 }
 const lessonsDone = () => LESSONS.filter(l => state.lessons[l.id] && state.lessons[l.id].done).length;
 function patchTile(c){
-  return `<button class="patch${c.gold ? " gold" : ""}" data-act="card" data-id="${esc(c.id)}">${bow()}` +
+  return `<button class="patch${c.gold ? " gold" : ""}" data-act="card" data-id="${esc(c.id)}">${cardMark(c)}` +
     `<b>${esc(c.title)}</b><span class="conf">${c.initial} to ${c.updated}</span></button>`;
 }
 
@@ -1197,10 +1212,10 @@ function cardScreen(){
     (c.initial !== c.updated ? `<line x1="${x(c.initial)}" y1="20" x2="${x(c.updated)}" y2="20" stroke="#9E2B4E" stroke-width="3"/>` : "") +
     `<circle cx="${x(c.updated)}" cy="20" r="9" fill="#9E2B4E"/></svg>`;
   app.innerHTML = bar(c.title, `Investigated ${niceDate(c.done)}`) +
-    `<article class="card${c.gold ? " gold" : ""}${fresh ? " fresh" : ""}">${bow()}` +
+    `<article class="card${c.gold ? " gold" : ""}${fresh ? " fresh" : ""}">${cardMark(c)}` +
     `<p class="heard">“${esc(c.heard)}”</p><p class="verdict">${esc(c.verdict)}</p>` +
     `<div class="move" aria-label="Confidence went from ${c.initial} to ${c.updated}"><span class="n mute">${c.initial}</span>${arrow}<span class="n">${c.updated}</span></div>` +
-    (c.gold ? `<p class="goldnote">Gold edge: ${moved(c) >= 5 ? "your number moved, and you said which evidence moved it." : "your number held, and you said why."}</p>` : "") +
+    (c.gold ? `<p class="goldnote">Gold edge and a bow: ${moved(c) >= 5 ? "your number moved, and you said which evidence moved it." : "your number held, and you said why."}</p>` : "") +
     `<dl><div><dt>The precise claim</dt><dd>${esc(c.precise)}</dd></div>` +
     `<div><dt>Where you heard it</dt><dd>${esc(c.source)}</dd></div>` +
     `<div><dt>What moved you most</dt><dd>${esc(c.mover)}. ${esc(c.belief)}</dd></div>` +
@@ -1233,9 +1248,15 @@ function verdictCanvas(c){
     ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
   rr(70, 150, 940, 1110, 60); ctx.fillStyle = "#fff"; ctx.fill();
   ctx.lineWidth = c.gold ? 14 : 5; ctx.strokeStyle = c.gold ? "#C3933A" : "#F0CBD5"; ctx.stroke();
-  ctx.save(); ctx.translate(540 - 156, 64); ctx.scale(2.6, 2.6);
-  if(typeof Path2D === "function") BOW_PATHS.forEach(([d, fill]) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); });
-  ctx.fillStyle = "#C9587A"; ctx.fillRect(51, 30, 18, 16); ctx.restore();
+  if(c.gold){
+    ctx.save(); ctx.translate(540 - 156, 64); ctx.scale(2.6, 2.6);
+    if(typeof Path2D === "function") BOW_PATHS.forEach(([d, fill]) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); });
+    ctx.fillStyle = "#C9587A"; ctx.fillRect(51, 30, 18, 16); ctx.restore();
+  }else{
+    /* the patch, stuck on the card's top edge */
+    const disc = (r, fill) => { ctx.beginPath(); ctx.arc(540, 150, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); };
+    disc(96, "#E98AA2"); disc(86, "#FFF8F9"); disc(60, "#F7D3DC"); disc(16, "#9E2B4E");
+  }
   ctx.textAlign = "center"; ctx.fillStyle = "#80606B"; ctx.font = `40px ${ROUND}`; ctx.fillText("I looked into", 540, 340);
   ctx.fillStyle = "#3B2830"; ctx.font = `62px ${SERIF}`;
   let y = 430;

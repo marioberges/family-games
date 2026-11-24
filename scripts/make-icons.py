@@ -54,12 +54,15 @@ MILK = (0xFF, 0xF8, 0xF9)     # Patch's ground, and its splash background
 BLUSH = (0xFB, 0xE4, 0xE9)
 RIBBON = (0xE9, 0x8A, 0xA2); RIBBON_HI = (0xF4, 0xB6, 0xC6)
 RIBBON_LO = (0xD9, 0x71, 0x8D); KNOT = (0xC9, 0x58, 0x7A)
+PATCH_IN = (0xF7, 0xD3, 0xDC); CHERRY = (0x9E, 0x2B, 0x4E)
+SKIN_BANDS = [(0.70, (0xF7, 0xD3, 0xDC)), (0.80, (0xF1, 0xBD, 0xB8)), (0.90, (0xFF, 0xF1, 0xD6))]
 
 SPECS = {
     "patch": {
-        # Patch draws the bow every finished card is tied with.
-        "icon": dict(bg=BLUSH, mark="bow"),
-        "splash": dict(bg=MILK, mark="bow"),
+        # Patch's mark is a round, clear pimple patch. On the icon it sits on a
+        # strip of layered skin (the epidermis, dermis and fat of the diagram).
+        "icon": dict(bg=BLUSH, mark="patchdot", floor=True),
+        "splash": dict(bg=MILK, mark="patchdot"),
     },
     "romp": {
         "icon": dict(bg=INK, body=GOLD, line=INK, eye=GLASS_HI, mark="doodle"),
@@ -303,6 +306,23 @@ def draw_bow(cv, cx, cy, box, spec):
     cv.polygon(P([(51, 30), (69, 30), (69, 46), (51, 46)]), KNOT)
 
 
+def draw_patchdot(cv, cx, cy, box, spec):
+    """Patch's mark (#patch in its index.html): a clear round patch, a pink
+    rim, a soft spot under it and a small dark centre."""
+    r = box * 0.43
+    cv.circle(cx, cy, r, RIBBON)
+    cv.circle(cx, cy, r * 0.90, MILK)
+    cv.circle(cx, cy, r * 0.64, PATCH_IN)
+    cv.circle(cx, cy, r * 0.17, CHERRY)
+
+
+def draw_floor(cv, size):
+    """Three bands of skin across the bottom of the icon, full bleed."""
+    for top, rgb in SKIN_BANDS:
+        y0 = size * top
+        cv.polygon([(0, y0), (size, y0), (size, size), (0, size)], rgb)
+
+
 def draw_mark(cv, cx, cy, box, spec):
     """A cols x rows lattice of dots, centred on (cx, cy) and fitted to `box`
     (the length of the square the mark may occupy)."""
@@ -316,6 +336,8 @@ def draw_mark(cv, cx, cy, box, spec):
         return draw_doodle(cv, cx, cy, box, spec)
     if spec.get("mark") == "bow":
         return draw_bow(cv, cx, cy, box, spec)
+    if spec.get("mark") == "patchdot":
+        return draw_patchdot(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
@@ -329,6 +351,11 @@ def draw_mark(cv, cx, cy, box, spec):
 
 def render_icon(size, spec, inset=1.0):
     cv = Canvas(size, size, spec["bg"])
+    if spec.get("floor"):
+        draw_floor(cv, size)
+        # sit the patch a little high, so the skin shows under it
+        draw_mark(cv, size / 2, size * 0.47, size * 0.62 * inset, spec)
+        return cv
     draw_mark(cv, size / 2, size / 2, size * 0.62 * inset, spec)
     return cv
 
