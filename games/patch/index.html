@@ -105,6 +105,13 @@ h3{font-size:1.15rem;line-height:1.3}
 .bar .back{border:0;background:var(--blush);color:var(--cherry);border-radius:999px;
   width:44px;height:44px;font-size:1.3rem;line-height:1;display:grid;place-items:center}
 .bar .where{flex:1;min-width:0}
+.bar .speak{flex:none}
+/* the paragraph being read aloud */
+.reading{background:#FDE3EA;box-shadow:0 0 0 6px #FDE3EA;border-radius:6px;transition:background .2s}
+.opt.reading{box-shadow:none;border-color:var(--ribbon)}
+.readpref{margin-left:auto;display:inline-flex;align-items:center;gap:6px;border:0;background:var(--blush);color:var(--cherry);
+  border-radius:999px;padding:8px 14px;font-weight:600;font-size:.9rem}
+.readpref[aria-pressed="false"]{background:transparent;color:var(--mute);border:1.5px solid var(--line)}
 .bar .where b{display:block;font-family:var(--serif);font-weight:500;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar .where span{font-size:.85rem;color:var(--mute)}
 .dots{display:flex;gap:5px;flex-wrap:wrap}
@@ -563,9 +570,16 @@ function toast(msg){
 /* ============ storage ============ */
 const KEY = "patch:state:v1";          /* namespaced: the origin is shared by every game */
 const CLAIMS_KEY = "patch:claims";     /* last good claims.json, for offline play without the worker */
-const STATE_V = 1;
-const MIGRATIONS = {};                 /* v -> fn(blob) returning the v+1 shape */
-const defaults = () => ({v:STATE_V, lessons:{}, inv:{}, cards:{}, journal:[], at:null});
+const STATE_V = 2;
+/* v -> fn(blob) returning the v+1 shape. v2 (24 Nov 2026) adds prefs (read
+   aloud, ribbon color) and own (her products and ingredient investigations).
+   Nothing in v1 changes meaning; a v1 build meeting v2 data goes read-only,
+   so it can't save over her products. */
+const MIGRATIONS = {
+  1: b => ({...b, v:2, prefs:{read:true}, own:{products:{}, inv:{}}})
+};
+const defaultPrefs = () => ({read:true});
+const defaults = () => ({v:STATE_V, lessons:{}, inv:{}, cards:{}, journal:[], at:null, prefs:defaultPrefs(), own:{products:{}, inv:{}}});
 let state = defaults();
 let readOnly = false, updateReady = false;
 const store = (() => {
@@ -593,6 +607,8 @@ function load(){
   const obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : {};
   state = {...defaults(), ...blob,
     lessons:obj(blob.lessons), inv:obj(blob.inv), cards:obj(blob.cards),
+    prefs:{...defaultPrefs(), ...obj(blob.prefs)},
+    own:{products:obj(obj(blob.own).products), inv:obj(obj(blob.own).inv)},
     journal:Array.isArray(blob.journal) ? blob.journal.filter(e => e && typeof e.text === "string") : [],
     v:readOnly ? blob.v : STATE_V};
 }
@@ -801,6 +817,7 @@ function validView(v){
   return false;
 }
 function go(v){
+  stopReading();
   view = v; peek = null; tapPick = []; fresh = false;
   state.at = v; save();
   /* A new build is waiting, and this is a screen boundary: everything is saved
@@ -811,11 +828,92 @@ function go(v){
 function render(){
   const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen}[view.s] || home;
   r();
+  autoRead();
 }
 function bar(title, sub, dots){
   return `<div class="bar"><button class="back" data-act="home" aria-label="Back to home">‹</button>` +
-    `<div class="where"><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ""}</div>${dots || ""}</div>`;
+    `<div class="where"><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ""}</div>${dots || ""}${speakerButton()}</div>`;
 }
+
+/* ============ reading aloud ============
+   The iPad's own voices (Web Speech), so it works offline and costs nothing.
+   A screen reads itself after a tap brought it up, never on its own (iOS
+   won't speak without a tap anyway). The paragraph being read is highlighted;
+   tapping any paragraph reads it again. */
+const speech = () => { try{ return window.speechSynthesis && window.SpeechSynthesisUtterance ? window.speechSynthesis : null; }catch(e){ return null; } };
+let voice = null, speaking = false, readGen = 0, lastGesture = 0, readHint = null;
+const VOICE_NAMES = ["Samantha", "Ava", "Allison", "Susan", "Zoe", "Karen", "Moira", "Tessa", "Serena"];
+function pickVoice(){
+  const s = speech(); if(!s) return;
+  let vs = []; try{ vs = s.getVoices() || []; }catch(e){}
+  const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang || ""));
+  voice = en.find(v => /premium|enhanced/i.test(v.name) && VOICE_NAMES.some(n => v.name.includes(n)))
+       || en.find(v => VOICE_NAMES.some(n => v.name.includes(n)))
+       || en.find(v => /en[-_]US/i.test(v.lang) && v.localService)
+       || en[0] || null;
+}
+try{ const s = speech(); if(s && s.addEventListener) s.addEventListener("voiceschanged", pickVoice); }catch(e){}
+const READABLE = "h2, .q, blockquote, .lede, .hero q, .body p, .step > p, .panel > p, .why p, .opt, .ev h3, .ev > p:not(.src):not(.kind), " +
+  ".aside p, .chain .lt span, .chain .mine, ul.list li, .card .heard, .card .verdict, .card dd, .entry p, .goldnote";
+function readablesIn(root){
+  if(!root) return [];
+  return [...root.querySelectorAll(READABLE)].filter(el => !el.closest(".figure, .bar, .nav, .sim") && el.textContent.trim());
+}
+const spoken = t => String(t).replace(/[“”"]/g, "").replace(/\s+/g, " ").trim();
+function speakEls(els){
+  const s = speech(); if(!s || !els.length) return;
+  stopReading();
+  const gen = readGen;
+  if(!voice) pickVoice();
+  els.forEach((el, i) => {
+    const u = new window.SpeechSynthesisUtterance(spoken(el.textContent));
+    if(voice){ u.voice = voice; u.lang = voice.lang; } else u.lang = "en-US";
+    u.rate = 1;
+    u.onstart = () => { if(gen !== readGen) return; $$(".reading").forEach(x => x.classList.remove("reading")); el.classList.add("reading"); };
+    u.onend = u.onerror = () => {
+      if(gen !== readGen) return;
+      el.classList.remove("reading");
+      if(i === els.length - 1){ speaking = false; syncSpeaker(); }
+    };
+    try{ s.speak(u); }catch(e){}
+  });
+  speaking = true; syncSpeaker();
+}
+function stopReading(){
+  readGen++;
+  const s = speech();
+  if(s){ try{ s.cancel(); }catch(e){} }
+  $$(".reading").forEach(x => x.classList.remove("reading"));
+  speaking = false; syncSpeaker();
+}
+function readScreen(){
+  const root = view.s === "explore" ? $(".panel") : app;
+  speakEls(readablesIn(root));
+}
+function autoRead(){
+  const hint = readHint; readHint = null;
+  if(!state.prefs.read || !speech() || Date.now() - lastGesture > 1500) return;
+  if(hint === "none") return;
+  if(hint){ const el = $(hint); if(el) speakEls(readablesIn(el)); return; }
+  if(view.s === "home" || view.s === "journal" || (view.s === "explore" && !view.node)) return;
+  readScreen();
+}
+const SPEAKER_ICON = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const STOP_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>`;
+function speakerButton(){
+  if(!speech()) return "";
+  return `<button class="back speak" id="speak" data-act="speak" aria-label="${speaking ? "Stop reading" : "Read this screen aloud"}">${speaking ? STOP_ICON : SPEAKER_ICON}</button>`;
+}
+function syncSpeaker(){
+  const b = $("#speak"); if(!b) return;
+  b.innerHTML = speaking ? STOP_ICON : SPEAKER_ICON;
+  b.setAttribute("aria-label", speaking ? "Stop reading" : "Read this screen aloud");
+}
+const gesture = () => { lastGesture = Date.now(); };
+document.addEventListener("pointerdown", gesture, true);
+document.addEventListener("click", gesture, true);
+document.addEventListener("keydown", gesture, true);
+document.addEventListener("visibilitychange", () => { if(document.visibilityState !== "visible") stopReading(); });
 
 /* ============ home ============ */
 function home(){
@@ -840,7 +938,9 @@ function home(){
   const others = open.filter(c => c !== pick);
   app.className = "wrap";
   app.innerHTML =
-    `<div class="brand">${patchMark("")}<b>Patch</b></div>` +
+    `<div class="brand">${patchMark("")}<b>Patch</b>` +
+    (speech() ? `<button class="readpref" data-act="readpref" aria-pressed="${state.prefs.read}">${SPEAKER_ICON}<span>Read to me: ${state.prefs.read ? "on" : "off"}</span></button>` : "") +
+    `</div>` +
     `<section class="hero">${patchMark()}${hero}</section>` +
     (others.length ? `<section class="section"><h2>More claims</h2><p class="mute">Every claim so far. Pick any.</p><div class="claims">` +
       others.map(c => `<button class="claimrow" data-act="${state.cards[c.id] ? "card" : "inv"}" data-id="${c.id}"><div><b>${esc(c.title)}</b><span>${esc(c.heard)}</span></div>` +
@@ -1291,13 +1391,12 @@ async function shareCard(id){
 /* ============ journal ============ */
 function journalScreen(){
   app.className = "wrap";
-  app.innerHTML = bar("Journal", "Private. Nothing leaves this device unless you share it.") +
+  app.innerHTML = bar("Journal", "Private. Nothing leaves this iPad unless you copy it.") +
     `<div class="narrow"><label for="note"><h3>Add a note</h3></label>` +
     `<textarea id="note" data-note placeholder="Something you noticed, wondered, or changed your mind about">${esc(state.noteDraft || "")}</textarea>` +
     `<div class="row" style="margin:10px 0 24px"><button class="btn" data-act="addnote">Save note</button>` +
     (state.journal.length ? `<button class="btn soft" data-act="copyall">Copy my whole journal</button>` : "") + `</div>` +
-    (state.journal.length ? state.journal.map(e => `<div class="entry"><span class="when">${esc(niceDate(e.at))}</span><p>${esc(e.text)}</p>` +
-      `<button class="btn ghost" data-act="shareentry" data-id="${esc(e.id)}">Share this entry with a parent</button></div>`).join("") :
+    (state.journal.length ? state.journal.map(e => `<div class="entry"><span class="when">${esc(niceDate(e.at))}</span><p>${esc(e.text)}</p></div>`).join("") :
       `<div class="empty">Your notes and finished investigations show up here.</div>`) + `</div>`;
 }
 async function shareText(title, text){
@@ -1328,7 +1427,7 @@ function tapNode(id){
     const inv = I(c.id);
     if(inv.i === 3 && !inv.f.nodesChecked){
       tapPick = tapPick.includes(id) ? tapPick.filter(n => n !== id) : [...tapPick, id];
-      inv.f.nodes = tapPick.slice(); saveSoon(); render();
+      inv.f.nodes = tapPick.slice(); saveSoon(); readHint = "none"; render();
       return;
     }
     const cap = $("#capText");
@@ -1339,8 +1438,10 @@ app.addEventListener("click", e => {
   const n = e.target.closest("[data-node]");
   if(n && n.closest(".skin")){ tapNode(n.dataset.node); return; }
   const a = e.target.closest("[data-act]");
-  if(!a || a.disabled) return;
-  act(a.dataset.act, a);
+  if(a){ if(!a.disabled) act(a.dataset.act, a); return; }
+  if(e.target.closest("a, input, textarea, label")) return;
+  const r = e.target.closest(READABLE);
+  if(r && app.contains(r) && speech() && !r.closest(".figure, .bar, .nav")) speakEls([r]);
 });
 app.addEventListener("keydown", e => {
   const n = e.target.closest && e.target.closest("[data-node]");
@@ -1372,16 +1473,18 @@ function act(name, el){
   const id = el.dataset.id;
   switch(name){
     case "home": go({s:"home"}); return;
+    case "speak": if(speaking) stopReading(); else readScreen(); return;
+    case "readpref": state.prefs.read = !state.prefs.read; if(!state.prefs.read) stopReading(); save(); readHint = "none"; render(); return;
     case "explore": go({s:"explore"}); return;
     case "journal": go({s:"journal"}); return;
     case "node": view.node = id; view.depth = 0; save(); render(); return;
-    case "deeper": view.depth = (view.depth || 0) + 1; render(); return;
+    case "deeper": view.depth = (view.depth || 0) + 1; readHint = ".body"; render(); return;
     case "labels": labelsOn = !labelsOn; el.textContent = labelsOn ? "Hide names" : "Show names"; el.setAttribute("aria-pressed", labelsOn);
       $(".skin") && $(".skin").classList.toggle("labels", labelsOn); return;
     case "lesson": go({s:"lesson", id, ret:el.dataset.ret || null}); return;
     case "redo": state.lessons[id] = {i:0, done:true, a:{}}; go({s:"lesson", id}); return;
-    case "lpick": { const rec = L(view.id); rec.a[rec.i] = Number(el.dataset.k); save(); render(); return; }
-    case "lcheck": { const rec = L(view.id); if(!tapPick.length) return; rec.a[rec.i] = tapPick[0]; tapPick = []; save(); render(); return; }
+    case "lpick": { const rec = L(view.id); rec.a[rec.i] = Number(el.dataset.k); save(); readHint = ".why"; render(); return; }
+    case "lcheck": { const rec = L(view.id); if(!tapPick.length) return; rec.a[rec.i] = tapPick[0]; tapPick = []; save(); readHint = ".why"; render(); return; }
     case "lnext": { const les = LESSON[view.id], rec = L(les.id); rec.i++; if(rec.i >= les.steps.length) rec.done = true;
       peek = null; tapPick = []; state.at = view; save();
       if(updateReady){ try{ location.reload(); return; }catch(e){} }
@@ -1392,22 +1495,21 @@ function act(name, el){
     case "sharecard": shareCard(id); return;
     case "addnote": { const t = (state.noteDraft || "").trim(); if(!t){ toast("Write something first."); return; }
       state.journal.unshift({id:"j" + Date.now().toString(36), at:ymd(), kind:"note", text:t}); state.noteDraft = ""; save(); render(); return; }
-    case "shareentry": { const e = state.journal.find(x => x.id === id); if(e) shareText("From my Patch journal", `${niceDate(e.at)}\n${e.text}`); return; }
     case "copyall": shareText("My Patch journal", state.journal.map(e => `${niceDate(e.at)}\n${e.text}`).join("\n\n")); return;
   }
   /* investigation actions */
   const c = claimById(view.id); if(!c) return;
   const inv = I(c.id), f = inv.f;
   switch(name){
-    case "field": f[el.dataset.f] = el.dataset.v; save(); render(); return;
+    case "field": f[el.dataset.f] = el.dataset.v; save(); readHint = "none"; render(); return;
     case "precise": { const k = Number(el.dataset.k); if(f.precisePick == null && f.preciseFirst == null) f.preciseFirst = k;
-      f.precisePick = k; if(c.precise[k].ok) f.preciseOk = true; save(); render(); return; }
-    case "nodescheck": f.nodes = tapPick.slice(); f.nodesChecked = true; tapPick = []; save(); render(); return;
-    case "rate": f.chain[el.dataset.k] = el.dataset.v; save(); render(); return;
-    case "chainshow": f.chainShown = true; save(); render(); return;
-    case "aside": view.aside = id; render(); return;
-    case "evreact": f.ev[id] = el.dataset.v; save(); render(); return;
-    case "unknown": { const k = Number(el.dataset.k); f.unknowns = (f.unknowns || []).includes(k) ? f.unknowns.filter(x => x !== k) : [...(f.unknowns || []), k]; save(); render(); return; }
+      f.precisePick = k; if(c.precise[k].ok) f.preciseOk = true; save(); readHint = ".why"; render(); return; }
+    case "nodescheck": f.nodes = tapPick.slice(); f.nodesChecked = true; tapPick = []; save(); readHint = ".why"; render(); return;
+    case "rate": f.chain[el.dataset.k] = el.dataset.v; save(); readHint = "none"; render(); return;
+    case "chainshow": f.chainShown = true; save(); readHint = ".chain"; render(); return;
+    case "aside": view.aside = id; readHint = ".aside"; render(); return;
+    case "evreact": f.ev[id] = el.dataset.v; save(); readHint = "none"; render(); return;
+    case "unknown": { const k = Number(el.dataset.k); f.unknowns = (f.unknowns || []).includes(k) ? f.unknowns.filter(x => x !== k) : [...(f.unknowns || []), k]; save(); readHint = "none"; render(); return; }
     case "inext": invNext(c, inv); return;
     case "iprev": invPrev(c, inv); return;
   }

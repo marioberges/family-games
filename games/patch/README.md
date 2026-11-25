@@ -39,6 +39,15 @@ moved because of a named piece of evidence, or held still for a stated reason.
 The bow appears nowhere else: the patch is the game's mark, the bow is earned. There's no score
 for landing on the "right" number.
 
+## Reading aloud
+
+Every lesson and investigation screen reads itself aloud after a tap brings it
+up, with the paragraph being read highlighted. Tapping any paragraph reads it
+again; the speaker button in the top bar reads the screen or stops. The switch
+on Home ("Read to me") turns it off. It uses the iPad's own voices (Web Speech),
+so it works offline; Settings > Accessibility > Spoken Content > Voices can add a
+better English voice, and Patch prefers Samantha, Ava and the "Enhanced" ones.
+
 ## Adding a claim
 
 Claims live in `claims.json`, not in the app, so a new one ships with a commit
@@ -59,10 +68,10 @@ goes into `claims.json`.
 
 ## Saved data
 
-One key, `patch:state:v1`, with `v` inside. A build that meets newer data runs
-read-only. The last good `claims.json` is also kept under `patch:claims`, so a
+One key, `patch:state:v1`, with `v` inside (v2 since 24 Nov 2026: `prefs` and
+`own` were added). A build that meets newer data runs read-only. The last good `claims.json` is also kept under `patch:claims`, so a
 claim still works offline even if the service worker didn't install. The
-journal never leaves the device unless the player shares an entry.
+journal never leaves the device unless the player copies it.
 
 ## Sources
 
