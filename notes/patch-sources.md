@@ -61,3 +61,35 @@ draws. A good example of why each fact gets a second source.
 "Well established", "Established, details still being worked out" and
 "Emerging" are our judgement, set per node. Fibroblast signalling and the acne
 model get the middle label; the skin microbiome gets "Emerging".
+
+## The ingredient guide and product database (`games/patch/products.json`, 24 Nov 2026)
+
+The guide explains common ingredients one at a time; the database lists products with
+their ingredients exactly as on the label. The suite fails if any link below is missing.
+
+| Ingredient | What we took from the sources | Sources |
+|---|---|---|
+| Retinol | Retinoid medicines have strong evidence for acne and sun-aged skin. Cosmetic retinol has much less: see the "Retinol for breakouts" claim. | [Review of 54 retinoid acne trials, 2019 (none of them retinol)](https://pubmed.ncbi.nlm.nih.gov/30674002/); [GoodRx Health: When to use retinol](https://www.goodrx.com/health-topic/dermatology/when-to-use-retinol) |
+| Adapalene | Dermatologists strongly recommend topical retinoids for acne. Adapalene 0.1% was the first retinoid the FDA approved over the counter, for ages 12 and up. | [Differin Gel 0.1%, FDA-approved Drug Facts label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020380Orig1s011lbl.pdf); [FDA: Differin Gel 0.1% approved over the counter, 2016](https://www.fda.gov/newsevents/newsroom/pressannouncements/ucm510362.htm); [AAD acne guidelines, 2024](https://doi.org/10.1016/j.jaad.2023.12.017) |
+| Benzoyl peroxide | One of the treatments America's dermatologists strongly recommend for acne. | [AAD acne guidelines, 2024 (summary)](https://pure.psu.edu/en/publications/guidelines-of-care-for-the-management-of-acne-vulgaris-2/); [Mayo Clinic: Nonprescription acne treatment](https://www.mayoclinic.org/diseases-conditions/acne/in-depth/acne-treatments/art-20045814); [AAD: Acne diagnosis and treatment](https://aad.org/acne-treatment) |
+| Salicylic acid | Dermatologists' 2024 guideline gives it a conditional recommendation: it helps, but the evidence is weaker than for benzoyl peroxide or retinoids. Works best on blackheads and whiteheads. | [Mayo Clinic: Nonprescription acne treatment](https://www.mayoclinic.org/diseases-conditions/acne/in-depth/acne-treatments/art-20045814); [AAD: Adult acne treatment dermatologists recommend](https://www.aad.org/public/diseases/acne-and-rosacea/how-to-treat-different-types-of-acne); [Dermatology Times: AAD's 2024 acne guidelines](https://dermatologytimes.com/view/AAD-releases-updated-guidelines-for-the-management-of-acne-vulgaris) |
+| Glycolic acid | It does exfoliate. The FDA found that AHAs make skin more sensitive to the sun while you use them and for up to a week after. | [FDA: Alpha hydroxy acids](https://www.fda.gov/cosmetics/ingredients/alpha-hydroxy-acids); [FDA guidance: labelling cosmetics that contain AHAs](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/guidance-industry-labeling-cosmetics-containing-alpha-hydroxy-acids) |
+| Niacinamide | Some trials support barrier and oil benefits. For acne, a review found the evidence unclear because there are few good studies. Usually well tolerated. | [DermNet: Nicotinamide](https://dermnetnz.org/treatments/nicotinamide.html); [Review: Nicotinic acid/niacinamide and the skin, 2004](https://pubmed.ncbi.nlm.nih.gov/17147561/); [Review: The role of nicotinamide in acne treatment, 2017](https://pubmed.ncbi.nlm.nih.gov/28220628/) |
+| Vitamin C | Some studies show benefits for sun-aged skin and dark spots, but the versions in products differ a lot and many are less studied. | [Review: Topical vitamin C and the skin, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5605218/); [Linus Pauling Institute: Vitamin C and skin health](https://lpi.oregonstate.edu/mic/health-disease/skin-health/vitamin-C) |
+| Hyaluronic acid | It does hydrate the surface. It doesn't refill the hyaluronic acid deep in the dermis. | [Harvard Health: The hype on hyaluronic acid](https://www.health.harvard.edu/blog/the-hype-on-hyaluronic-acid-2020012318653); [Study: skin penetration of hyaluronic acid by size, 2016](https://pubmed.ncbi.nlm.nih.gov/25877232/) |
+| Ceramides | Moisturizers work by hydrating skin and helping restore its barrier. Ceramides are one of the barrier's own ingredients. | [StatPearls: Moisturizers](https://ncbi.nlm.nih.gov/books/NBK545171); [StatPearls: The skin barrier and moisturizers](https://www.statpearls.com/ArticleLibrary/viewarticle/25225) |
+| Petrolatum | Well studied. It also slips into the gaps of the stratum corneum, and the barrier can recover normally underneath it. | [StatPearls: Moisturizers](https://ncbi.nlm.nih.gov/books/NBK545171); [Ghadially et al.: how petrolatum works in the stratum corneum, 1992](https://pubmed.ncbi.nlm.nih.gov/1564142) |
+| Sunscreen filters | Sunscreen prevents sunburn and sun damage. The FDA lists zinc oxide, titanium dioxide and bemotrizinol as safe and effective, and has asked for more data on the others; it hasn't found them harmful. | [AAD: Sunscreen FAQs](https://www.aad.org/media/stats-sunscreen); [American Cancer Society: How to use sunscreen](https://www.cancer.org/cancer/risk-prevention/sun-and-uv/how-to-use-sunscreen.html) |
+| Fragrance | Fragrances are the most common cause of allergic reactions to cosmetics. Up to about 4.5% of adults are allergic to fragrance ingredients. | [DermNet: Cosmetic allergy](https://pro.dermnetnz.org/dermatitis/cosmetics-allergy.html); [Review: Fragrances, contact allergy and other effects, 2020](https://pubmed.ncbi.nlm.nih.gov/31433384/) |
+
+Patch test steps: AAD, "How to test skin care products" (Dr. Bruce Brod): twice a day for 7 to 10 days on a
+quarter-sized spot; 5 minutes for wash-off products. https://www.aad.org/news/how-to-test-skin-care-products-before-use
+
+| Product | Where the ingredient list came from | Checked |
+|---|---|---|
+| Differin (Galderma) Differin Gel 0.1% | [FDA-approved Drug Facts label](https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020380Orig1s011lbl.pdf) | 2026-11-24 |
+| CeraVe Moisturizing Cream | [Ingredient list as sold in US stores (Skinsort, H-E-B)](https://skinsort.com/products/cerave/moisturizing-cream) | 2026-11-24 |
+| The Ordinary Niacinamide 10% + Zinc 1% | [Retailer ingredient sheet (Next) and product description (John Lewis)](https://xcdn.next.co.uk/pdfs/ingredients/AF4859.pdf) | 2026-11-24 |
+
+Left out on purpose: CeraVe Acne Foaming Cream Cleanser and The Ordinary Glycolic Acid 7% Toner, because
+no page we could open showed their full ingredient lists. A product only goes in with its whole list.

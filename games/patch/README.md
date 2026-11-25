@@ -62,6 +62,25 @@ better English voice, and Patch prefers Samantha, Ava and the "Enhanced" ones.
   finished, and one in progress restarts so saved answers can't land on the
   wrong step.
 
+## Her own products (24 Nov 2026)
+
+Home > Your products > Look up a product. `products.json` (in this folder, like
+`claims.json`, fetched network-first) holds two things:
+
+- **products**: name, brand, the label's claim, and the ingredient list exactly
+  as printed, with a `source` link and the date it was checked. Only add a
+  product whose whole list you could see.
+- **ingredients**: the guide. Each entry has the label names it matches (`aka`,
+  lower case), what it does, the parts of the skin model it acts on, an evidence
+  level (`strong`, `some`, `thin`, `na`), how to use it, cautions and sources.
+
+She investigates **one ingredient at a time**: her claim, a precise version, a
+first number, the model, her own sources (kind, people, who paid, and whether
+each moved her), a "Use it well" step with the AAD patch test, a new number and
+a decision. The card can be copied as text to send for review. A product she
+adds stays on the iPad; "Copy for Patch's product list" gives the JSON to paste
+into `products.json` after checking it.
+
 ## Adding a claim
 
 Claims live in `claims.json`, not in the app, so a new one ships with a commit
