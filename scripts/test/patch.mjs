@@ -143,6 +143,50 @@ ok(!!g.$(".card.gold"), "the card is still there, gold");
 eq(g.ev("state.lessons.organ.done"), true, "lesson progress kept");
 g.close();
 
+/* ---- v1 data (before 24 Nov 2026) moves to v2 and keeps everything ---- */
+g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:1, lessons:{organ:{i:5, done:true, a:{}}}, cards:{x:{id:"x", title:"T", gold:true, initial:1, updated:9}}, journal:[{id:"j1", at:"2026-11-20", text:"hi"}]})}});
+eq(g.ev("state.v"), 2, "v1 data migrates to v2");
+ok(g.ev("state.lessons.organ.done && state.cards.x.gold && state.journal.length === 1"), "...keeping lessons, cards and journal");
+eq(g.ev("state.prefs.read"), true, "reading aloud starts on");
+ok(g.ev("typeof state.own.products === 'object' && typeof state.own.inv === 'object'"), "...and there's room for her own products");
+g.close();
+
+/* ---- reading aloud, with a stand-in voice ---- */
+function fakeVoice(win){
+  const said = [];
+  const synth = {spoken:said, cancelled:0, speak(u){ said.push(u); }, cancel(){ this.cancelled++; }, getVoices(){ return []; }, addEventListener(){}};
+  Object.defineProperty(win, "speechSynthesis", {value:synth, configurable:true});
+  Object.defineProperty(win, "SpeechSynthesisUtterance", {value:function(t){ this.text = t; }, configurable:true});
+  return synth;
+}
+g = boot(FILE);
+const voice = fakeVoice(g.win);
+g.ev("render()");
+ok(!!g.$('[data-act="readpref"]'), "home has the Read to me switch");
+eq(voice.spoken.length, 0, "home doesn't read itself out");
+g.click('[data-act="lesson"][data-id="barrier"]');
+ok(voice.spoken.length >= 3, "a lesson screen reads itself after a tap");
+ok(/Bricks and mortar/.test(voice.spoken[0].text), "it starts with the heading");
+voice.spoken[1].onstart();
+ok(g.$(".reading") && /outermost layer/.test(g.$(".reading").textContent), "the paragraph being read is highlighted");
+const before = voice.cancelled;
+g.click('[data-act="speak"]');
+ok(voice.cancelled > before && !g.$(".reading"), "the speaker button stops reading");
+g.click('[data-act="lnext"]');
+const n = voice.spoken.length;
+g.click('.opt[data-k="0"]');
+ok(voice.spoken.length > n && voice.spoken.slice(n).every(u => !/Predict/.test(u.text)), "after an answer, only the explanation is read");
+const m = voice.spoken.length;
+g.$(".why p").dispatchEvent(new g.win.MouseEvent("click", {bubbles:true}));
+eq(voice.spoken.length, m + 1, "tapping a paragraph reads it again");
+g.click('[data-act="home"]');
+g.click('[data-act="readpref"]');
+eq(g.ev("state.prefs.read"), false, "the switch turns reading off");
+const k = voice.spoken.length;
+g.click('[data-act="lesson"][data-id="organ"]');
+eq(voice.spoken.length, k, "with it off, nothing is read");
+g.close();
+
 /* ---- a newer build's data is never written over ---- */
 g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:99, cards:{}, future:true})}});
 ok(g.ev("readOnly"), "newer saved data: read-only");
@@ -157,7 +201,8 @@ g.ev(`go({s:"journal"})`);
 const note = g.$("#note"); note.value = "Pores don't open and close."; note.dispatchEvent(new g.win.Event("input", {bubbles:true}));
 g.click('[data-act="addnote"]');
 eq(g.all(".entry").length, 1, "a note is saved");
-ok(!!g.$('[data-act="shareentry"]'), "each entry can be shared with a parent");
+ok(!g.$('[data-act="shareentry"]') && !/parent/i.test(g.$("#app").textContent), "no 'share with a parent' button (she asked for it gone)");
+ok(!!g.$('[data-act="copyall"]'), "the whole journal can still be copied");
 g.close();
 
 process.exit(report("patch") ? 0 : 1);
