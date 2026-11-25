@@ -7,7 +7,7 @@
 <meta name="description" content="Build a model of skin, then use it to find out whether a skincare claim holds up.">
 
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#FFF8F9">
+<meta name="theme-color" content="#FFF3F6">
 <meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -51,7 +51,8 @@
 
 <style>
 :root{
-  --milk:#FFF8F9;      /* ground */
+  --milk:#FFF3F6;      /* ground: pinker since 24 Nov 2026 */
+  --bow:#E98AA2; --bow-hi:#F4B6C6; --bow-lo:#D9718D; --knot:#C9587A;   /* her ribbon color, set from prefs */
   --blush:#FBE4E9;     /* quiet surfaces */
   --blush-2:#F7D3DC;   /* pressed / selected */
   --ribbon:#E98AA2;    /* the patch's rim, and the bow on gold cards */
@@ -70,6 +71,8 @@
 html{-webkit-text-size-adjust:100%;background:var(--milk)}
 body{
   margin:0; color:var(--ink); background:var(--milk);
+  /* a faint polka dot: pink, and quiet enough to read over */
+  background-image:radial-gradient(#F7D3DC 1.3px, transparent 1.7px); background-size:24px 24px;
   font:17px/1.55 var(--round);
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   -webkit-tap-highlight-color:transparent;
@@ -144,8 +147,7 @@ h3{font-size:1.15rem;line-height:1.3}
 .claimrow span{font-size:.9rem;color:var(--mute)}
 .claimrow .st{margin-left:auto;font-size:.85rem;color:var(--cherry);white-space:nowrap}
 ol.lessons{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:l}
-ol.lessons button{display:flex;gap:14px;align-items:center;width:100%;text-align:left;border:0;
-  background:transparent;padding:10px 4px;border-bottom:1px solid var(--line);border-radius:0}
+ol.lessons button.lrow{display:flex;gap:14px;align-items:center;width:100%;text-align:left}
 ol.lessons .n{font-family:var(--serif);font-size:1.4rem;color:var(--ribbon);width:1.4em;text-align:center}
 ol.lessons .t{flex:1}
 ol.lessons .t b{display:block;font-weight:600}
@@ -155,6 +157,37 @@ ol.lessons .tick{color:var(--ok);font-size:.9rem}
 .tile{border:0;background:var(--blush);border-radius:var(--r-panel);padding:18px;text-align:left}
 .tile b{display:block;font-family:var(--serif);font-weight:500;font-size:1.2rem;margin-bottom:2px}
 .tile span{font-size:.9rem;color:var(--mute)}
+
+/* lessons as pink cards; a finished one gets a little bow */
+ol.lessons li{display:flex;gap:8px;align-items:stretch}
+ol.lessons button.lrow{flex:1;border:0;border-bottom:0;background:#fff;border-radius:16px;padding:12px 14px}
+ol.lessons .tick{display:inline-flex;align-items:center;gap:2px;color:var(--cherry);font-size:.85rem;font-weight:600}
+.minibow{width:30px;height:20px}
+.watchbtn{border:0;background:var(--blush);color:var(--cherry);border-radius:16px;padding:0 16px;font-weight:600;font-size:.9rem}
+.ribbons{display:flex;flex-wrap:wrap;gap:10px}
+.ribbon{border:2px solid transparent;background:#fff;border-radius:16px;padding:8px 12px 4px;display:grid;justify-items:center;gap:2px;font-size:.8rem;color:var(--mute)}
+.ribbon svg{width:54px;height:36px}
+.ribbon[aria-pressed="true"]{border-color:var(--cherry);color:var(--cherry);font-weight:600}
+/* the celebration: bows and hearts, once, when a card or lesson is earned */
+.shower{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:8}
+.shower i{position:absolute;top:-70px;animation:fall 2.6s cubic-bezier(.25,.6,.45,1) forwards}
+.shower svg{display:block}
+@keyframes fall{to{transform:translateY(115vh) rotate(var(--r))}}
+@media (prefers-reduced-motion:reduce){ .shower{display:none} }
+/* the month-long cell journey, and the drop test */
+.anim{background:#fff;border:1.5px solid var(--line);border-radius:var(--r-panel);padding:12px;margin:0 0 14px}
+.anim svg{display:block;width:100%;height:auto}
+.anim .row{justify-content:space-between;margin-top:8px}
+.week{font-family:var(--serif);font-size:1.3rem;color:var(--cherry)}
+.mols{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.mol{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;font-size:.92rem}
+.mol[aria-pressed="true"]{border-color:var(--cherry);background:var(--blush);color:var(--cherry);font-weight:600}
+/* watch mode: the picture big, one line of caption, the controls under it */
+.watch{max-width:760px;margin:0 auto}
+.watch .figure{position:static}
+.caption{font-family:var(--serif);font-size:clamp(1.2rem,2.6vw,1.6rem);line-height:1.35;min-height:3.2em;margin:16px 4px;text-align:center}
+.watch .opts{margin:0 auto 14px;max-width:560px}
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
 
 /* ---------- the wall of patches ---------- */
 .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:22px 16px;padding-top:16px}
@@ -310,15 +343,17 @@ ul.list li{margin-bottom:6px}
       <circle cx="32" cy="32" r="19" fill="#F7D3DC"/>
       <circle cx="32" cy="32" r="5" fill="#9E2B4E"/>
     </symbol>
-    <!-- the bow: two loops, two tails, a knot. Only on gold cards: the bow is earned. -->
+    <!-- the bow: two loops, two tails, a knot, in her ribbon color. On gold cards,
+         finished lessons, the ribbon picker and the celebration; never the icon. -->
+    <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21C6 16 2 12.5 2 8.5 2 5.5 4.4 3 7.3 3c1.9 0 3.6 1 4.7 2.6C13.1 4 14.8 3 16.7 3 19.6 3 22 5.5 22 8.5c0 4-4 7.5-10 12.5z" style="fill:var(--bow)"/></symbol>
     <symbol id="bow" viewBox="0 0 120 80">
-      <path d="M58 36 C40 10 8 6 8 28 C8 46 36 48 58 40Z" fill="#E98AA2"/>
-      <path d="M62 36 C80 10 112 6 112 28 C112 46 84 48 62 40Z" fill="#E98AA2"/>
-      <path d="M58 36 C44 22 20 18 18 28 C17 36 36 40 58 39Z" fill="#F4B6C6"/>
-      <path d="M62 36 C76 22 100 18 102 28 C103 36 84 40 62 39Z" fill="#F4B6C6"/>
-      <path d="M55 42 L36 76 L46 72 L52 78 L60 44Z" fill="#D9718D"/>
-      <path d="M65 42 L84 76 L74 72 L68 78 L60 44Z" fill="#D9718D"/>
-      <rect x="51" y="30" width="18" height="16" rx="6" fill="#C9587A"/>
+      <path d="M58 36 C40 10 8 6 8 28 C8 46 36 48 58 40Z" style="fill:var(--bow)"/>
+      <path d="M62 36 C80 10 112 6 112 28 C112 46 84 48 62 40Z" style="fill:var(--bow)"/>
+      <path d="M58 36 C44 22 20 18 18 28 C17 36 36 40 58 39Z" style="fill:var(--bow-hi)"/>
+      <path d="M62 36 C76 22 100 18 102 28 C103 36 84 40 62 39Z" style="fill:var(--bow-hi)"/>
+      <path d="M55 42 L36 76 L46 72 L52 78 L60 44Z" style="fill:var(--bow-lo)"/>
+      <path d="M65 42 L84 76 L74 72 L68 78 L60 44Z" style="fill:var(--bow-lo)"/>
+      <rect x="51" y="30" width="18" height="16" rx="6" style="fill:var(--knot)"/>
     </symbol>
   </defs>
 </svg>
@@ -409,7 +444,7 @@ const CHAIN = [
 /* Step types: read, choice, tap, sim, chain, handoff.
    choice: exactly one option has ok:true. tap: answer lists every node that counts. */
 const LESSONS = [
-  {id:"organ", title:"Three layers, one organ", sub:"What lives where", nodes:NODE_ORDER,
+  {id:"organ", title:"Three layers, one organ", sub:"What lives where", nodes:NODE_ORDER, watch:true,
    steps:[
     {t:"read", h:"Skin is an organ",
      body:"<p>Your skin is your largest organ. It isn't a wrapper: it's alive and busy. It keeps water in and germs out, senses touch and heat, cools you down, makes pigment, and calls in the immune system when something gets through.</p><p>It comes in three layers: the epidermis on top, the dermis under it, and a layer of fat below. Tap around the picture to meet what lives in each.</p>"},
@@ -460,9 +495,12 @@ const LESSONS = [
       {text:"No, because it can't change water loss at all.", why:"It can: a waxy layer on top is one of the best ways to slow water loss."}]}
    ]},
   {id:"change", title:"Skin keeps changing", sub:"Cells on the move", nodes:["keratinocytes","stratum-corneum","fibroblast","dermis-matrix"],
+   watch:true, rev:2,      /* rev 2: the journey step was added; saved answers are by step number */
    steps:[
     {t:"read", h:"A month-long journey",
      body:"<p>New cells are born at the bottom of the epidermis. They rise, flatten, fill with keratin and die, becoming the bricks on top. Then they flake off.</p><p>The whole trip takes about a month. Down in the dermis, collagen is replaced far more slowly: over months to years.</p>"},
+    {t:"journey", h:"Watch a month go by",
+     body:"<p>Press play to speed up a month. New cells start at the bottom, flatten as they rise, and flake off the top.</p>"},
     {t:"tap", q:"Tap where new epidermis cells are born.", answer:["keratinocytes"],
      notes:{"stratum-corneum":"That's where they end up, not where they start.",
             "fibroblast":"Fibroblasts are dermis cells; they build collagen, not epidermis."},
@@ -479,6 +517,7 @@ const LESSONS = [
       {text:"The ad must be lying about everything.", why:"Maybe the skin really did look smoother. The questions are why, and whether it lasts."}]}
    ]},
   {id:"jar", title:"From jar to target", sub:"Eight links between a product and a result", nodes:["stratum-corneum"],
+   rev:2,                  /* rev 2: the drop test was added */
    steps:[
     {t:"chain", h:"The chain",
      body:"<p>For a product to do what it claims, a whole chain has to hold. Break any link and the claim fails, however good the ingredient sounds.</p>"},
@@ -497,6 +536,8 @@ const LESSONS = [
       {text:"The small, oil-friendly molecule", ok:true, why:"Molecules heavier than about 500 daltons rarely cross healthy skin well. A whole collagen molecule weighs roughly 300,000. Collagen in a cream mostly stays on top, where it can hold water."},
       {text:"Collagen", why:"Collagen is enormous: hundreds of times too big to slip through."},
       {text:"Both, equally", why:"Size makes a huge difference at the barrier."}]},
+    {t:"drop", h:"Drop test",
+     body:"<p>Drop each molecule on the skin and watch what happens at the brick wall.</p>"},
     {t:"read", h:"A selective barrier, not a sponge",
      body:"<p>Size, whether a molecule likes oil or water, how much is in the product, how long it stays on, and whether the skin is damaged all change what gets through.</p><p>So “contains X” is the first link of the chain, not the last.</p>"}
    ]},
@@ -519,6 +560,26 @@ const LESSONS = [
    ]}
 ];
 const LESSON = Object.fromEntries(LESSONS.map(l => [l.id, l]));
+
+/* Molecules for the drop test. Weights in daltons: niacinamide 122, retinol 286,
+   a whole collagen molecule roughly 300,000 (notes/patch-sources.md). */
+const MOLECULES = [
+  {id:"niacinamide", name:"Niacinamide", weight:"122 daltons", r:5, through:true,
+   says:"Tiny, at 122 daltons. It slips between the bricks."},
+  {id:"retinol", name:"Retinol", weight:"286 daltons", r:7, through:true,
+   says:"Small and oil-friendly, at 286 daltons. It gets into the outer layers."},
+  {id:"collagen", name:"Collagen", weight:"about 300,000 daltons", r:22, through:false,
+   says:"Huge: about 300,000 daltons. It can't get through, so it sits on top and holds water there."}
+];
+
+/* Her ribbon color. Bows follow it; the patch mark doesn't. */
+const RIBBONS = {
+  pink:  {name:"Pink",   bow:"#E98AA2", hi:"#F4B6C6", lo:"#D9718D", knot:"#C9587A"},
+  lilac: {name:"Lilac",  bow:"#B79BE3", hi:"#D8C8F4", lo:"#9E82D2", knot:"#8768C2"},
+  peach: {name:"Peach",  bow:"#F4A38A", hi:"#F9CBB9", lo:"#E68B70", knot:"#D7735A"},
+  cherry:{name:"Cherry", bow:"#D9475F", hi:"#EF8E9E", lo:"#BD3550", knot:"#9E2B4E"}
+};
+const ribbonVars = id => { const r = RIBBONS[id] || RIBBONS.pink; return `--bow:${r.bow};--bow-hi:${r.hi};--bow-lo:${r.lo};--knot:${r.knot}`; };
 
 /* Short asides opened by "Why does this matter?" in an investigation. */
 const ASIDES = {
@@ -578,7 +639,7 @@ const STATE_V = 2;
 const MIGRATIONS = {
   1: b => ({...b, v:2, prefs:{read:true}, own:{products:{}, inv:{}}})
 };
-const defaultPrefs = () => ({read:true});
+const defaultPrefs = () => ({read:true, ribbon:"pink"});
 const defaults = () => ({v:STATE_V, lessons:{}, inv:{}, cards:{}, journal:[], at:null, prefs:defaultPrefs(), own:{products:{}, inv:{}}});
 let state = defaults();
 let readOnly = false, updateReady = false;
@@ -813,12 +874,14 @@ function validView(v){
   if(v.s === "home" || v.s === "journal") return true;
   if(v.s === "explore") return !v.node || !!NODES[v.node];
   if(v.s === "lesson") return !!LESSON[v.id];
+  if(v.s === "watch") return false;      /* a video doesn't resume mid-sentence: come back to home */
   if(v.s === "inv" || v.s === "card") return typeof v.id === "string";
   return false;
 }
 function go(v){
-  stopReading();
-  view = v; peek = null; tapPick = []; fresh = false;
+  pauseWatch(); stopReading();
+  if(!(v.s === "lesson" && view.s === "lesson" && v.id === view.id)) dropped = [];
+  view = v; peek = null; tapPick = []; fresh = false; journeyT = 0;
   state.at = v; save();
   /* A new build is waiting, and this is a screen boundary: everything is saved
      and nothing is on screen to lose. Switch now, silently. */
@@ -826,7 +889,8 @@ function go(v){
   render(); try{ window.scrollTo(0, 0); }catch(e){}
 }
 function render(){
-  const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen}[view.s] || home;
+  cancelAnimationFrame(journeyRaf);
+  const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen, watch:watchScreen}[view.s] || home;
   r();
   autoRead();
 }
@@ -895,7 +959,7 @@ function autoRead(){
   if(!state.prefs.read || !speech() || Date.now() - lastGesture > 1500) return;
   if(hint === "none") return;
   if(hint){ const el = $(hint); if(el) speakEls(readablesIn(el)); return; }
-  if(view.s === "home" || view.s === "journal" || (view.s === "explore" && !view.node)) return;
+  if(view.s === "home" || view.s === "journal" || view.s === "watch" || (view.s === "explore" && !view.node)) return;
   readScreen();
 }
 const SPEAKER_ICON = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
@@ -949,11 +1013,15 @@ function home(){
     (cards.length ? `<div class="wall">${cards.map(patchTile).join("")}</div>` :
       `<div class="empty">Finish an investigation and its card lands here. Change your mind for a good reason and it gets a gold edge and a bow.</div>`) + `</section>` +
     `<section class="section"><h2>Learn the skin</h2><p class="mute">Five short lessons. Take them in order, or dip in when a claim needs one.</p>` +
-    `<ol class="lessons">${LESSONS.map((l, i) => `<li><button data-act="lesson" data-id="${l.id}"><span class="n">${i + 1}</span>` +
+    `<ol class="lessons">${LESSONS.map((l, i) => `<li><button class="lrow" data-act="lesson" data-id="${l.id}"><span class="n">${i + 1}</span>` +
       `<span class="t"><b>${esc(l.title)}</b><span>${esc(l.sub)}</span></span>` +
-      `${state.lessons[l.id] && state.lessons[l.id].done ? `<span class="tick">Done</span>` : ""}</button></li>`).join("")}</ol></section>` +
+      `${state.lessons[l.id] && state.lessons[l.id].done ? `<span class="tick">${bow("minibow")}Done</span>` : ""}</button>` +
+      (l.watch ? `<button class="watchbtn" data-act="watch" data-id="${l.id}" aria-label="Watch ${esc(l.title)}">Watch</button>` : "") + `</li>`).join("")}</ol></section>` +
+    `<section class="section"><h2>Your ribbon</h2><p class="mute">The color of the bows you earn.</p><div class="ribbons">` +
+      Object.entries(RIBBONS).map(([id, r]) => `<button class="ribbon" data-act="ribbon" data-id="${id}" style="${ribbonVars(id)}" aria-pressed="${state.prefs.ribbon === id}">` +
+        `${bow("")}<span>${r.name}</span></button>`).join("") + `</div></section>` +
     `<section class="tiles"><button class="tile" data-act="explore"><b>Explore skin</b><span>Tap any part to see what it does</span></button>` +
-    `<button class="tile" data-act="journal"><b>Journal</b><span>Private, unless you share an entry</span></button></section>`;
+    `<button class="tile" data-act="journal"><b>Journal</b><span>Private, just for you</span></button></section>`;
 }
 const lessonsDone = () => LESSONS.filter(l => state.lessons[l.id] && state.lessons[l.id].done).length;
 function patchTile(c){
@@ -985,7 +1053,17 @@ function explore(){
 }
 
 /* ============ lessons ============ */
-const L = id => state.lessons[id] || (state.lessons[id] = {i:0, done:false, a:{}});
+function L(id){
+  const les = LESSON[id], rev = (les && les.rev) || 1;
+  let rec = state.lessons[id];
+  if(!rec) rec = state.lessons[id] = {i:0, done:false, a:{}, rev};
+  if((rec.rev || 1) !== rev){
+    /* the lesson's steps changed: answers saved by step number no longer line
+       up. A finished lesson stays finished; one in progress starts again. */
+    rec.rev = rev; rec.a = {}; rec.i = rec.done ? les.steps.length : 0;
+  }
+  return rec;
+}
 function lessonScreen(){
   const les = LESSON[view.id], rec = L(les.id);
   const i = Math.min(rec.i, les.steps.length);
@@ -996,7 +1074,8 @@ function lessonScreen(){
   if(i >= les.steps.length){
     const nxt = LESSONS[num];
     app.innerHTML = bar(`${num}. ${les.title}`, "Done", dots) +
-      `<div class="narrow step"><h2>Lesson done</h2><p>${esc(les.title)} is part of your model now.</p><div class="row">` +
+      `<div class="narrow step"><div class="card${fresh ? " fresh" : ""}" style="margin-top:30px">${bow()}<h2>Lesson done</h2>` +
+      `<p>${esc(les.title)} is part of your model now, and it has a bow on your lesson list.</p></div><div class="row" style="margin-top:18px">` +
       (view.ret ? `<button class="btn" data-act="inv" data-id="${esc(view.ret)}">Back to your investigation</button>` :
         nxt ? `<button class="btn" data-act="lesson" data-id="${nxt.id}">Next: ${esc(nxt.title)}</button>` : "") +
       `<button class="btn soft" data-act="redo" data-id="${les.id}">Go through it again</button>` +
@@ -1005,11 +1084,16 @@ function lessonScreen(){
   }
   const st = les.steps[i];
   const ans = rec.a[i];
-  let body = "", solo = st.t === "sim" || st.t === "chain" || st.t === "handoff";
+  let body = "", solo = ["sim", "chain", "handoff", "journey", "drop"].includes(st.t);
   const next = (label = "Next") => `<div class="nav"><button class="btn ghost" data-act="lprev" ${i ? "" : "hidden"}>Back</button>` +
     `<button class="btn" id="next" data-act="lnext">${label}</button></div>`;
   if(st.t === "read"){
-    body = `<h2>${esc(st.h)}</h2>${st.body}${next()}`;
+    body = `<h2>${esc(st.h)}</h2>${st.body}` +
+      (i === 0 && les.watch ? `<button class="brush" data-act="watch" data-id="${les.id}">Watch it instead</button>` : "") + next();
+  }else if(st.t === "journey"){
+    body = `<h2>${esc(st.h)}</h2>${st.body}${journeyBlock()}${next()}`;
+  }else if(st.t === "drop"){
+    body = `<h2>${esc(st.h)}</h2>${st.body}${dropBlock()}${next()}`;
   }else if(st.t === "choice"){
     body = choiceBlock(st.q, st.opts, ans, "lpick") + (ans != null ? next() : "");
   }else if(st.t === "tap"){
@@ -1041,7 +1125,216 @@ function lessonScreen(){
     else applySkin({focus:peek ? [peek] : []});
   }
   if(st.t === "sim") paintSim();
+  if(st.t === "journey") paintJourney(journeyT);
+  if(st.t === "drop") paintDrop();
 }
+/* ---- the cell journey: one month, played in eight seconds ---- */
+let journeyT = 0, journeyRaf = 0;
+const JOURNEY_MS = 8000;
+function journeyBlock(){
+  return `<div class="anim"><svg id="journeyArt" viewBox="0 0 400 270" role="img" aria-label="Skin cells rising from the bottom of the epidermis to the surface"></svg>` +
+    `<div class="row"><span class="week" id="week">Week 1</span><button class="btn soft" data-act="journey" id="journeyBtn">Play a month</button></div></div>`;
+}
+function paintJourney(t){
+  const art = $("#journeyArt"); if(!art) return;
+  let g = `<rect x="0" y="0" width="400" height="270" fill="#fff"/>` +
+    `<rect x="20" y="40" width="360" height="200" rx="10" fill="#FCE0DA"/>` +
+    `<rect x="20" y="40" width="360" height="22" rx="6" fill="#F1BDB8"/>` +
+    `<text x="24" y="30" font-size="13" fill="#80606B">Surface: cells flake off</text>` +
+    `<text x="24" y="262" font-size="13" fill="#80606B">Bottom row: new cells start here</text>`;
+  for(let x = 34; x < 380; x += 22) g += `<circle cx="${x}" cy="228" r="8" fill="#F9CFC5" stroke="#E9AC9F"/>`;
+  for(let k = 0; k < 12; k++){
+    const q = ((t / JOURNEY_MS) + (k * 0.383)) % 1;           /* where this cell is in its month */
+    const lane = 50 + (k % 6) * 60;
+    const y = 214 - q * 170, rx = 9 + q * 16, ry = Math.max(2.4, 8 - q * 6);
+    const shade = Math.round(178 + q * 52);                  /* living pink to pale, keratin-filled */
+    let x = lane, op = 1;
+    if(q > 0.9){ const f = (q - 0.9) / 0.1; x += f * 40; op = 1 - f; }
+    g += `<ellipse cx="${r1(x)}" cy="${r1(q > 0.9 ? 44 - (q - 0.9) * 120 : y)}" rx="${r1(rx)}" ry="${r1(ry)}" fill="rgb(246,${shade},${Math.round(170 + q * 62)})" stroke="#D98E80" stroke-width="1.3" opacity="${r1(op)}"/>`;
+  }
+  art.innerHTML = g;
+  const w = $("#week"); if(w) w.textContent = `Week ${Math.min(4, 1 + Math.floor((t % JOURNEY_MS) / (JOURNEY_MS / 4)))}`;
+}
+function playJourney(){
+  cancelAnimationFrame(journeyRaf);
+  const start = performance.now() - (journeyT % JOURNEY_MS);
+  const b = $("#journeyBtn"); if(b){ b.disabled = true; b.textContent = "Playing…"; }
+  const tick = now => {
+    journeyT = now - start;
+    if(journeyT >= JOURNEY_MS){ journeyT = JOURNEY_MS - 1; paintJourney(journeyT); journeyT = 0;
+      const bb = $("#journeyBtn"); if(bb){ bb.disabled = false; bb.textContent = "Play it again"; } return; }
+    paintJourney(journeyT);
+    journeyRaf = requestAnimationFrame(tick);
+  };
+  journeyRaf = requestAnimationFrame(tick);
+}
+
+/* ---- the drop test: which molecules get through the bricks ---- */
+let dropped = [];
+function dropBlock(){
+  return `<div class="mols" role="group" aria-label="Molecules">` + MOLECULES.map(m =>
+    `<button class="mol" data-act="drop" data-id="${m.id}" aria-pressed="${dropped.includes(m.id)}">${esc(m.name)}, ${esc(m.weight)}</button>`).join("") + `</div>` +
+    `<div class="anim"><svg id="dropArt" viewBox="0 0 400 230" role="img" aria-label="Molecules dropped onto the skin's brick wall"></svg></div>` +
+    `<div class="why" id="dropSays" ${dropped.length ? "" : "hidden"}><p>${dropped.length ? esc(MOLECULES.find(m => m.id === dropped[dropped.length - 1]).says) : ""}</p></div>`;
+}
+function paintDrop(){
+  const art = $("#dropArt"); if(!art) return;
+  let g = `<rect x="0" y="0" width="400" height="230" fill="#fff"/><rect x="0" y="120" width="400" height="110" fill="#FCE0DA"/>` +
+    `<rect x="0" y="96" width="400" height="26" fill="#F1BDB8"/>`;
+  [[99, 0], [107.5, 18], [116, 0]].forEach(([y, off]) => { for(let x = -off; x < 400; x += 36) g += `<rect x="${x + 2}" y="${y}" width="32" height="6" rx="2" fill="#FFF3EF"/>`; });
+  g += `<text x="8" y="146" font-size="12" fill="#80606B">Living skin below</text>`;
+  MOLECULES.forEach((m, k) => {
+    if(!dropped.includes(m.id)) return;
+    const x = 80 + k * 120, y = m.through ? 180 : 96 - m.r;
+    g += `<circle class="dropped" data-mol="${m.id}" cx="${x}" cy="${y}" r="${m.r}" fill="${m.through ? "#E98AA2" : "#F7D3DC"}" stroke="#9E2B4E" stroke-width="1.5">` +
+      `<animate attributeName="cy" from="10" to="${y}" dur="${m.through ? 1.1 : 0.7}s" fill="freeze"/></circle>` +
+      `<text x="${x}" y="${m.through ? 214 : 40}" text-anchor="middle" font-size="12" fill="#3B2830">${esc(m.name)}</text>`;
+  });
+  art.innerHTML = g;
+}
+
+/* ---- Watch: a lesson played as a narrated animation ----
+   A small test (Mario, 24 Nov 2026): lessons 1 and 3 only. The voice reads one
+   sentence at a time, the sentence shows as a caption, and the parts of the
+   skin it names light up. It stops at each question and waits for her. */
+let WT = {i:0, sent:0, playing:false};
+let watchTimer = 0;
+const KEYWORDS = [
+  [/stratum corneum|bricks|outermost|surface|flake/i, ["stratum-corneum"]],
+  [/\bepidermis\b|new cells|bottom row|basal|keratin/i, ["keratinocytes"]],
+  [/\bdermis\b|collagen/i, ["dermis-matrix", "fibroblast"]],
+  [/blood|vessel|food and oxygen/i, ["capillary"]],
+  [/\bfat\b|three layers/i, ["hypodermis"]],
+  [/pigment|melanin|\btan/i, ["melanocyte"]],
+  [/cools|sweat/i, ["sweat-gland"]],
+  [/senses|touch|heat/i, ["nerve"]],
+  [/germs|immune/i, ["microbiome"]]
+];
+const sentencesOf = html => { const d = document.createElement("div"); d.innerHTML = html;
+  return (d.textContent || "").split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(Boolean); };
+function linesFor(st){
+  if(st.t === "read" || st.t === "journey") return [st.h, ...sentencesOf(st.body)];
+  if(st.t === "choice") return [st.q, ...st.opts.map(o => o.text)];
+  if(st.t === "tap") return [st.q, "Tap the picture."];
+  return [];
+}
+function watchScreen(){
+  const les = LESSON[view.id];
+  if(!les){ go({s:"home"}); return; }
+  const rec = L(les.id), n = les.steps.length, i = WT.i;
+  app.className = "wrap";
+  if(i >= n){
+    const first = !rec.done; rec.done = true; save();
+    app.innerHTML = bar(`Watch: ${les.title}`, "The end") +
+      `<div class="narrow step"><div class="card fresh" style="margin-top:30px">${bow()}<h2>That's the lesson</h2>` +
+      `<p>${esc(les.title)} is part of your model now, and it has a bow on your lesson list.</p></div>` +
+      `<div class="row" style="margin-top:18px"><button class="btn" data-act="home">Home</button>` +
+      `<button class="btn soft" data-act="watch" data-id="${les.id}">Watch again</button></div></div>`;
+    if(first) celebrate();
+    return;
+  }
+  const st = les.steps[i];
+  if(!["read", "journey", "choice", "tap"].includes(st.t)){ WT.i++; watchScreen(); return; }
+  const dots = `<div class="dots">${les.steps.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("")}</div>`;
+  app.innerHTML = bar(`Watch: ${les.title}`, `Part ${i + 1} of ${n}`, dots) +
+    `<div class="watch">${st.t === "journey" ? journeyBlock() : figure("")}` +
+    `<p class="caption" id="caption" aria-live="polite"></p><div id="ask"></div>` +
+    `<div class="controls"><button class="btn soft" data-act="wprev" ${i ? "" : "disabled"}>Back</button>` +
+    `<button class="btn" id="wplay" data-act="wplay">${WT.playing ? "Pause" : "Play"}</button>` +
+    `<button class="btn soft" data-act="wnext">Skip</button>` +
+    `<button class="btn ghost" data-act="wclick">Click through instead</button></div></div>`;
+  if(st.t === "journey"){ paintJourney(0); const b = $("#journeyBtn"); if(b) b.hidden = true; }
+  WT.lines = linesFor(st); WT.waiting = false;
+  if(st.t !== "journey") applySkin({});
+  showCaption(WT.lines[Math.min(WT.sent, WT.lines.length - 1)] || "");
+  if(st.t === "choice" && rec.a[i] != null) showAsk(st, rec.a[i]);
+  if(WT.playing) narrate();
+}
+function syncWatch(){ const b = $("#wplay"); if(b) b.textContent = WT.playing ? "Pause" : "Play"; }
+function showCaption(t){
+  const c = $("#caption"); if(c) c.textContent = t;
+  const lit = KEYWORDS.filter(([re]) => re.test(t)).flatMap(([, ids]) => ids);
+  if($(".skin") && !WT.waiting) applySkin({focus:lit});
+}
+function pauseWatch(){ clearTimeout(watchTimer); if(view.s === "watch") stopReading(); }
+function sayLine(text, done){
+  stopReading();
+  const gen = readGen; let fired = false;
+  const finish = () => { if(fired || gen !== readGen) return; fired = true; clearTimeout(watchTimer); done(); };
+  const s = speech();
+  if(s){
+    if(!voice) pickVoice();
+    const u = new window.SpeechSynthesisUtterance(spoken(text));
+    if(voice){ u.voice = voice; u.lang = voice.lang; } else u.lang = "en-US";
+    u.onend = finish; u.onerror = finish;
+    try{ s.speak(u); }catch(e){}
+    speaking = true; syncSpeaker();
+    watchTimer = setTimeout(finish, 3000 + text.length * 110);   /* in case a voice never says it's done */
+  }else watchTimer = setTimeout(finish, 700 + text.length * 45);  /* no voice: captions alone, at reading pace */
+}
+function narrate(){
+  if(view.s !== "watch" || !WT.playing || WT.waiting) return;
+  const les = LESSON[view.id], st = les.steps[WT.i];
+  if(!st) return;
+  if(WT.sent === 0 && st.t === "journey") playJourney();
+  if(WT.sent >= WT.lines.length){ afterLines(les, st); return; }
+  const line = WT.lines[WT.sent];
+  showCaption(line);
+  sayLine(line, () => { WT.sent++; narrate(); });
+}
+function afterLines(les, st){
+  const rec = L(les.id);
+  if((st.t === "choice" || st.t === "tap") && rec.a[WT.i] == null){
+    WT.waiting = true;
+    if(st.t === "choice"){ showAsk(st, null); showCaption(st.q); }
+    else { showCaption(st.q); applySkin({}); }
+    return;
+  }
+  watchTimer = setTimeout(advanceWatch, 900);
+}
+function advanceWatch(){ clearTimeout(watchTimer); WT = {i:WT.i + 1, sent:0, playing:true}; render(); }
+function showAsk(st, ans){
+  const a = $("#ask"); if(!a) return;
+  a.innerHTML = `<div class="opts">` + st.opts.map((o, k) => `<button class="opt${ans != null && o.ok ? " right" : ""}" data-act="wpick" data-k="${k}" ` +
+    `aria-pressed="${ans === k}" ${ans != null ? "disabled" : ""}>${esc(o.text)}</button>`).join("") + `</div>`;
+}
+function watchAnswer(k){
+  const les = LESSON[view.id], st = les.steps[WT.i], rec = L(les.id);
+  if(st.t !== "choice" || rec.a[WT.i] != null) return;
+  rec.a[WT.i] = k; save();
+  showAsk(st, k);
+  const o = st.opts[k], right = st.opts.find(x => x.ok);
+  WT.waiting = false; WT.playing = true; syncWatch();
+  WT.lines = o.ok ? [`Yes. ${o.why}`] : [`Here's the catch. ${o.why}`, `${right.text}: ${right.why}`];
+  WT.sent = 0; WT.answered = true;
+  narrate();
+}
+function watchTap(id){
+  const les = LESSON[view.id], st = les.steps[WT.i], rec = L(les.id);
+  if(st.t !== "tap" || rec.a[WT.i] != null) return;
+  rec.a[WT.i] = id; save();
+  const ok = st.answer.includes(id);
+  applySkin({picked:[id], right:ok ? [id] : []});
+  WT.waiting = false; WT.playing = true; syncWatch();
+  WT.lines = ok ? [`Yes. ${st.why}`] : [(st.notes && st.notes[id]) || "Not that one.", st.why];
+  WT.sent = 0; WT.answered = true;
+  narrate();
+}
+
+/* ---- a shower of bows and hearts, once, when something is earned ---- */
+function celebrate(){
+  try{ if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return; }catch(e){}
+  const sh = document.createElement("div"); sh.className = "shower"; sh.setAttribute("aria-hidden", "true");
+  let h = "";
+  for(let k = 0; k < 22; k++){
+    const left = (k * 47) % 100, delay = (k % 7) * 0.12, rot = (k % 2 ? 1 : -1) * (120 + (k * 37) % 200);
+    const isBow = k % 3 !== 2, size = isBow ? 34 + (k % 3) * 8 : 20 + (k % 4) * 4;
+    h += `<i style="left:${left}%;animation-delay:${delay}s;--r:${rot}deg"><svg width="${size}" height="${isBow ? size * 0.67 : size}"><use href="#${isBow ? "bow" : "heart"}"/></svg></i>`;
+  }
+  sh.innerHTML = h; document.body.appendChild(sh);
+  setTimeout(() => sh.remove(), 3400);
+}
+
 function choiceBlock(q, opts, ans, act){
   const answered = ans != null;
   return `<p class="q">${esc(q)}</p><div class="opts">` + opts.map((o, k) => {
@@ -1298,7 +1591,7 @@ function finishCard(c, inv){
     text:`${c.title}: ${card.verdict}\nMy confidence went from ${card.initial} to ${card.updated}. ${card.belief}`});
   delete state.inv[c.id];
   view = {s:"card", id:c.id}; state.at = view; save();
-  fresh = true; render(); scrollTop();
+  fresh = true; render(); scrollTop(); celebrate();
 }
 
 /* ============ the card ============ */
@@ -1350,8 +1643,9 @@ function verdictCanvas(c){
   ctx.lineWidth = c.gold ? 14 : 5; ctx.strokeStyle = c.gold ? "#C3933A" : "#F0CBD5"; ctx.stroke();
   if(c.gold){
     ctx.save(); ctx.translate(540 - 156, 64); ctx.scale(2.6, 2.6);
-    if(typeof Path2D === "function") BOW_PATHS.forEach(([d, fill]) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); });
-    ctx.fillStyle = "#C9587A"; ctx.fillRect(51, 30, 18, 16); ctx.restore();
+    const rb = RIBBONS[state.prefs.ribbon] || RIBBONS.pink, tone = {"#E98AA2":rb.bow, "#F4B6C6":rb.hi, "#D9718D":rb.lo};
+    if(typeof Path2D === "function") BOW_PATHS.forEach(([d, fill]) => { ctx.fillStyle = tone[fill] || fill; ctx.fill(new Path2D(d)); });
+    ctx.fillStyle = rb.knot; ctx.fillRect(51, 30, 18, 16); ctx.restore();
   }else{
     /* the patch, stuck on the card's top edge */
     const disc = (r, fill) => { ctx.beginPath(); ctx.arc(540, 150, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); };
@@ -1409,6 +1703,7 @@ async function shareText(title, text){
 
 /* ============ input ============ */
 function tapNode(id){
+  if(view.s === "watch"){ watchTap(id); return; }
   if(view.s === "explore"){ view.node = id; view.depth = 0; state.at = view; save(); render(); return; }
   if(view.s === "lesson"){
     const les = LESSON[view.id], rec = L(les.id), st = les.steps[rec.i];
@@ -1474,6 +1769,17 @@ function act(name, el){
   switch(name){
     case "home": go({s:"home"}); return;
     case "speak": if(speaking) stopReading(); else readScreen(); return;
+    case "ribbon": if(RIBBONS[id]){ state.prefs.ribbon = id; applyRibbon(); save(); readHint = "none"; render(); } return;
+    case "journey": playJourney(); return;
+    case "drop": { if(!dropped.includes(id)) dropped.push(id); else { dropped = dropped.filter(x => x !== id); dropped.push(id); }
+      const m = MOLECULES.find(x => x.id === id); readHint = "#dropSays"; render();
+      return; }
+    case "watch": WT = {i:0, sent:0, playing:true}; go({s:"watch", id}); return;
+    case "wplay": WT.playing = !WT.playing; if(WT.playing) narrate(); else pauseWatch(); syncWatch(); return;
+    case "wprev": pauseWatch(); WT = {i:Math.max(0, WT.i - 1), sent:0, playing:true}; render(); return;
+    case "wnext": pauseWatch(); WT = {i:WT.i + 1, sent:0, playing:true}; render(); return;
+    case "wpick": watchAnswer(Number(el.dataset.k)); return;
+    case "wclick": { pauseWatch(); const rec = L(view.id); rec.i = Math.min(WT.i, LESSON[view.id].steps.length - 1); go({s:"lesson", id:view.id}); return; }
     case "readpref": state.prefs.read = !state.prefs.read; if(!state.prefs.read) stopReading(); save(); readHint = "none"; render(); return;
     case "explore": go({s:"explore"}); return;
     case "journal": go({s:"journal"}); return;
@@ -1482,10 +1788,11 @@ function act(name, el){
     case "labels": labelsOn = !labelsOn; el.textContent = labelsOn ? "Hide names" : "Show names"; el.setAttribute("aria-pressed", labelsOn);
       $(".skin") && $(".skin").classList.toggle("labels", labelsOn); return;
     case "lesson": go({s:"lesson", id, ret:el.dataset.ret || null}); return;
-    case "redo": state.lessons[id] = {i:0, done:true, a:{}}; go({s:"lesson", id}); return;
+    case "redo": state.lessons[id] = {i:0, done:true, a:{}, rev:LESSON[id].rev || 1}; go({s:"lesson", id}); return;
     case "lpick": { const rec = L(view.id); rec.a[rec.i] = Number(el.dataset.k); save(); readHint = ".why"; render(); return; }
     case "lcheck": { const rec = L(view.id); if(!tapPick.length) return; rec.a[rec.i] = tapPick[0]; tapPick = []; save(); readHint = ".why"; render(); return; }
-    case "lnext": { const les = LESSON[view.id], rec = L(les.id); rec.i++; if(rec.i >= les.steps.length) rec.done = true;
+    case "lnext": { const les = LESSON[view.id], rec = L(les.id); rec.i++;
+      if(rec.i >= les.steps.length){ if(!rec.done) setTimeout(celebrate, 50); rec.done = true; fresh = true; } else fresh = false;
       peek = null; tapPick = []; state.at = view; save();
       if(updateReady){ try{ location.reload(); return; }catch(e){} }
       render(); scrollTop(); return; }
@@ -1516,7 +1823,12 @@ function act(name, el){
 }
 
 /* ============ boot ============ */
+function applyRibbon(){
+  const r = RIBBONS[state.prefs.ribbon] || RIBBONS.pink, st = document.documentElement.style;
+  st.setProperty("--bow", r.bow); st.setProperty("--bow-hi", r.hi); st.setProperty("--bow-lo", r.lo); st.setProperty("--knot", r.knot);
+}
 load();
+applyRibbon();
 if(validView(state.at)) view = state.at;
 render();
 loadClaims();

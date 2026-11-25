@@ -48,6 +48,20 @@ on Home ("Read to me") turns it off. It uses the iPad's own voices (Web Speech),
 so it works offline; Settings > Accessibility > Spoken Content > Voices can add a
 better English voice, and Patch prefers Samantha, Ava and the "Enhanced" ones.
 
+## Watch, pink and bows (24 Nov 2026)
+
+- **Watch** plays a lesson as a narrated animation: one sentence at a time as a
+  caption, the parts of the skin it names lit up, and a pause at each question.
+  Lessons 1 and 3 only, as a test of whether she uses it.
+- **Bows** appear on gold cards, on finished lessons, in the ribbon picker and in
+  the shower of bows and hearts when a card or lesson is earned. Never on the
+  icon, the name or the claim note, where the patch is the mark. Her ribbon color
+  (pink, lilac, peach, cherry) colors every bow, including the share image's.
+- **Moving parts:** a month of cell journey in lesson 3, and a drop test in
+  lesson 4. Lessons whose steps change carry a `rev`: a finished lesson stays
+  finished, and one in progress restarts so saved answers can't land on the
+  wrong step.
+
 ## Adding a claim
 
 Claims live in `claims.json`, not in the app, so a new one ships with a commit
