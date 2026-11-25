@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lark — hum it back</title>
+<meta name="description" content="Hear a short tune, then hum or whistle it back. This first build is the mic check: it shows the notes it hears.">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#D6DFDB">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lark">
+
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<!-- launch screens: without these iOS shows a white flash on every cold start -->
+<link rel="apple-touch-startup-image" href="icons/splash/320x568@2x.png" media="screen and (device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x667@2x.png" media="screen and (device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x736@3x.png" media="screen and (device-width:414px) and (device-height:736px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/375x812@3x.png" media="screen and (device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/390x844@3x.png" media="screen and (device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/393x852@3x.png" media="screen and (device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/402x874@3x.png" media="screen and (device-width:402px) and (device-height:874px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@2x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/414x896@3x.png" media="screen and (device-width:414px) and (device-height:896px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/428x926@3x.png" media="screen and (device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/430x932@3x.png" media="screen and (device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/440x956@3x.png" media="screen and (device-width:440px) and (device-height:956px) and (-webkit-device-pixel-ratio:3) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/744x1133@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1133x744@2x.png" media="screen and (device-width:744px) and (device-height:1133px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/768x1024@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x768@2x.png" media="screen and (device-width:768px) and (device-height:1024px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/810x1080@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1080x810@2x.png" media="screen and (device-width:810px) and (device-height:1080px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/820x1180@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1180x820@2x.png" media="screen and (device-width:820px) and (device-height:1180px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1112@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1112x834@2x.png" media="screen and (device-width:834px) and (device-height:1112px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/834x1194@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1194x834@2x.png" media="screen and (device-width:834px) and (device-height:1194px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1024x1366@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1366x1024@2x.png" media="screen and (device-width:1024px) and (device-height:1366px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+<link rel="apple-touch-startup-image" href="icons/splash/1032x1376@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:portrait)">
+<link rel="apple-touch-startup-image" href="icons/splash/1376x1032@2x.png" media="screen and (device-width:1032px) and (device-height:1376px) and (-webkit-device-pixel-ratio:2) and (orientation:landscape)">
+
+<style>
+:root{
+  --ink:#0B1E2D;
+  --glass:#D6DFDB;
+  --glass-hi:#E7ECE8;
+  --paper:#FFFFFF;
+  --gold:#FFB612;
+  --gold-deep:#8A5A00;
+  --red:#C8102E;
+  --green:#007A33;
+  --blue:#005EB8;
+  --rule:rgba(11,30,45,.16);
+  --rule-2:rgba(11,30,45,.32);
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --serif:"Iowan Old Style","Palatino",Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--glass)}
+body{
+  background:var(--glass);color:var(--ink);
+  font-family:system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;min-height:100vh;
+}
+button,input{font:inherit;color:inherit}
+.case{
+  max-width:980px;margin:0 auto;
+  padding:calc(20px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right))
+          calc(48px + env(safe-area-inset-bottom)) calc(18px + env(safe-area-inset-left));
+}
+.masthead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:20px}
+.masthead b{font-family:var(--serif);font-size:clamp(32px,5vw,46px);line-height:1}
+.masthead span{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,30,45,.6)}
+
+.plate{background:var(--glass-hi);border:1px solid var(--rule-2);margin-bottom:18px}
+.plate-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 14px;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(11,30,45,.65)}
+.tag{color:var(--ink);border:1px solid var(--rule-2);padding:2px 7px;white-space:nowrap}
+.tag.on{background:var(--green);border-color:var(--green);color:#fff}
+.tag.busy{background:var(--gold);border-color:var(--gold)}
+.body{padding:14px}
+.body p{margin:0 0 10px}
+.hint{color:rgba(11,30,45,.7);font-size:14px}
+
+.btn{appearance:none;border:1.5px solid var(--ink);background:var(--paper);padding:11px 18px;
+  border-radius:999px;font-weight:600;cursor:pointer;min-height:46px;touch-action:manipulation}
+.btn.primary{background:var(--ink);color:var(--glass-hi)}
+.btn.gold{background:var(--gold);border-color:var(--gold-deep)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.readout{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center;margin-top:14px}
+#noteName{font-family:var(--serif);font-size:56px;line-height:1;min-width:2.6ch;grid-row:span 3}
+.meter{display:grid;grid-template-columns:64px 1fr 74px;gap:8px;align-items:center;
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(11,30,45,.65)}
+.bar{height:10px;background:var(--paper);border:1px solid var(--rule-2);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:0}
+.bar b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--red)}
+.meter .num{text-align:right;font-variant-numeric:tabular-nums;text-transform:none;letter-spacing:0}
+
+.tracewrap{margin-top:14px;background:var(--paper);border:1px solid var(--rule-2);position:relative}
+#trace{display:block;width:100%;height:240px}
+.tracecap{position:absolute;right:8px;top:6px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(11,30,45,.55)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+.chip{appearance:none;border:1.5px solid var(--rule-2);background:var(--paper);border-radius:999px;
+  padding:8px 14px;cursor:pointer;min-height:42px}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--glass-hi)}
+.notes{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.note{font-family:var(--mono);font-size:14px;background:var(--paper);border:1px solid var(--rule-2);padding:4px 8px}
+.note small{color:rgba(11,30,45,.55);margin-left:4px}
+
+.result{margin-top:12px}
+.result svg{display:block;width:100%;height:auto;background:var(--paper);border:1px solid var(--rule-2)}
+.verdict{margin-top:10px;font-size:15px}
+.verdict b{font-weight:700}
+
+details.knobs summary{cursor:pointer;padding:12px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(11,30,45,.65);list-style:none}
+details.knobs summary::-webkit-details-marker{display:none}
+details.knobs summary::before{content:"▸ ";}
+details.knobs[open] summary::before{content:"▾ ";}
+.knob{display:grid;grid-template-columns:1fr 70px;gap:4px 12px;align-items:center;margin-bottom:12px}
+.knob label{font-size:14px}
+.knob output{font-family:var(--mono);font-size:13px;text-align:right}
+.knob input[type=range]{grid-column:1 / -1;width:100%}
+.check{display:flex;gap:10px;align-items:center;margin:6px 0 12px;font-size:14px}
+.check input{width:22px;height:22px}
+
+dl.diag{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0 0 12px;font-size:14px}
+dl.diag dt{color:rgba(11,30,45,.65)}
+dl.diag dd{margin:0;font-family:var(--mono);font-size:13px}
+#copyBox{width:100%;height:120px;font-family:var(--mono);font-size:11px;margin-top:10px;display:none}
+.foot{font-size:13px;color:rgba(11,30,45,.6);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="case">
+
+<header class="masthead"><b>Lark</b><span>mic check · in development</span></header>
+
+<section class="plate" id="micCard">
+  <div class="plate-head"><span>Microphone</span><span class="tag" id="micTag">off</span></div>
+  <div class="body">
+    <p class="hint" id="micHint">Lark listens for the notes you hum or whistle. Nothing is recorded or sent anywhere: the sound is turned into note numbers on this iPad and thrown away.</p>
+    <div class="row">
+      <button class="btn primary" id="micBtn" type="button">Turn on the mic</button>
+    </div>
+    <div class="readout">
+      <div id="noteName">—</div>
+      <div class="meter"><span>Loud</span><div class="bar"><i id="lvlBar"></i><b id="gateMark"></b></div><span class="num" id="lvlNum">—</span></div>
+      <div class="meter"><span>Clear</span><div class="bar"><i id="clrBar"></i><b id="clrMark"></b></div><span class="num" id="clrNum">—</span></div>
+      <div class="meter"><span>Pitch</span><div class="bar" style="visibility:hidden"></div><span class="num" id="hzNum">—</span></div>
+    </div>
+    <div class="tracewrap"><canvas id="trace"></canvas><div class="tracecap" id="traceCap">live</div></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="liveBtn" type="button" hidden>Back to live</button></div>
+  </div>
+</section>
+
+<section class="plate" id="freeCard">
+  <div class="plate-head"><span>1 · Hum anything</span><span class="tag" id="freeTag">ready</span></div>
+  <div class="body">
+    <p>Tap <b>Listen</b> and hum a few notes, with a little break or a new "mm" for each one. Go quiet for a moment and it stops by itself.</p>
+    <div class="row"><button class="btn gold" id="freeBtn" type="button">Listen</button></div>
+    <div class="notes" id="freeOut"></div>
+  </div>
+</section>
+
+<section class="plate" id="tuneCard">
+  <div class="plate-head"><span>2 · Try a tune</span><span class="tag" id="tuneTag">ready</span></div>
+  <div class="body">
+    <p>Pick a tune and tap <b>Play it</b>. When it finishes, Lark listens: hum it back in any key, high or low, or whistle it.</p>
+    <div class="chips" id="tunes"></div>
+    <div class="row">
+      <button class="btn gold" id="playBtn" type="button">Play it</button>
+      <button class="btn" id="againBtn" type="button">Hum it again</button>
+      <button class="btn" id="stopBtn" type="button" hidden>Stop</button>
+    </div>
+    <div class="result" id="tuneOut"></div>
+  </div>
+</section>
+
+<section class="plate">
+  <details class="knobs" id="knobs">
+    <summary>Tuning knobs</summary>
+    <div class="body" id="knobBody">
+      <p class="hint">For finding settings that work for small voices and this room. Changes apply to the next take, and to the last take straight away.</p>
+      <div id="knobList"></div>
+      <label class="check"><input type="checkbox" id="closeMic"> Close the mic while a tune plays (louder playback, but iPadOS may ask for the mic again)</label>
+      <button class="btn" id="resetKnobs" type="button">Put them back</button>
+    </div>
+  </details>
+</section>
+
+<section class="plate">
+  <div class="plate-head"><span>This iPad</span></div>
+  <div class="body">
+    <dl class="diag" id="diag"></dl>
+    <div class="row"><button class="btn" id="copyBtn" type="button">Copy the last take</button></div>
+    <textarea id="copyBox" readonly></textarea>
+    <p class="foot">"Copy the last take" copies the pitch numbers from the most recent take (no sound) so they can be pasted back into a chat to tune the note splitter.</p>
+  </div>
+</section>
+
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================================================================ settings
+   Saved under lark:prefs:v1. The key never changes; `v` inside the blob does. */
+const KEY = "lark:prefs:v1";
+const STATE_V = 1;
+const MIGRATIONS = {};       /* MIGRATIONS[n](blob) -> blob at v n+1 */
+const KNOBS = [
+  {id:"clarity",    label:"How clear a sound must be to count",       min:0.50, max:0.97, step:0.01, def:0.82, fmt:v => v.toFixed(2)},
+  {id:"gateDb",     label:"Quietest sound that counts",               min:-70,  max:-25,  step:1,    def:-52,  fmt:v => v + " dB"},
+  {id:"splitCents", label:"Pitch change that starts a new note",      min:30,   max:150,  step:5,    def:70,   fmt:v => v + "¢"},
+  {id:"dipDb",      label:"Volume dip that starts a new note",        min:4,    max:24,   step:1,    def:10,   fmt:v => v + " dB"},
+  {id:"minNoteMs",  label:"Shortest note",                            min:50,   max:300,  step:10,   def:110,  fmt:v => v + " ms"},
+  {id:"tolCents",   label:"How close counts as right",                min:25,   max:150,  step:5,    def:60,   fmt:v => v + "¢"},
+];
+const defaults = () => ({v:STATE_V, knobs:Object.fromEntries(KNOBS.map(k => [k.id, k.def])), closeMic:false, tune:"rain"});
+let state = defaults();
+let readOnly = false, updateReady = false;
+
+const store = (() => {
+  try{ localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); return localStorage; }catch(e){}
+  return null;
+})();
+function save(){
+  if(readOnly || !store) return;
+  try{ store.setItem(KEY, JSON.stringify(state)); }catch(e){ console.warn("save failed:", e); }
+}
+function load(){
+  let blob = null;
+  try{ const s = store && store.getItem(KEY); blob = s ? JSON.parse(s) : null; }catch(e){ blob = null; }
+  if(!blob || typeof blob !== "object") return;
+  let v = blob.v || 1;
+  if(v > STATE_V){ readOnly = true; console.warn(`saved data is v${v}, this build speaks v${STATE_V}: read-only`); }
+  let b = blob;
+  if(!readOnly){ while(v < STATE_V && MIGRATIONS[v]){ b = MIGRATIONS[v](b); v++; } }
+  const d = defaults();
+  if(b.knobs && typeof b.knobs === "object"){
+    for(const k of KNOBS){
+      const x = Number(b.knobs[k.id]);
+      if(Number.isFinite(x)) d.knobs[k.id] = Math.min(k.max, Math.max(k.min, x));
+    }
+  }
+  d.closeMic = b.closeMic === true;
+  if(TUNES.some(t => t.id === b.tune)) d.tune = b.tune;
+  state = d;
+}
+
+/* ================================================================ tunes
+   Public-domain children's tunes, first phrases only. midi numbers, beats. */
+const TUNES = [
+  {id:"seesaw", name:"See-saw (sol–mi)",   notes:[[67,1],[67,1],[64,2],[67,1],[67,1],[64,2]]},
+  {id:"rain",   name:"Rain, rain",         notes:[[67,1],[67,1],[64,2],[69,1],[67,1],[64,2]]},
+  {id:"buns",   name:"Hot cross buns",     notes:[[64,1],[62,1],[60,2],[64,1],[62,1],[60,2]]},
+  {id:"mary",   name:"Mary had a little lamb", notes:[[64,1.5],[62,0.5],[60,1],[62,1],[64,1],[64,1],[64,2]]},
+  {id:"twinkle",name:"Twinkle, twinkle",   notes:[[60,1],[60,1],[67,1],[67,1],[69,1],[69,1],[67,2]]},
+];
+const BEAT = 0.5;            /* seconds per beat when Lark plays a tune */
+
+/* ================================================================ pitch
+   One frame of sound in, one pitch out: the McLeod Pitch Method (McLeod and
+   Wyvill, "A Smarter Way to Find Pitch", 2005), the method the MIT-licensed
+   `pitchy` library uses, written out here so the game stays one file. It finds
+   how strongly the sound repeats itself at each delay (the normalised square
+   difference, "nsdf"), then takes the first strong peak. The peak's height is
+   the "clarity": near 1 for a steady hum or whistle, low for breath and noise. */
+const MIN_HZ = 65, MAX_HZ = 2600;   /* a low adult hum to a high whistle */
+let nsdfBuf = null, xBuf = null;
+function detect(buf, sr){
+  const N = buf.length;
+  if(!xBuf || xBuf.length !== N) xBuf = new Float64Array(N);
+  const x = xBuf;
+  let mean = 0;
+  for(let i = 0; i < N; i++) mean += buf[i];
+  mean /= N;
+  let sq = 0;
+  for(let i = 0; i < N; i++){ const v = buf[i] - mean; x[i] = v; sq += v * v; }
+  const rms = Math.sqrt(sq / N);
+  const db = 20 * Math.log10(rms + 1e-12);
+  if(rms < 1e-5) return {hz:0, c:0, db};
+  const maxLag = Math.min(Math.floor(sr / MIN_HZ) + 2, N >> 1);
+  const minLag = Math.max(2, Math.floor(sr / MAX_HZ));
+  if(!nsdfBuf || nsdfBuf.length < maxLag + 2) nsdfBuf = new Float64Array(maxLag + 2);
+  const n = nsdfBuf;
+  let m = 2 * sq;
+  for(let tau = 0; tau <= maxLag + 1; tau++){
+    let acf = 0;
+    for(let j = 0, L = N - tau; j < L; j++) acf += x[j] * x[j + tau];
+    if(tau > 0) m -= x[N - tau] * x[N - tau] + x[tau - 1] * x[tau - 1];
+    n[tau] = m > 1e-20 ? 2 * acf / m : 0;
+  }
+  /* skip the lobe around zero delay, then take the top of each positive lobe */
+  let tau = 1;
+  while(tau <= maxLag && n[tau] > 0) tau++;
+  const peaks = [];
+  let best = -1, bestTau = -1, inLobe = false;
+  for(; tau <= maxLag; tau++){
+    const v = n[tau];
+    if(v > 0){ inLobe = true; if(v > best){ best = v; bestTau = tau; } }
+    else if(inLobe){ if(bestTau >= minLag) peaks.push(bestTau); inLobe = false; best = -1; bestTau = -1; }
+  }
+  if(inLobe && bestTau >= minLag && bestTau < maxLag) peaks.push(bestTau);
+  if(!peaks.length) return {hz:0, c:0, db};
+  let top = 0;
+  for(const p of peaks) if(n[p] > top) top = n[p];
+  const pick = peaks.find(p => n[p] >= 0.9 * top);
+  const a = n[pick - 1], b = n[pick], c = n[pick + 1];
+  const d = a - 2 * b + c;
+  const shift = d !== 0 ? Math.max(-0.5, Math.min(0.5, 0.5 * (a - c) / d)) : 0;
+  const clarity = Math.min(1, b - 0.25 * (a - c) * shift);
+  return {hz: sr / (pick + shift), c: clarity, db};
+}
+
+const midiOf = hz => 69 + 12 * Math.log2(hz / 440);
+const hzOf = m => 440 * Math.pow(2, (m - 69) / 12);
+const NAMES = ["C","C♯","D","E♭","E","F","F♯","G","A♭","A","B♭","B"];
+const nameOf = m => { const r = Math.round(m); return NAMES[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1); };
+function median(a){
+  if(!a.length) return NaN;
+  const s = a.slice().sort((p, q) => p - q), h = s.length >> 1;
+  return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2;
+}
+
+/* ================================================================ notes
+   A pitch track in, a list of notes out. Singing never holds still, so a note
+   is a run of frames that stays within `splitCents` of its own middle. A run
+   also ends at silence, or at a volume dip (a new "mm"), which is the only way
+   two notes of the same pitch can be told apart. Runs shorter than
+   `minNoteMs` are the slides between notes and are dropped. Defaults follow
+   Essentia's PitchContourSegmentation (60 cents, 0.1 s), loosened for children. */
+function voicedMidi(frames, k){
+  return frames.map(f => (f.hz > 0 && f.c >= k.clarity && f.db >= k.gateDb) ? midiOf(f.hz) : null);
+}
+function splitNotes(frames, k){
+  if(frames.length < 2) return [];
+  const raw = voicedMidi(frames, k);
+  /* 1. octave slips: a frame an octave away from its neighbours is a detector error */
+  const fixed = raw.slice();
+  for(let i = 0; i < raw.length; i++){
+    if(raw[i] == null) continue;
+    const nb = [];
+    for(let j = Math.max(0, i - 3); j <= Math.min(raw.length - 1, i + 3); j++) if(j !== i && raw[j] != null) nb.push(raw[j]);
+    if(nb.length < 3) continue;
+    const dd = raw[i] - median(nb);
+    if(Math.abs(Math.abs(dd) - 12) < 1.2) fixed[i] = raw[i] - 12 * Math.sign(dd);
+  }
+  /* 2. a 3-frame median over voiced neighbours takes out single-frame spikes */
+  const m = fixed.map((v, i) => {
+    if(v == null) return null;
+    const w = [fixed[i - 1], v, fixed[i + 1]].filter(x => x != null);
+    return median(w);
+  });
+  const dts = [];
+  for(let i = 1; i < frames.length; i++) dts.push(frames[i].t - frames[i - 1].t);
+  const hop = Math.max(0.001, median(dts) || 1 / 60);
+
+  /* 3. runs */
+  const runs = [];
+  let cur = null, lastEnd = "start";
+  const close = why => { if(cur){ cur.endBy = why; runs.push(cur); lastEnd = why; } cur = null; };
+  for(let i = 0; i < frames.length; i++){
+    const f = frames[i], v = m[i];
+    if(v == null){ if(cur) close("gap"); else lastEnd = "gap"; continue; }
+    if(cur && f.db < cur.peakDb - k.dipDb){ close("dip"); continue; }
+    if(cur && Math.abs(v - median(cur.ms)) * 100 > k.splitCents) close("pitch");
+    if(!cur) cur = {t0:f.t, t1:f.t, ms:[], peakDb:f.db, startDb:f.db, startBy:lastEnd};
+    cur.ms.push(v); cur.t1 = f.t;
+    if(f.db > cur.peakDb) cur.peakDb = f.db;
+  }
+  close("end");
+
+  /* 4. keep real notes: long enough, and not the fading tail after a dip */
+  const minDur = k.minNoteMs / 1000;
+  const isNote = r => (r.t1 - r.t0 + hop) >= minDur &&
+    !(r.startBy === "dip" && r.peakDb - r.startDb < 0.6 * k.dipDb);
+  /* 5. join a note that drifted: two kept runs with only pitch breaks between
+     them, and nearly the same pitch, were one note sung a little out of tune */
+  const notes = [];
+  let prevIdx = -1;
+  for(let i = 0; i < runs.length; i++){
+    const r = runs[i];
+    if(!isNote(r)) continue;
+    const pm = median(r.ms);
+    if(prevIdx >= 0 && notes.length){
+      let joined = true;
+      for(let j = prevIdx + 1; j <= i; j++) if(runs[j].startBy !== "pitch") joined = false;
+      const last = notes[notes.length - 1];
+      if(joined && Math.abs(median(last.ms) - pm) * 100 < k.splitCents){
+        last.ms = last.ms.concat(r.ms); last.t1 = r.t1; prevIdx = i; continue;
+      }
+    }
+    notes.push({t0:r.t0, t1:r.t1, ms:r.ms.slice()});
+    prevIdx = i;
+  }
+  /* 6. a note's pitch is the middle of its run: the start scoops, the end sags */
+  return notes.map(r => {
+    const a = Math.floor(r.ms.length * 0.2), b = Math.ceil(r.ms.length * 0.85);
+    const core = r.ms.slice(a, Math.max(a + 1, b));
+    return {t0:r.t0, t1:r.t1 + hop, midi:median(core), frames:r.ms.length};
+  });
+}
+
+/* ================================================================ matching
+   The tune and the hum are compared by shape, never by key: every way of
+   lining one note up with another suggests a key shift; for each, the notes are
+   aligned allowing a missed note or an extra one (edit distance, as the
+   query-by-humming systems do), and the cheapest alignment wins. */
+function align(target, sung, off){
+  const n = target.length, m = sung.length;
+  const MISS = 1.5, EXTRA = 1.0, CAP = 2.0;
+  const D = Array.from({length:n + 1}, () => new Float64Array(m + 1));
+  const B = Array.from({length:n + 1}, () => new Uint8Array(m + 1));
+  for(let i = 1; i <= n; i++){ D[i][0] = i * MISS; B[i][0] = 1; }
+  for(let j = 1; j <= m; j++){ D[0][j] = j * EXTRA; B[0][j] = 2; }
+  for(let i = 1; i <= n; i++) for(let j = 1; j <= m; j++){
+    const sub = D[i - 1][j - 1] + Math.min(Math.abs(sung[j - 1] - off - target[i - 1]), CAP);
+    const del = D[i - 1][j] + MISS, ins = D[i][j - 1] + EXTRA;
+    if(sub <= del && sub <= ins){ D[i][j] = sub; B[i][j] = 0; }
+    else if(del <= ins){ D[i][j] = del; B[i][j] = 1; }
+    else { D[i][j] = ins; B[i][j] = 2; }
+  }
+  const pairs = [];
+  for(let i = n, j = m; i > 0 || j > 0;){
+    const bk = B[i][j];
+    if(i > 0 && j > 0 && bk === 0){ pairs.push([i - 1, j - 1]); i--; j--; }
+    else if(i > 0 && (j === 0 || bk === 1)) i--;
+    else j--;
+  }
+  return {cost:D[n][m], pairs:pairs.reverse()};
+}
+function match(target, sung, tolCents){
+  const n = target.length, mm = sung.length;
+  const res = {offset:0, notes:target.map(() => ({status:"missed", j:-1, err:null})),
+               extras:mm, right:0, close:0, intervals:Math.max(0, n - 1), intervalsRight:0};
+  if(!mm || !n) return res;
+  const cands = new Set();
+  for(const t of target) for(const s of sung) cands.add(Math.round((s - t) * 10) / 10);
+  let best = null;
+  for(const off of cands){ const r = align(target, sung, off); if(!best || r.cost < best.cost - 1e-9) best = {...r, off}; }
+  const off2 = median(best.pairs.map(([i, j]) => sung[j] - target[i]));
+  if(Number.isFinite(off2)){ const r2 = align(target, sung, off2); if(r2.cost <= best.cost + 1e-9) best = {...r2, off:off2}; }
+  res.offset = best.off;
+  const tol = tolCents / 100;
+  for(const [i, j] of best.pairs){
+    const err = sung[j] - best.off - target[i];
+    const a = Math.abs(err);
+    res.notes[i] = {status: a <= tol ? "ok" : a <= 2 * tol ? "close" : "off", j, err};
+    if(a <= tol) res.right++; else if(a <= 2 * tol) res.close++;
+  }
+  res.extras = mm - best.pairs.length;
+  for(let i = 0; i + 1 < n; i++){
+    const p = res.notes[i], q = res.notes[i + 1];
+    if(p.j < 0 || q.j < 0) continue;
+    const e = (sung[q.j] - sung[p.j]) - (target[i + 1] - target[i]);
+    if(Math.abs(e) <= tol) res.intervalsRight++;
+  }
+  return res;
+}
+
+/* ================================================================ audio */
+const mic = {on:false, stream:null, src:null, an:null, sink:null, buf:null, turnOns:0, settings:null};
+let ctx = null;
+let mode = "idle";            /* idle | listening | playing */
+let live = [];                /* last LIVE_S seconds of frames, for the trace */
+const LIVE_S = 8;
+const STOP_QUIET = 2.0;      /* seconds of quiet that end a take */
+let take = null;              /* {kind, tune, frames, notes, result, t0, ignoreUntil, lastVoiced} */
+let lastTake = null;
+let view = "live";            /* live | take */
+let perf = {n:0, ms:0, t0:0, fps:0};
+let playTimer = null, playNodes = [];
+
+function hasSession(){ try{ return !!(navigator.audioSession && "type" in navigator.audioSession); }catch(e){ return false; } }
+function setSession(type){ try{ if(hasSession()) navigator.audioSession.type = type; }catch(e){} }
+function ensureCtx(){
+  if(!ctx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) throw new Error("no Web Audio here");
+    ctx = new AC();
+  }
+  if(ctx.state === "suspended") ctx.resume().catch(() => {});
+  return ctx;
+}
+async function micOn(){
+  if(mic.on) return true;
+  try{
+    setSession("play-and-record");      /* before capture, or playback drops to call volume */
+    ensureCtx();
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:false, noiseSuppression:false, autoGainControl:false, channelCount:1}});
+    mic.turnOns++;
+    mic.stream = stream;
+    mic.src = ctx.createMediaStreamSource(stream);
+    mic.an = ctx.createAnalyser();
+    mic.an.fftSize = 2048;
+    mic.an.smoothingTimeConstant = 0;
+    /* WebKit only pulls audio through nodes that reach the speakers, so the
+       analyser feeds a silent gain into the destination */
+    mic.sink = ctx.createGain(); mic.sink.gain.value = 0;
+    mic.src.connect(mic.an); mic.an.connect(mic.sink); mic.sink.connect(ctx.destination);
+    mic.buf = new Float32Array(mic.an.fftSize);
+    try{ mic.settings = stream.getAudioTracks()[0].getSettings(); }catch(e){ mic.settings = null; }
+    mic.on = true;
+    live = [];
+    renderMic(); renderDiag();
+    return true;
+  }catch(e){
+    console.warn("mic failed:", e);
+    setSession("playback");
+    $("#micHint").textContent = "The mic didn't turn on (" + (e && e.name || "error") + "). If iPadOS asked and it was refused, allow the microphone for this app in Settings, then try again.";
+    renderMic();
+    return false;
+  }
+}
+function micOff(){
+  if(!mic.on) return;
+  try{ mic.stream.getTracks().forEach(t => t.stop()); }catch(e){}
+  try{ mic.src.disconnect(); mic.an.disconnect(); mic.sink.disconnect(); }catch(e){}
+  mic.on = false; mic.stream = mic.src = mic.an = mic.sink = null;
+  setSession("playback");               /* and back, or everything after stays quiet */
+  if(mode === "listening") finishTake();
+  renderMic();
+}
+
+/* ---- the frame loop ---- */
+function tick(){
+  requestAnimationFrame(tick);
+  if(!mic.on || !mic.an) return;
+  mic.an.getFloatTimeDomainData(mic.buf);
+  const t0 = performance.now();
+  const f = detect(mic.buf, ctx.sampleRate);
+  const dt = performance.now() - t0;
+  perf.n++; perf.ms += dt;
+  if(!perf.t0) perf.t0 = t0;
+  if(t0 - perf.t0 > 1000){ perf.fps = perf.n * 1000 / (t0 - perf.t0); perf.avg = perf.ms / perf.n; perf.n = 0; perf.ms = 0; perf.t0 = t0; renderDiag(); }
+  f.t = ctx.currentTime;
+  live.push(f);
+  while(live.length && f.t - live[0].t > LIVE_S) live.shift();
+  if(mode === "listening" && take && f.t >= take.ignoreUntil){
+    take.frames.push(f);
+    const k = state.knobs;
+    const voiced = f.hz > 0 && f.c >= k.clarity && f.db >= k.gateDb;
+    if(voiced){ take.lastVoiced = f.t; take.heard = (take.heard || 0) + 1; }
+    /* a take ends after 2 s of quiet once something was heard (a child may stop
+       to think mid-tune), after 8 s if nothing ever was, and at 20 s regardless */
+    const quietFor = f.t - (take.lastVoiced || take.ignoreUntil);
+    if((take.heard > 8 && quietFor > STOP_QUIET) || f.t - take.ignoreUntil > 20 || (!take.heard && quietFor > 8)) finishTake();
+  }
+  renderReadout(f);
+  drawTrace();
+}
+
+/* ---- takes ---- */
+async function startTake(kind){
+  if(mode === "playing") return;
+  if(!(await micOn())) return;
+  take = {kind, tune: kind === "tune" ? state.tune : null, frames:[], t0:ctx.currentTime,
+          ignoreUntil: ctx.currentTime + 0.25, lastVoiced:0, heard:0};
+  mode = "listening"; view = "live";
+  if(kind === "free") $("#freeOut").innerHTML = "";
+  else $("#tuneOut").innerHTML = "";
+  renderButtons();
+}
+function finishTake(){
+  if(mode !== "listening" || !take) return;
+  mode = "idle";
+  analyseTake(take);
+  lastTake = take; take = null;
+  view = lastTake.frames.length ? "take" : "live";
+  renderTakeOut(lastTake);
+  renderButtons(); drawTrace(); renderDiag();
+  atBoundary();
+}
+function analyseTake(tk){
+  tk.notes = splitNotes(tk.frames, state.knobs);
+  if(tk.kind === "tune"){
+    const tune = TUNES.find(t => t.id === tk.tune);
+    tk.result = match(tune.notes.map(n => n[0]), tk.notes.map(n => n.midi), state.knobs.tolCents);
+  }
+}
+
+/* ---- playing a tune ---- */
+async function playTune(){
+  if(mode !== "idle") return;
+  try{ ensureCtx(); }catch(e){ return; }
+  const tune = TUNES.find(t => t.id === state.tune);
+  const keepMic = mic.on && !state.closeMic;
+  if(mic.on && state.closeMic) micOff();
+  if(!keepMic) setSession("playback");
+  mode = "playing"; renderButtons();
+  $("#tuneOut").innerHTML = "";
+  const start = ctx.currentTime + 0.12;
+  let t = start;
+  playNodes = [];
+  for(const [m, beats] of tune.notes){
+    const len = beats * BEAT;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "triangle"; o.frequency.value = hzOf(m);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.32, t + 0.02);
+    g.gain.setValueAtTime(0.32, t + len - 0.09);
+    g.gain.linearRampToValueAtTime(0, t + len - 0.03);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + len);
+    playNodes.push(o);
+    t += len;
+  }
+  const total = (t - ctx.currentTime) * 1000;
+  playTimer = setTimeout(async () => {
+    playTimer = null; mode = "idle"; renderButtons();
+    await startTake("tune");             /* straight into listening: hum it back */
+  }, total + 150);
+}
+function stopAll(){
+  if(playTimer){ clearTimeout(playTimer); playTimer = null; }
+  for(const o of playNodes){ try{ o.stop(); }catch(e){} }
+  playNodes = [];
+  if(mode === "playing"){ mode = "idle"; renderButtons(); }
+  if(mode === "listening") finishTake();
+}
+
+/* ================================================================ drawing */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderReadout(f){
+  const k = state.knobs;
+  const voiced = f && f.hz > 0 && f.c >= k.clarity && f.db >= k.gateDb;
+  $("#noteName").textContent = voiced ? nameOf(midiOf(f.hz)) : "—";
+  $("#hzNum").textContent = voiced ? Math.round(f.hz) + " Hz" : "—";
+  const lv = f ? Math.max(0, Math.min(1, (f.db + 80) / 70)) : 0;
+  $("#lvlBar").style.width = (lv * 100).toFixed(1) + "%";
+  $("#lvlNum").textContent = f ? Math.round(f.db) + " dB" : "—";
+  $("#clrBar").style.width = f ? (Math.max(0, f.c) * 100).toFixed(1) + "%" : "0";
+  $("#clrNum").textContent = f ? Math.max(0, f.c).toFixed(2) : "—";
+}
+function renderMarks(){
+  const k = state.knobs;
+  $("#gateMark").style.left = (Math.max(0, Math.min(1, (k.gateDb + 80) / 70)) * 100) + "%";
+  $("#clrMark").style.left = (k.clarity * 100) + "%";
+}
+function renderMic(){
+  const tag = $("#micTag");
+  tag.textContent = mic.on ? "listening" : "off";
+  tag.className = "tag" + (mic.on ? " on" : "");
+  $("#micBtn").textContent = mic.on ? "Turn off the mic" : "Turn on the mic";
+  if(!mic.on) renderReadout(null);
+  renderButtons();
+}
+function renderButtons(){
+  const busy = mode !== "idle";
+  const fb = $("#freeBtn");
+  fb.textContent = mode === "listening" && take && take.kind === "free" ? "Stop" : "Listen";
+  fb.disabled = mode === "playing" || (mode === "listening" && take && take.kind !== "free");
+  $("#playBtn").disabled = busy;
+  $("#againBtn").disabled = busy;
+  $("#stopBtn").hidden = !(mode === "playing" || (mode === "listening" && take && take.kind === "tune"));
+  $("#freeTag").textContent = mode === "listening" && take && take.kind === "free" ? "listening" : "ready";
+  $("#freeTag").className = "tag" + (mode === "listening" && take && take.kind === "free" ? " busy" : "");
+  const tt = mode === "playing" ? "playing" : (mode === "listening" && take && take.kind === "tune") ? "your turn" : "ready";
+  $("#tuneTag").textContent = tt;
+  $("#tuneTag").className = "tag" + (tt !== "ready" ? " busy" : "");
+  for(const c of document.querySelectorAll("#tunes .chip")) c.disabled = busy;
+  $("#liveBtn").hidden = view !== "take";
+  $("#traceCap").textContent = view === "take" ? "last take" : "live";
+}
+function renderTunes(){
+  $("#tunes").innerHTML = TUNES.map(t =>
+    `<button class="chip" type="button" data-tune="${t.id}" aria-pressed="${t.id === state.tune}">${esc(t.name)}</button>`).join("");
+}
+function noteChips(notes){
+  if(!notes.length) return `<span class="hint">No notes heard. Try humming louder, or closer to the iPad.</span>`;
+  return notes.map(n => `<span class="note">${nameOf(n.midi)}<small>${Math.round((n.t1 - n.t0) * 1000)}ms</small></span>`).join("");
+}
+function renderTakeOut(tk){
+  if(!tk) return;
+  if(tk.kind === "free"){ $("#freeOut").innerHTML = noteChips(tk.notes); return; }
+  const tune = TUNES.find(t => t.id === tk.tune);
+  const r = tk.result;
+  const target = tune.notes.map(n => n[0]);
+  $("#tuneOut").innerHTML = resultSvg(target, tk.notes.map(n => n.midi), r) +
+    `<div class="verdict">${verdictText(tune, tk.notes, r)}</div>` +
+    `<div class="notes">${noteChips(tk.notes)}</div>`;
+}
+function verdictText(tune, notes, r){
+  const n = tune.notes.length;
+  if(!notes.length) return "Lark didn't hear any notes that time. Tap <b>Hum it again</b>.";
+  const shift = Math.round(r.offset);
+  const oct = Math.round(shift / 12);
+  let key = shift === 0 ? "in the same key Lark played" :
+    (Math.abs(shift - oct * 12) <= 1 && oct !== 0) ? `${Math.abs(oct)} octave${Math.abs(oct) > 1 ? "s" : ""} ${oct > 0 ? "higher" : "lower"} than Lark played (fine: any key counts)` :
+    `${Math.abs(shift)} semitone${Math.abs(shift) > 1 ? "s" : ""} ${shift > 0 ? "higher" : "lower"} than Lark played (fine: any key counts)`;
+  const parts = [`<b>${r.right} of ${n}</b> notes right`];
+  if(r.close) parts.push(`${r.close} close`);
+  const missed = r.notes.filter(x => x.status === "missed").length;
+  if(missed) parts.push(`${missed} missed`);
+  if(r.extras) parts.push(`${r.extras} extra`);
+  return parts.join(", ") + `. Steps between notes: <b>${r.intervalsRight} of ${r.intervals}</b> right. Heard ${notes.length} notes, ${key}.`;
+}
+function resultSvg(target, sung, r){
+  const W = 640, H = 200, pad = 28, n = target.length;
+  const shifted = r.notes.map(x => x.j >= 0 ? sung[x.j] - r.offset : null);
+  const all = target.concat(shifted.filter(v => v != null));
+  const lo = Math.floor(Math.min(...all)) - 2, hi = Math.ceil(Math.max(...all)) + 2;
+  const y = m => pad + (hi - m) / (hi - lo) * (H - 2 * pad);
+  const x = i => pad + 30 + (i + 0.5) * (W - 2 * pad - 30) / n;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="The tune and what Lark heard">`;
+  for(let m = Math.ceil(lo); m <= hi; m++){
+    const nat = !NAMES[((m % 12) + 12) % 12].includes("♯") && !NAMES[((m % 12) + 12) % 12].includes("♭");
+    if(!nat) continue;
+    s += `<line x1="${pad + 24}" x2="${W - pad}" y1="${y(m)}" y2="${y(m)}" stroke="rgba(11,30,45,.10)"/>`;
+    s += `<text x="${pad}" y="${y(m) + 4}" font-size="10" font-family="ui-monospace,monospace" fill="rgba(11,30,45,.5)">${nameOf(m)}</text>`;
+  }
+  const col = {ok:"#007A33", close:"#C98A00", off:"#C8102E"};
+  for(let i = 0; i < n; i++){
+    s += `<circle cx="${x(i)}" cy="${y(target[i])}" r="9" fill="none" stroke="#0B1E2D" stroke-width="2"/>`;
+    const v = shifted[i], st = r.notes[i].status;
+    if(v != null){
+      s += `<line x1="${x(i)}" x2="${x(i)}" y1="${y(target[i])}" y2="${y(v)}" stroke="${col[st]}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      s += `<circle cx="${x(i)}" cy="${y(v)}" r="6.5" fill="${col[st]}"/>`;
+    } else {
+      s += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#C8102E">missed</text>`;
+    }
+  }
+  s += `<text x="${W - pad}" y="16" text-anchor="end" font-size="11" fill="rgba(11,30,45,.6)">rings: the tune · dots: what Lark heard, moved into the tune's key</text>`;
+  return s + `</svg>`;
+}
+
+/* ---- the trace ---- */
+let cv = null, c2 = null, cssW = 600;
+function sizeCanvas(){
+  cv = $("#trace");
+  try{ c2 = cv.getContext("2d"); }catch(e){ c2 = null; }
+  if(!c2) return;
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect();
+  cssW = r.width || 600;
+  cv.width = Math.max(1, Math.round(r.width * dpr));
+  cv.height = Math.max(1, Math.round(240 * dpr));
+  c2.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+let center = 60;
+function drawTrace(){
+  if(!c2) return;
+  const W = cssW, H = 240;
+  c2.clearRect(0, 0, W, H);
+  const k = state.knobs;
+  const showTake = view === "take" && lastTake;
+  const frames = showTake ? lastTake.frames : live;
+  const ms = voicedMidi(frames, k);
+  let lo, hi, t0, t1;
+  if(showTake){
+    const all = ms.filter(v => v != null).concat((lastTake.notes || []).map(n => n.midi));
+    const mid = all.length ? median(all) : 60;
+    lo = all.length ? Math.min(...all) - 3 : mid - 8; hi = all.length ? Math.max(...all) + 3 : mid + 8;
+    if(hi - lo < 14){ const c = (hi + lo) / 2; lo = c - 7; hi = c + 7; }
+    t0 = frames.length ? frames[0].t : 0; t1 = frames.length ? Math.max(frames[frames.length - 1].t, t0 + 3) : t0 + 3;
+  } else {
+    const recent = ms.filter(v => v != null).slice(-120);
+    if(recent.length > 10) center += (median(recent) - center) * 0.05;
+    lo = center - 12; hi = center + 12;
+    t1 = frames.length ? frames[frames.length - 1].t : 0; t0 = t1 - LIVE_S;
+  }
+  const L = 34;
+  const X = t => L + (t - t0) / (t1 - t0) * (W - L - 8);
+  const Y = m => 10 + (hi - m) / (hi - lo) * (H - 20);
+  c2.font = "10px ui-monospace, monospace";
+  for(let m = Math.ceil(lo); m <= Math.floor(hi); m++){
+    const nm = NAMES[((m % 12) + 12) % 12];
+    const nat = nm.length === 1;
+    c2.strokeStyle = nm === "C" ? "rgba(11,30,45,.28)" : nat ? "rgba(11,30,45,.10)" : "rgba(11,30,45,.04)";
+    c2.beginPath(); c2.moveTo(L, Y(m)); c2.lineTo(W - 4, Y(m)); c2.stroke();
+    if(nat){ c2.fillStyle = "rgba(11,30,45,.5)"; c2.fillText(nameOf(m), 2, Y(m) + 3); }
+  }
+  if(showTake){
+    for(const n of lastTake.notes || []){
+      c2.fillStyle = "rgba(255,182,18,.55)";
+      c2.fillRect(X(n.t0), Y(n.midi) - 5, Math.max(3, X(n.t1) - X(n.t0)), 10);
+      c2.fillStyle = "#8A5A00";
+      c2.fillText(nameOf(n.midi), X(n.t0), Y(n.midi) - 8);
+    }
+  }
+  for(let i = 0; i < frames.length; i++){
+    const f = frames[i];
+    if(f.hz <= 0 || f.db < k.gateDb) continue;
+    const m = midiOf(f.hz);
+    if(m < lo - 1 || m > hi + 1) continue;
+    const ok = ms[i] != null;
+    c2.fillStyle = ok ? "rgba(11,30,45,.9)" : "rgba(11,30,45,.18)";
+    c2.fillRect(X(f.t) - 1, Y(m) - 1.5, 2.5, 3);
+  }
+}
+
+/* ---- knobs and diagnostics ---- */
+function renderKnobs(){
+  $("#knobList").innerHTML = KNOBS.map(k => `<div class="knob"><label for="k_${k.id}">${esc(k.label)}</label>
+    <output id="o_${k.id}">${k.fmt(state.knobs[k.id])}</output>
+    <input type="range" id="k_${k.id}" data-knob="${k.id}" min="${k.min}" max="${k.max}" step="${k.step}" value="${state.knobs[k.id]}"></div>`).join("");
+  $("#closeMic").checked = state.closeMic;
+  renderMarks();
+}
+function standalone(){
+  try{ return navigator.standalone === true || matchMedia("(display-mode: standalone)").matches; }catch(e){ return false; }
+}
+function renderDiag(){
+  const s = mic.settings || {};
+  const yn = v => v === undefined ? "not reported" : v ? "on" : "off";
+  const rows = [
+    ["Home-screen app", standalone() ? "yes" : "no (open from the Home Screen to test that)"],
+    ["Audio session control", hasSession() ? "yes (" + (navigator.audioSession.type || "auto") + ")" : "no"],
+    ["Sample rate", ctx ? ctx.sampleRate + " Hz" : "—"],
+    ["Mic turned on", mic.turnOns + " time" + (mic.turnOns === 1 ? "" : "s") + " since launch"],
+    ["Echo cancellation", mic.settings ? yn(s.echoCancellation) : "—"],
+    ["Noise suppression", mic.settings ? yn(s.noiseSuppression) : "—"],
+    ["Auto gain", mic.settings ? yn(s.autoGainControl) : "—"],
+    ["Pitch checks", perf.fps ? `${perf.fps.toFixed(0)} a second, ${perf.avg.toFixed(1)} ms each` : "—"],
+    ["Saved settings", readOnly ? "read-only (newer data)" : store ? "yes" : "not available"],
+  ];
+  $("#diag").innerHTML = rows.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("");
+}
+function takeJson(tk){
+  const r2 = v => Math.round(v * 100) / 100;
+  return JSON.stringify({
+    app:"lark-mic-check", v:1, at:new Date().toISOString(),
+    sampleRate: ctx ? ctx.sampleRate : null, standalone: standalone(), knobs: state.knobs,
+    kind: tk.kind, tune: tk.tune,
+    frames: tk.frames.map(f => [r2(f.t - tk.frames[0].t), Math.round(f.hz * 10) / 10, r2(f.c), Math.round(f.db)]),
+    notes: (tk.notes || []).map(n => [r2(n.t0 - tk.frames[0].t), r2(n.t1 - n.t0), r2(n.midi)]),
+    result: tk.result ? {offset:r2(tk.result.offset), right:tk.result.right, close:tk.result.close,
+      extras:tk.result.extras, intervalsRight:tk.result.intervalsRight,
+      notes: tk.result.notes.map(x => x.status)} : null,
+    perf: perf.fps ? {fps:Math.round(perf.fps), ms:r2(perf.avg)} : null,
+    mic: mic.settings || null, turnOns: mic.turnOns
+  });
+}
+async function copyTake(){
+  const box = $("#copyBox");
+  if(!lastTake || !lastTake.frames.length){ box.style.display = "block"; box.value = "No take yet."; return; }
+  const json = takeJson(lastTake);
+  try{
+    await navigator.clipboard.writeText(json);
+    $("#copyBtn").textContent = "Copied";
+    setTimeout(() => { $("#copyBtn").textContent = "Copy the last take"; }, 1600);
+  }catch(e){
+    box.style.display = "block"; box.value = json; box.focus(); box.select();
+  }
+}
+
+/* ================================================================ wiring */
+function atBoundary(){
+  /* a new build switches in only when nothing is happening */
+  if(updateReady && mode === "idle"){ try{ location.reload(); }catch(e){} }
+}
+function wire(){
+  $("#micBtn").addEventListener("click", () => { mic.on ? micOff() : micOn(); });
+  $("#freeBtn").addEventListener("click", () => {
+    if(mode === "listening" && take && take.kind === "free") finishTake(); else startTake("free");
+  });
+  $("#playBtn").addEventListener("click", async () => {
+    /* the mic is asked for on this tap, while iPadOS still counts it as one */
+    if(!state.closeMic && !mic.on) await micOn();
+    playTune();
+  });
+  $("#againBtn").addEventListener("click", () => startTake("tune"));
+  $("#stopBtn").addEventListener("click", stopAll);
+  $("#liveBtn").addEventListener("click", () => { view = "live"; renderButtons(); drawTrace(); });
+  $("#tunes").addEventListener("click", e => {
+    const b = e.target.closest("[data-tune]");
+    if(!b || mode !== "idle") return;
+    state.tune = b.dataset.tune; save(); renderTunes();
+  });
+  $("#knobList").addEventListener("input", e => {
+    const id = e.target.dataset && e.target.dataset.knob;
+    const k = KNOBS.find(q => q.id === id);
+    if(!k) return;
+    state.knobs[id] = Number(e.target.value);
+    $("#o_" + id).textContent = k.fmt(state.knobs[id]);
+    renderMarks();
+    if(lastTake && mode === "idle"){ analyseTake(lastTake); renderTakeOut(lastTake); drawTrace(); }
+  });
+  $("#knobList").addEventListener("change", save);
+  $("#closeMic").addEventListener("change", e => { state.closeMic = e.target.checked; save(); });
+  $("#resetKnobs").addEventListener("click", () => {
+    state.knobs = defaults().knobs; save(); renderKnobs();
+    if(lastTake && mode === "idle"){ analyseTake(lastTake); renderTakeOut(lastTake); drawTrace(); }
+  });
+  $("#copyBtn").addEventListener("click", copyTake);
+  document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "hidden"){
+      /* iPadOS mutes the mic in the background anyway; let go of it cleanly */
+      stopAll();
+      if(mic.on){ micOff(); $("#micHint").textContent = "The mic turned off while Lark was in the background. Tap to turn it back on."; }
+    } else atBoundary();
+  });
+  window.addEventListener("resize", () => { sizeCanvas(); drawTrace(); });
+}
+
+load();
+renderTunes(); renderKnobs(); renderMic(); renderDiag();
+sizeCanvas(); drawTrace();
+wire();
+requestAnimationFrame(tick);
+
+/* ---- update delivery (as Hopper): check when the app comes back, switch at
+   the next moment nothing is playing or listening ---- */
+if("serviceWorker" in navigator){
+  (async () => {
+    try{
+      const reg = await navigator.serviceWorker.register("sw.js", {updateViaCache:"none"});
+      reg.addEventListener("updatefound", () => {
+        const sw = reg.installing;
+        if(!sw) return;
+        sw.addEventListener("statechange", () => {
+          if(sw.state === "installed" && navigator.serviceWorker.controller){ updateReady = true; atBoundary(); }
+        });
+      });
+      let lastCheck = 0;
+      const maybeCheck = () => {
+        if(document.visibilityState !== "visible") return;
+        if(Date.now() - lastCheck < 15 * 60 * 1000) return;
+        lastCheck = Date.now();
+        reg.update().catch(() => {});
+      };
+      document.addEventListener("visibilitychange", maybeCheck);
+      window.addEventListener("pageshow", maybeCheck);
+      maybeCheck();
+    }catch(e){ console.warn("Service worker didn't register:", e); }
+  })();
+}
+})();
+</script>
+</body>
+</html>

@@ -58,6 +58,13 @@ PATCH_IN = (0xF7, 0xD3, 0xDC); CHERRY = (0x9E, 0x2B, 0x4E)
 SKIN_BANDS = [(0.70, (0xF7, 0xD3, 0xDC)), (0.80, (0xF1, 0xBD, 0xB8)), (0.90, (0xFF, 0xF1, 0xD6))]
 
 SPECS = {
+    "lark": {
+        # Lark's mark is a tune drawn the way the game draws it: dots that rise
+        # and fall (sol sol mi la sol mi, "Rain, rain"), first dot in gold,
+        # sitting on three faint staff lines, because the dots become notation.
+        "icon": dict(bg=INK, dot=GLASS_HI, accent=GOLD, staff=(0x2E, 0x40, 0x4E), mark="tune"),
+        "splash": dict(bg=GLASS, dot=INK, accent=GOLD, staff=(0xB4, 0xC0, 0xBB), mark="tune"),
+    },
     "patch": {
         # Patch's mark is a round, clear pimple patch. On the icon it sits on a
         # strip of layered skin (the epidermis, dermis and fat of the diagram).
@@ -316,6 +323,25 @@ def draw_patchdot(cv, cx, cy, box, spec):
     cv.circle(cx, cy, r * 0.17, CHERRY)
 
 
+def draw_tune(cv, cx, cy, box, spec):
+    """Lark's mark: six notes of "Rain, rain" (sol sol mi la sol mi) as dots on
+    three staff lines, the way real notation would put them: lines sit at
+    positions 0, 2 and 4, spaces at 1 and 3, so mi is a space, sol the space
+    above it, la the top line."""
+    pos = [3, 3, 1, 4, 3, 1]
+    pitch = box / len(pos)
+    s = pitch * 0.40                              # one position: half a space
+    r = s * 0.98                                  # a note head fills its space
+    base = cy + 2 * s                             # position 0, so 0..4 is centred
+    lw = max(1.0, box * 0.016)
+    left, right = cx - box / 2, cx + box / 2
+    for p in (0, 2, 4):
+        y = base - p * s
+        cv.polygon([(left, y - lw / 2), (right, y - lw / 2), (right, y + lw / 2), (left, y + lw / 2)], spec["staff"])
+    for i, p in enumerate(pos):
+        cv.circle(left + pitch * (i + 0.5), base - p * s, r, spec["accent"] if i == 0 else spec["dot"])
+
+
 def draw_floor(cv, size):
     """Three bands of skin across the bottom of the icon, full bleed."""
     for top, rgb in SKIN_BANDS:
@@ -338,6 +364,8 @@ def draw_mark(cv, cx, cy, box, spec):
         return draw_bow(cv, cx, cy, box, spec)
     if spec.get("mark") == "patchdot":
         return draw_patchdot(cv, cx, cy, box, spec)
+    if spec.get("mark") == "tune":
+        return draw_tune(cv, cx, cy, box, spec)
     cols, rows = spec["cols"], spec["rows"]
     pitch = box / max(cols, rows)          # square cells, so dots stay circular
     r = pitch * 0.32
