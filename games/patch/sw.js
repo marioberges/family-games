@@ -7,7 +7,7 @@
    for from the network first, so a new claim shows up the next time the player
    is online, and the last copy still works offline. */
 
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL = `patch-shell-${VERSION}`;
 const CLAIMS = "patch-claims";      /* unversioned on purpose: an app update
                                        shouldn't throw away the last good claims */

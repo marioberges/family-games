@@ -49,6 +49,7 @@ rough sizes (0.2 small, 0.5 medium, 0.8 large) are the usual convention.
 | Melanocyte numbers are similar across skin colors; melanin amount differs | Leeds histology: https://www.histology.leeds.ac.uk/skin/pigmentation.php ; Photochem Photobiol 2008: https://pmc.ncbi.nlm.nih.gov/articles/PMC2671032/figure/F1 |
 | Molecules over about 500 daltons rarely cross healthy skin | Bos and Meinardi, Exp Dermatol 2000: https://pubmed.ncbi.nlm.nih.gov/10839713/ |
 | Collagen type I is about 300 kDa; collagen turns over slowly | Textbook biochemistry, not re-checked this session |
+| Drop test weights: niacinamide 122 Da (C6H6N2O), retinol 286 Da (C20H30O) | Molecular formulas; standard values, as in PubChem |
 | The diagram's layout | Traced by eye from the NCI's public-domain "Anatomy of the skin" (Don Bliss): https://commons.wikimedia.org/wiki/File:Layers_of_the_skin.jpg |
 
 Not used, on purpose: the SEER page says sweat glands sit "in the epidermis";

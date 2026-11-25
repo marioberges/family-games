@@ -125,6 +125,7 @@ g.click('[data-act="field"][data-f="decision"]');
 typeIn("#verdict", "Collagen drinks: a bit for dryness, nothing for wrinkles.");
 g.click("#next");
 eq(g.ev("view.s"), "card", "saving opens the card");
+ok(!!g.doc.querySelector(".shower use"), "saving a card sets off a shower of bows and hearts");
 ok(g.ev(`state.cards["collagen-drinks"].gold`), "moved 40 points and named the evidence: gold edge");
 ok(!!g.$(".card.gold > .bow") && !g.$(".card > .sticker"), "a gold card gets the bow, not the patch");
 ok(/#patch/.test(g.ev(`cardMark({gold:false})`)) && !/#bow/.test(g.ev(`cardMark({gold:false})`)), "a plain card gets the patch, not the bow");
@@ -185,6 +186,71 @@ eq(g.ev("state.prefs.read"), false, "the switch turns reading off");
 const k = voice.spoken.length;
 g.click('[data-act="lesson"][data-id="organ"]');
 eq(voice.spoken.length, k, "with it off, nothing is read");
+g.close();
+
+/* ---- lessons whose steps changed: finished stays finished, in-progress restarts ---- */
+g = boot(FILE, {storage:{[KEY]:JSON.stringify({v:2, prefs:{read:false}, own:{products:{}, inv:{}},
+  lessons:{change:{i:4, done:true, a:{1:"keratinocytes"}}, jar:{i:3, done:false, a:{1:1}}}})}});
+g.ev(`go({s:"lesson", id:"change"})`);
+ok(/Lesson done/.test(g.$("#app").textContent), "a finished lesson stays finished after a step is added");
+eq(g.ev("state.lessons.change.rev"), 2, "...and records the lesson's new rev");
+g.ev(`go({s:"lesson", id:"jar"})`);
+eq(g.ev("[state.lessons.jar.i, Object.keys(state.lessons.jar.a).length]"), [0, 0], "a lesson in progress starts again");
+
+/* ---- home: bows on finished lessons, Watch on two, the ribbon picker ---- */
+g.ev(`go({s:"home"})`);
+eq(g.all("ol.lessons .minibow").length, 1, "a finished lesson wears a little bow");
+eq(g.all('.watchbtn').map(b => b.dataset.id), ["organ", "change"], "Watch is offered for lessons 1 and 3 only");
+eq(g.all(".ribbon").length, 4, "four ribbon colors to choose from");
+g.click('.ribbon[data-id="lilac"]');
+eq(g.ev("state.prefs.ribbon"), "lilac", "picking a ribbon saves it");
+eq(g.doc.documentElement.style.getPropertyValue("--bow"), "#B79BE3", "and the bows change color");
+ok(g.all('.brand use, .hero use').every(u => u.getAttribute("href") === "#patch"), "the patch stays the mark beside the name");
+
+/* ---- the cell journey and the drop test ---- */
+g.ev(`state.lessons.change = {i:1, done:false, a:{}, rev:2}; go({s:"lesson", id:"change"})`);
+ok(g.all("#journeyArt ellipse").length >= 12 && /Week 1/.test(g.$("#week").textContent), "the cell journey draws cells and a week counter");
+ok(g.ev(`paintJourney(JOURNEY_MS * 0.8), /Week 4/.test($("#week").textContent)`), "late in the month it says week 4");
+g.ev(`state.lessons.jar = {i:4, done:false, a:{}, rev:2}; go({s:"lesson", id:"jar"})`);
+eq(g.ev(`LESSON.jar.steps[4].t`), "drop", "lesson 4 has the drop test");
+g.click('.mol[data-id="collagen"]');
+ok(Number(g.$('circle[data-mol="collagen"]').getAttribute("cy")) < 96, "collagen stays on top of the bricks");
+ok(/300,000/.test(g.$("#dropSays").textContent), "and says why");
+g.click('.mol[data-id="niacinamide"]');
+ok(Number(g.$('circle[data-mol="niacinamide"]').getAttribute("cy")) > 122, "niacinamide gets through");
+g.close();
+
+/* ---- Watch: a narrated lesson, with a stand-in voice ---- */
+g = boot(FILE);
+const v2 = fakeVoice(g.win);
+g.ev("render()");
+g.click('.watchbtn[data-id="organ"]');
+eq(g.ev("view.s"), "watch", "Watch opens");
+eq(g.$("#caption").textContent, "Skin is an organ", "the first caption is the heading");
+eq(v2.spoken.at(-1).text, "Skin is an organ", "and the voice says it");
+const drain = () => { let guard = 0; while(guard++ < 40 && !g.ev("WT.waiting") && g.ev("WT.sent < WT.lines.length")) v2.spoken.at(-1).onend(); };
+drain();
+ok(g.ev("WT.sent >= WT.lines.length"), "it reads every sentence of the first part");
+g.ev("advanceWatch()");
+drain(); v2.spoken.at(-1).onend();
+ok(g.ev("WT.waiting") && g.all("#ask .opt").length === 3, "it stops at the question and waits");
+g.click('#ask .opt[data-k="1"]');
+ok(/^Yes\./.test(v2.spoken.at(-1).text), "her answer gets its explanation, read aloud");
+eq(g.ev("state.lessons.organ.a[1]"), 1, "the answer is saved to the lesson");
+v2.spoken.at(-1).onend();
+g.ev("advanceWatch()");
+drain(); v2.spoken.at(-1).onend();
+ok(g.ev("WT.waiting"), "it waits for a tap on the picture");
+g.$('.skin [data-node="capillary"]').dispatchEvent(new g.win.MouseEvent("click", {bubbles:true}));
+eq(g.ev("state.lessons.organ.a[2]"), "capillary", "the tap is saved");
+ok(!!g.$(".skin .lbl.on"), "the tapped part is named");
+for(let k = 0; k < 3; k++) g.click('[data-act="wnext"]');
+ok(/That's the lesson/.test(g.$("#app").textContent) && g.ev("state.lessons.organ.done"), "the end of the video finishes the lesson");
+g.click('[data-act="home"]');
+eq(g.ev("view.s"), "home", "home again");
+g.click('.watchbtn[data-id="change"]');
+g.click('[data-act="wclick"]');
+eq(g.ev("view.s"), "lesson", "Click through instead switches to the lesson");
 g.close();
 
 /* ---- a newer build's data is never written over ---- */

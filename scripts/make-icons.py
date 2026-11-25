@@ -62,7 +62,7 @@ SPECS = {
         # Patch's mark is a round, clear pimple patch. On the icon it sits on a
         # strip of layered skin (the epidermis, dermis and fat of the diagram).
         "icon": dict(bg=BLUSH, mark="patchdot", floor=True),
-        "splash": dict(bg=MILK, mark="patchdot"),
+        "splash": dict(bg=(0xFF, 0xF3, 0xF6), mark="patchdot"),   # the pinker ground, 24 Nov 2026
     },
     "romp": {
         "icon": dict(bg=INK, body=GOLD, line=INK, eye=GLASS_HI, mark="doodle"),
