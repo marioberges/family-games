@@ -2,12 +2,12 @@
    The shell is the whole game: the skin diagram is inline SVG and the fonts are
    the system's own, so there are no runtime assets to fetch. Precache it and
    Patch works offline from the first launch onward.
-   claims.json is the one file that changes without a new build: the author
-   pushes a new weekly claim. It is precached with the shell, but always asked
+   claims.json and products.json change without a new build: the author pushes
+   a new weekly claim, a product or an ingredient. It is precached with the shell, but always asked
    for from the network first, so a new claim shows up the next time the player
    is online, and the last copy still works offline. */
 
-const VERSION = "v4";
+const VERSION = "v5";
 const SHELL = `patch-shell-${VERSION}`;
 const CLAIMS = "patch-claims";      /* unversioned on purpose: an app update
                                        shouldn't throw away the last good claims */
@@ -69,8 +69,8 @@ self.addEventListener("install", event => {
       const fresh = f === "./" || f === "./index.html";
       return cache.add(fresh ? new Request(f, { cache: "reload" }) : f).catch(() => {});
     }));
-    const claims = await caches.open(CLAIMS);
-    await claims.add(new Request("./claims.json", { cache: "reload" })).catch(() => {});
+    const data = await caches.open(CLAIMS);
+    await Promise.all(DATA_FILES.map(f => data.add(new Request("./" + f, { cache: "reload" })).catch(() => {})));
     self.skipWaiting();
   })());
 });
@@ -97,14 +97,15 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-/* The claims: network first, the last good copy when offline. */
-async function claimsFirst(request) {
+/* The data files: network first, the last good copy when offline. */
+const DATA_FILES = ["claims.json", "products.json"];
+async function dataFirst(request, file) {
   const cache = await caches.open(CLAIMS);
   try {
     const res = await fetch(request, { cache: "no-cache" });
-    if (res && res.ok) { cache.put("./claims.json", res.clone()); return res; }
+    if (res && res.ok) { cache.put("./" + file, res.clone()); return res; }
   } catch (err) {}
-  return (await cache.match("./claims.json")) || Response.error();
+  return (await cache.match("./" + file)) || Response.error();
 }
 
 self.addEventListener("fetch", event => {
@@ -112,8 +113,9 @@ self.addEventListener("fetch", event => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  if (url.origin === self.location.origin && url.pathname.endsWith("/claims.json")) {
-    event.respondWith(claimsFirst(req));
+  const data = url.origin === self.location.origin && DATA_FILES.find(f => url.pathname.endsWith("/" + f));
+  if (data) {
+    event.respondWith(dataFirst(req, data));
     return;
   }
 

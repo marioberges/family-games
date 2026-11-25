@@ -10,6 +10,8 @@ const CLAIMS_TEXT = fs.readFileSync(path.join(GAME, "claims.json"), "utf8");
 const NOTES = fs.readFileSync(path.join(HERE, "..", "..", "notes", "patch-sources.md"), "utf8");
 const SW = fs.readFileSync(path.join(GAME, "sw.js"), "utf8");
 const claimsData = JSON.parse(CLAIMS_TEXT);
+const PRODUCTS_TEXT = fs.readFileSync(path.join(GAME, "products.json"), "utf8");
+const productsData = JSON.parse(PRODUCTS_TEXT);
 
 /* ---- boot ---- */
 let g = boot(FILE);
@@ -251,6 +253,89 @@ eq(g.ev("view.s"), "home", "home again");
 g.click('.watchbtn[data-id="change"]');
 g.click('[data-act="wclick"]');
 eq(g.ev("view.s"), "lesson", "Click through instead switches to the lesson");
+g.close();
+
+/* ---- the product database and the ingredient guide ---- */
+g = boot(FILE);
+ok(g.ev(`setProducts(${PRODUCTS_TEXT})`), "products.json loads and validates");
+ok(productsData.ingredients.every(i => i.sources.every(s => NOTES.includes(s.url))), "every guide source is recorded in notes/patch-sources.md");
+ok(productsData.products.every(p => NOTES.includes(p.source.url)), "every product's ingredient-list source is recorded too");
+ok(NOTES.includes(productsData.patchTest.source.url), "and the patch-test source");
+const akas = productsData.ingredients.flatMap(i => i.aka);
+eq(new Set(akas).size, akas.length, "no label name points at two guide entries");
+eq(g.ev(`findIng("Adapalene 0.1%").g.id`), "adapalene", "label names with a percentage match the guide");
+eq(g.ev(`findIng("Aqua (Water)").kind`), "basic", "Aqua (Water) is a basic, not a mystery");
+eq(g.ev(`findIng("Ceramide NP").g.id`), "ceramides", "each ceramide on a label finds the ceramides entry");
+eq(g.ev(`findIng("Sodium Hyaluronate").g.id`), "hyaluronic-acid", "sodium hyaluronate is hyaluronic acid");
+eq(g.ev(`findIng("Methylparaben").kind`), "unknown", "an ingredient the guide doesn't have says so");
+ok(productsData.products.every(p => p.ingredients.some(r => g.ev(`findIng(${JSON.stringify(r)}).kind`) === "guide")), "every product has at least one ingredient the guide knows");
+
+/* ---- looking up a product, through the real buttons ---- */
+g.ev("render()");
+g.click('[data-act="products"]');
+eq(g.all("#plist .claimrow").length, productsData.products.length, "every product is listed");
+const search = g.$("#psearch"); search.value = "ordinary"; search.dispatchEvent(new g.win.Event("input", {bubbles:true}));
+eq(g.all("#plist .claimrow").length, 1, "search narrows the list");
+g.click('#plist .claimrow');
+eq(g.all(".ings .ing").length, 11, "the product's ingredients are chips");
+ok(g.all(".ings .ing.guide").length >= 1, "ingredients in the guide are marked");
+g.click('.ing[data-name="Niacinamide"]');
+ok(/vitamin B3/.test(g.$(".panel").textContent) && g.all(".panel h3").length >= 2, "the guide shows what it is, how to use it and its sources");
+ok(!!g.$(".skin.focus"), "and lights up where it acts");
+g.ev(`go({s:"ing", pid:"the-ordinary-niacinamide-zinc", name:"Chlorphenesin"})`);
+ok(/Not in Patch's guide yet/.test(g.$("#app").textContent) && g.all('a[href*="pubmed"]').length === 1, "an unknown ingredient says so and points to where to look");
+
+/* ---- investigating one ingredient of her own ---- */
+g.ev(`go({s:"ing", pid:"the-ordinary-niacinamide-zinc", name:"Niacinamide"})`);
+g.click('[data-act="oinv"]');
+eq(g.ev("view.s"), "oinv", "the investigation opens");
+eq(g.$("#o-claim").value, productsData.products[2].claim, "the label's claim is filled in to start");
+ok(g.$("#next").disabled, "it waits for where she heard it");
+g.click('[data-act="ofield"][data-f="source"]');
+g.click("#next");
+const typeO = (sel, text) => { const el = g.$(sel); el.value = text; el.dispatchEvent(new g.win.Event("input", {bubbles:true})); };
+typeO("#o-pWhat", "less oily skin"); typeO("#o-pLong", "8 weeks");
+ok(/less oily skin, within 8 weeks, compared with not using it\./.test(g.$("#ownPrecise").textContent), "her precise claim is built as she types");
+g.click("#next");
+g.ev(`setSlider($(".slider"), 60)`); g.click("#next");
+g.$('.skin [data-node="sebaceous"]').dispatchEvent(new g.win.MouseEvent("click", {bubbles:true}));
+g.click('[data-act="onodes"]');
+ok(/acts on/.test(g.$(".why").textContent), "her picks are compared with the guide");
+g.click("#next");
+ok(g.$("#next").disabled, "at least one source is needed");
+typeO("#d-title", "The brand's page");
+g.click('[data-act="odraft"][data-v="brand"]'); g.click('[data-act="osrcadd"]');
+ok(/Climb the ladder/.test(g.$("#app").textContent), "only brand sources: a nudge to climb the evidence ladder");
+typeO("#d-title", "Nicotinic acid/niacinamide and the skin, 2004 review");
+g.click('[data-act="odraft"][data-v="review"]'); g.click('[data-act="odraft"][data-v="Independent"]'); g.click('[data-act="osrcadd"]');
+eq(g.ev(`state.own.inv["the-ordinary-niacinamide-zinc|niacinamide"].f.sources.length`), 2, "two sources added");
+ok(g.$("#next").disabled, "each source needs a reaction");
+g.click('[data-act="osrceffect"][data-k="0"][data-v="same"]'); g.click('[data-act="osrceffect"][data-k="1"][data-v="down"]');
+g.click("#next");
+ok(/Patch-test it first/.test(g.$("#app").textContent) && /7 to 10 days/.test(g.$("#app").textContent), "Use it well explains the patch test");
+g.click("#next");
+g.ev(`setSlider($(".slider"), 35)`); g.click("#next");
+g.click('[data-act="ofield"][data-v="s1"]');
+typeO("#o-belief", "The review was about barrier and oil, not about breakouts."); typeO("#o-changeMind", "A trial in teens.");
+g.click("#next");
+g.click('[data-act="ofield"][data-f="decision"]'); typeO("#o-verdict", "Niacinamide: maybe less oily, not an acne fix.");
+g.click("#next");
+eq(g.ev("view.s"), "card", "her own card is saved");
+const own = g.ev(`state.cards["own:the-ordinary-niacinamide-zinc|niacinamide"]`);
+ok(own && own.own && own.gold && own.sources.length === 2, "it's hers, it keeps her sources, and a reasoned move earns gold");
+ok(!!g.$('[data-act="copyreview"]'), "her card can be copied to send for review");
+ok(/2\. Nicotinic acid.*Single|Review of many studies.*Independent/.test(g.ev(`reviewText(state.cards["own:the-ordinary-niacinamide-zinc|niacinamide"])`)), "the review text lists each source with its kind and who paid");
+
+/* ---- adding a product she owns ---- */
+g.ev(`go({s:"addprod"})`);
+ok(g.$("#next").disabled, "a product needs a name and ingredients");
+typeO("#ap-name", "Glow Toner"); typeO("#ap-ings", "Water, Glycolic Acid, Fragrance.");
+ok(!g.$("#next").disabled, "then it can be saved");
+g.click("#next");
+eq(g.ev("view.s"), "product", "it opens straight away");
+eq(g.all(".ings .ing").length, 3, "its ingredients are split at the commas");
+eq(g.all(".ings .ing.guide").length, 2, "glycolic acid and fragrance are in the guide");
+ok(!!g.$('[data-act="copyproduct"]'), "it can be copied for Patch's product list");
 g.close();
 
 /* ---- a newer build's data is never written over ---- */

@@ -168,6 +168,13 @@ ol.lessons .tick{display:inline-flex;align-items:center;gap:2px;color:var(--cher
 .ribbon{border:2px solid transparent;background:#fff;border-radius:16px;padding:8px 12px 4px;display:grid;justify-items:center;gap:2px;font-size:.8rem;color:var(--mute)}
 .ribbon svg{width:54px;height:36px}
 .ribbon[aria-pressed="true"]{border-color:var(--cherry);color:var(--cherry);font-weight:600}
+/* ingredient chips: pink when Patch's guide knows the ingredient */
+.ings{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.ing{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:.92rem;display:inline-flex;align-items:center;gap:4px}
+.ing.guide{background:var(--blush);border-color:var(--ribbon);color:var(--cherry);font-weight:600}
+.ing.basic{color:var(--mute)}
+.ing i{font-style:normal;font-size:.8rem;color:var(--mute)}
+.step label{display:block;margin:12px 0 6px;font-size:.95rem}
 /* the celebration: bows and hearts, once, when a card or lesson is earned */
 .shower{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:8}
 .shower i{position:absolute;top:-70px;animation:fall 2.6s cubic-bezier(.25,.6,.45,1) forwards}
@@ -875,7 +882,9 @@ function validView(v){
   if(v.s === "explore") return !v.node || !!NODES[v.node];
   if(v.s === "lesson") return !!LESSON[v.id];
   if(v.s === "watch") return false;      /* a video doesn't resume mid-sentence: come back to home */
-  if(v.s === "inv" || v.s === "card") return typeof v.id === "string";
+  if(v.s === "inv" || v.s === "card" || v.s === "product") return typeof v.id === "string";
+  if(v.s === "products" || v.s === "addprod") return true;
+  if(v.s === "ing" || v.s === "oinv") return typeof v.pid === "string" && typeof v.name === "string";
   return false;
 }
 function go(v){
@@ -890,7 +899,8 @@ function go(v){
 }
 function render(){
   cancelAnimationFrame(journeyRaf);
-  const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen, watch:watchScreen}[view.s] || home;
+  const r = {home, explore, lesson:lessonScreen, inv:invScreen, card:cardScreen, journal:journalScreen, watch:watchScreen,
+    products:productsScreen, product:productScreen, ing:ingScreen, addprod:addProductScreen, oinv:oinvScreen}[view.s] || home;
   r();
   autoRead();
 }
@@ -1012,6 +1022,11 @@ function home(){
     `<section class="section"><h2>Your patches</h2><p class="mute">One for every claim you've investigated.</p>` +
     (cards.length ? `<div class="wall">${cards.map(patchTile).join("")}</div>` :
       `<div class="empty">Finish an investigation and its card lands here. Change your mind for a good reason and it gets a gold edge and a bow.</div>`) + `</section>` +
+    `<section class="section"><h2>Your products</h2><p class="mute">Look up something you own and check its ingredients, one at a time.</p>` +
+    Object.values(state.own.inv).map(v => { const pr = productById(v.pid);
+      return pr ? `<button class="claimrow" data-act="oinv" data-pid="${esc(v.pid)}" data-name="${esc(v.name)}" style="margin-bottom:10px"><div><b>${esc(v.name)}</b>` +
+        `<span>in ${esc(pr.name)}</span></div><span class="st">Step ${v.i + 1} of ${OINV_STEPS.length}</span></button>` : ""; }).join("") +
+    `<div class="row"><button class="btn soft" data-act="products">Look up a product</button></div></section>` +
     `<section class="section"><h2>Learn the skin</h2><p class="mute">Five short lessons. Take them in order, or dip in when a claim needs one.</p>` +
     `<ol class="lessons">${LESSONS.map((l, i) => `<li><button class="lrow" data-act="lesson" data-id="${l.id}"><span class="n">${i + 1}</span>` +
       `<span class="t"><b>${esc(l.title)}</b><span>${esc(l.sub)}</span></span>` +
@@ -1530,6 +1545,17 @@ function sliderBlock(field, v, ghost, locked){
 }
 function setSlider(el, v){
   v = Math.max(0, Math.min(100, Math.round(v)));
+  if(view.s === "oinv"){
+    const oi = OI(view.pid, view.name);
+    oi.f[el.dataset.slider] = v;
+    let tt = $(".thumb", el);
+    if(!tt){ tt = document.createElement("div"); tt.className = "thumb"; el.appendChild(tt); }
+    tt.style.left = `calc(14px + (100% - 28px) * ${v / 100})`;
+    el.setAttribute("aria-valuenow", v); el.setAttribute("aria-valuetext", v);
+    const bg = $("#bigN"); if(bg) bg.textContent = v;
+    const nn = $("#next"); if(nn) nn.disabled = !canNextOwn(oi);
+    saveSoon(); return;
+  }
   const c = claimById(view.id); if(!c) return;
   const inv = I(c.id);
   inv.f[el.dataset.slider] = v;
@@ -1611,11 +1637,13 @@ function cardScreen(){
     (c.gold ? `<p class="goldnote">Gold edge and a bow: ${moved(c) >= 5 ? "your number moved, and you said which evidence moved it." : "your number held, and you said why."}</p>` : "") +
     `<dl><div><dt>The precise claim</dt><dd>${esc(c.precise)}</dd></div>` +
     `<div><dt>Where you heard it</dt><dd>${esc(c.source)}</dd></div>` +
+    (c.own && c.sources ? `<div><dt>Your sources</dt><dd>${c.sources.map(s => esc(s.title)).join("; ")}</dd></div>` : "") +
     `<div><dt>What moved you most</dt><dd>${esc(c.mover)}. ${esc(c.belief)}</dd></div>` +
     `<div><dt>What would change your mind</dt><dd>${esc(c.changeMind)}</dd></div>` +
     `<div><dt>Your decision</dt><dd>${esc(c.decision)}</dd></div>` +
     `<div><dt>Where the evidence stands</dt><dd>${esc(c.stands)}</dd></div></dl></article>` +
     `<div class="row" style="justify-content:center;margin-top:22px"><button class="btn" data-act="sharecard" data-id="${esc(c.id)}">Share my verdict</button>` +
+    (c.own ? `<button class="btn soft" data-act="copyreview" data-id="${esc(c.id)}">Copy to send for review</button>` : "") +
     `<button class="btn soft" data-act="home">Home</button></div>`;
 }
 
@@ -1701,9 +1729,339 @@ async function shareText(title, text){
   catch(e){ toast("Sharing isn't available here."); }
 }
 
+/* ============ her own products: a database, one ingredient at a time ============
+   From the player's feedback (24 Nov 2026): look up products she owns, learn
+   what their ingredients do and how to use them well. Mario: a product database,
+   and investigate ingredients one at a time, not a whole product at once.
+   products.json (in the repo, like claims.json) holds the products and the
+   ingredient guide; products she adds stay on this iPad. */
+let DB = {ingredients:[], products:[], basics:{}, patchTest:null};
+let dbState = "loading";
+const PRODUCTS_KEY = "patch:products";
+const EVIDENCE_LEVELS = {strong:"Strong evidence", some:"Some evidence", thin:"Thin evidence", na:"Not there for your skin"};
+function validDB(d){
+  try{
+    if(!d || !Array.isArray(d.ingredients) || !Array.isArray(d.products)) return false;
+    const okSrc = s => s && s.name && /^https:\/\//.test(s.url);
+    if(!d.ingredients.every(g => g.id && g.name && Array.isArray(g.aka) && g.aka.length && g.what && g.use &&
+      Array.isArray(g.nodes) && g.nodes.every(n => NODES[n]) && EVIDENCE_LEVELS[g.evidence] &&
+      Array.isArray(g.cautions) && Array.isArray(g.sources) && g.sources.length && g.sources.every(okSrc))) return false;
+    if(!d.products.every(p => p.id && p.name && Array.isArray(p.ingredients) && p.ingredients.length && okSrc(p.source))) return false;
+    if(!d.patchTest || !Array.isArray(d.patchTest.steps) || !okSrc(d.patchTest.source)) return false;
+    return true;
+  }catch(e){ return false; }
+}
+function setProducts(d){
+  if(!validDB(d)) return false;
+  DB = {ingredients:d.ingredients, products:d.products, basics:d.basics || {}, patchTest:d.patchTest};
+  dbState = "ok"; return true;
+}
+async function loadProducts(){
+  const before = dbState;
+  let ok = false;
+  try{
+    const res = await fetch("products.json", {cache:"no-cache"});
+    if(res.ok){ const d = await res.json(); ok = setProducts(d); if(ok && store){ try{ store.setItem(PRODUCTS_KEY, JSON.stringify(d)); }catch(e){} } }
+  }catch(e){}
+  if(!ok){ try{ const s = store && store.getItem(PRODUCTS_KEY); if(s) ok = setProducts(JSON.parse(s)); }catch(e){} }
+  if(!ok && dbState === "loading") dbState = "none";
+  if(before === "loading" && ["products", "product", "ing", "oinv"].includes(view.s)) render();
+}
+/* "Adapalene 0.1%", "Aqua (Water)", "Ceramide NP": names as printed on labels */
+const normIng = s => String(s).toLowerCase().replace(/\d+(\.\d+)?\s*%/g, "").replace(/\s+/g, " ").trim();
+function findIng(raw){
+  const n = normIng(raw);
+  const inner = (n.match(/\(([^)]+)\)/) || [])[1], outer = n.replace(/\([^)]*\)/g, "").trim();
+  for(const c of [n, outer, inner && inner.trim()].filter(Boolean)){
+    const g = DB.ingredients.find(i => i.aka.includes(c));
+    if(g) return {kind:"guide", g};
+    if(DB.basics[c]) return {kind:"basic", text:DB.basics[c]};
+  }
+  return {kind:"unknown"};
+}
+const allProducts = () => [...Object.values(state.own.products).map(p => ({...p, mine:true})), ...DB.products];
+const productById = id => allProducts().find(p => p.id === id) || null;
+const ownKey = (pid, name) => `${pid}|${normIng(name)}`;
+const OINV_STEPS = ["The claim", "Make it precise", "Your first guess", "Find it on the model", "Your sources",
+                    "Use it well", "Your new number", "What moved you", "Your decision"];
+const SOURCE_KINDS = [
+  {id:"review", label:"Review of many studies", rung:1}, {id:"guideline", label:"Guideline", rung:1},
+  {id:"trial", label:"Single trial in people", rung:2}, {id:"lab", label:"Lab or animal study", rung:3},
+  {id:"expert", label:"Article by a doctor or expert", rung:3}, {id:"brand", label:"The brand's own page", rung:4},
+  {id:"social", label:"Influencer or social post", rung:4}, {id:"other", label:"Something else", rung:4}];
+const PAID = ["Independent", "The brand", "Not stated"];
+const WHERE_TO_LOOK = [
+  ["PubMed", "https://pubmed.ncbi.nlm.nih.gov/", "every published medical study; search the ingredient plus \"skin\""],
+  ["DermNet", "https://dermnetnz.org/", "dermatologists' plain-language pages"],
+  ["American Academy of Dermatology", "https://www.aad.org/public", "advice from America's skin doctors"]];
+
+/* ---- the product list ---- */
+function productsScreen(){
+  app.className = "wrap";
+  app.innerHTML = bar("Your products", "Look one up, then check its ingredients one at a time") +
+    `<div class="narrow step"><label for="psearch" class="mute small">Search by name or brand</label>` +
+    `<input type="text" id="psearch" data-search placeholder="Differin" value="${esc(view.q || "")}">` +
+    `<div class="claims" id="plist" style="margin-top:14px"></div>` +
+    `<div class="row" style="margin-top:18px"><button class="btn" data-act="addprod">Add a product you own</button></div>` +
+    (dbState === "none" ? `<p class="mute small">Patch's product list arrives the first time it's online. You can still add your own.</p>` : "") + `</div>`;
+  paintProductList();
+}
+function paintProductList(){
+  const el = $("#plist"); if(!el) return;
+  const q = (view.q || "").toLowerCase().trim();
+  const list = allProducts().filter(p => !q || `${p.name} ${p.brand || ""}`.toLowerCase().includes(q));
+  el.innerHTML = list.length ? list.map(p => `<button class="claimrow" data-act="product" data-id="${esc(p.id)}"><div><b>${esc(p.name)}</b>` +
+    `<span>${esc([p.brand, p.kind].filter(Boolean).join(", "))}</span></div><span class="st">${p.mine ? "Added by you" : `${p.ingredients.length} ingredients`}</span></button>`).join("") :
+    `<div class="empty">Not on the list yet. Add it yourself below.</div>`;
+}
+
+/* ---- one product: its ingredients as chips ---- */
+function productScreen(){
+  const p = productById(view.id);
+  app.className = "wrap";
+  if(!p){ app.innerHTML = bar("Product", "") + `<div class="narrow"><p>${dbState === "loading" ? "Fetching the product list…" : "This product isn't here."}</p><button class="btn" data-act="products">All products</button></div>`; return; }
+  const chips = p.ingredients.map(raw => {
+    const m = findIng(raw), done = state.cards["own:" + ownKey(p.id, raw)], going = state.own.inv[ownKey(p.id, raw)];
+    return `<button class="ing ${m.kind}" data-act="ing" data-pid="${esc(p.id)}" data-name="${esc(raw)}">${esc(raw)}` +
+      `${done ? ` ${bow("minibow")}` : going ? ` <i>in progress</i>` : ""}</button>`;
+  }).join("");
+  const known = p.ingredients.filter(r => findIng(r).kind === "guide").length;
+  app.innerHTML = bar(p.name, [p.brand, p.kind].filter(Boolean).join(", ")) +
+    `<div class="narrow step"><h2>${esc(p.name)}</h2>` +
+    (p.claim ? `<p class="q">“${esc(p.claim)}”</p>` : "") +
+    `<p>${p.ingredients.length} ingredients. Patch's guide knows ${known} of them; they're the pink ones. Tap any ingredient to find out about it.</p>` +
+    `<div class="ings">${chips}</div>` +
+    (p.mine ? `<p class="small mute">Added by you on ${esc(niceDate(p.added))}. Copy it and send it on, and it can join Patch's product list for everyone.</p>` +
+      `<div class="row"><button class="btn soft" data-act="copyproduct" data-id="${esc(p.id)}">Copy for Patch's product list</button></div>` :
+      `<p class="small mute">Ingredient list from <a href="${esc(p.source.url)}" target="_blank" rel="noopener">${esc(p.source.name)}</a>, checked ${esc(niceDate(p.source.checked))}. Labels change: check yours.</p>`) +
+    `<div class="nav"><button class="btn ghost" data-act="products">All products</button></div></div>`;
+}
+
+/* ---- one ingredient: what Patch knows, or where to look ---- */
+function ingScreen(){
+  const p = productById(view.pid), raw = view.name, m = findIng(raw);
+  app.className = "wrap";
+  const key = p ? ownKey(p.id, raw) : null, card = key && state.cards["own:" + key], inv = key && state.own.inv[key];
+  const go2 = p ? (card ? `<button class="btn" data-act="card" data-id="own:${esc(key)}">See your card</button>` :
+    `<button class="btn" data-act="oinv" data-pid="${esc(p.id)}" data-name="${esc(raw)}">${inv ? "Carry on investigating" : "Investigate it yourself"}</button>`) : "";
+  let body;
+  if(m.kind === "guide"){
+    const g = m.g;
+    body = `<p class="mute small">In Patch's guide</p><h2>${esc(g.name)}</h2>` +
+      `<span class="stat ${g.evidence === "strong" ? "" : g.evidence === "na" ? "emerging" : "active"}">${esc(EVIDENCE_LEVELS[g.evidence])}</span>` +
+      `<p>${esc(g.what)}</p><p>${esc(g.evidenceNote)}</p>` +
+      `<h3>How to use it well</h3><p>${esc(g.use)}</p>` +
+      (g.cautions.length ? `<h3>Watch out for</h3><ul class="list">${g.cautions.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : "") +
+      `<h3>Sources</h3><ul class="list small">${g.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></li>`).join("")}</ul>`;
+  }else if(m.kind === "basic"){
+    body = `<h2>${esc(raw)}</h2><p>${esc(m.text)}</p>`;
+  }else{
+    body = `<h2>${esc(raw)}</h2><div class="why"><p>Not in Patch's guide yet. You can find out about it yourself, and if you do, it could join the guide.</p></div>` +
+      `<h3>Where to look</h3><ul class="list">${WHERE_TO_LOOK.map(([n, u, t]) => `<li><a href="${u}" target="_blank" rel="noopener">${n}</a>: ${t}</li>`).join("")}</ul>` +
+      `<p class="small mute">Ingredient-decoder websites can tell you what an ingredient is for. Check what they cite before you trust them.</p>`;
+  }
+  app.innerHTML = bar(raw, p ? `In ${p.name}` : "") +
+    `<div class="stage${m.kind === "guide" ? "" : " solo"}">${m.kind === "guide" ? figure("Lit up: where it acts.") : ""}<div class="panel step">${body}` +
+    `<div class="row" style="margin-top:16px">${go2}${p ? `<button class="btn ghost" data-act="product" data-id="${esc(p.id)}">Back to ${esc(p.name)}</button>` : ""}</div></div></div>`;
+  if(m.kind === "guide") applySkin({focus:m.g.nodes});
+}
+
+/* ---- adding a product she owns ---- */
+function addProductScreen(){
+  const d = state.own.draft || {};
+  app.className = "wrap";
+  app.innerHTML = bar("Add a product", "It stays on this iPad") +
+    `<div class="narrow step"><h2>Add a product you own</h2>` +
+    `<label for="ap-name">Name</label><input type="text" id="ap-name" data-add="name" value="${esc(d.name || "")}" placeholder="Gentle Foaming Cleanser">` +
+    `<label for="ap-brand">Brand</label><input type="text" id="ap-brand" data-add="brand" value="${esc(d.brand || "")}" placeholder="The brand on the bottle">` +
+    `<label for="ap-claim">What does the label promise?</label><input type="text" id="ap-claim" data-add="claim" value="${esc(d.claim || "")}" placeholder="Clears pores and calms redness">` +
+    `<label for="ap-ings">Ingredients, exactly as on the label, with commas between them</label>` +
+    `<textarea id="ap-ings" data-add="ingredients" placeholder="Water, Glycerin, Niacinamide, …">${esc(d.ingredients || "")}</textarea>` +
+    `<p class="small mute">Tip: the brand's website often has the full list to copy.</p>` +
+    `<div class="nav"><button class="btn ghost" data-act="products">Cancel</button><button class="btn" id="next" data-act="saveprod" ${canSaveProduct() ? "" : "disabled"}>Save product</button></div></div>`;
+}
+const splitIngs = s => String(s || "").split(/[,\n]/).map(x => x.replace(/\.$/, "").trim()).filter(Boolean);
+const canSaveProduct = () => { const d = state.own.draft || {}; return !!(d.name || "").trim() && splitIngs(d.ingredients).length > 0; };
+
+/* ---- investigating one ingredient of her own product ---- */
+function OI(pid, name){
+  const k = ownKey(pid, name);
+  return state.own.inv[k] || (state.own.inv[k] = {i:0, pid, name, started:ymd(), f:{sources:[], draft:{}, unknowns:[]}});
+}
+function canNextOwn(inv){
+  const f = inv.f;
+  switch(inv.i){
+    case 0: return !!(f.claim || "").trim() && !!f.source;
+    case 1: return !!(f.pWhat || "").trim() && !!(f.pLong || "").trim();
+    case 2: return f.initial != null;
+    case 3: return !!f.nodesChecked;
+    case 4: return f.sources.length > 0 && f.sources.every(s => s.effect);
+    case 5: return true;
+    case 6: return f.updated != null;
+    case 7: return !!f.mover && !!(f.belief || "").trim() && !!(f.changeMind || "").trim();
+    case 8: return !!f.decision && !!(f.verdict || "").trim();
+  }
+  return false;
+}
+const ownPrecise = f => [f.pWhat, f.pWho && `for ${f.pWho}`, f.pLong && `within ${f.pLong}`, `compared with ${f.pVs || "not using it"}`]
+  .filter(Boolean).map(x => String(x).trim()).join(", ") + ".";
+function oinvScreen(){
+  const p = productById(view.pid);
+  app.className = "wrap";
+  if(!p){ app.innerHTML = bar("Investigation", "") + `<div class="narrow"><p>${dbState === "loading" ? "Fetching the product list…" : "This product isn't here any more."}</p><button class="btn" data-act="products">All products</button></div>`; return; }
+  const inv = OI(p.id, view.name), f = inv.f, i = inv.i, m = findIng(view.name), g = m.kind === "guide" ? m.g : null;
+  const name = g ? g.name : view.name;
+  if(i === 3 && !f.nodesChecked && !tapPick.length && Array.isArray(f.nodes)) tapPick = f.nodes.filter(n => NODES[n]);
+  const dots = `<div class="dots">${OINV_STEPS.map((_, k) => `<i class="${k < i ? "done" : k === i ? "now" : ""}"></i>`).join("")}</div>`;
+  const nav = `<div class="nav"><button class="btn ghost" data-act="oprev" ${i ? "" : "hidden"}>Back</button>` +
+    `<button class="btn" id="next" data-act="onext" ${canNextOwn(inv) ? "" : "disabled"}>${i === 8 ? "Save my card" : "Next"}</button></div>`;
+  const field = (id, label, ph, area) => `<label for="o-${id}">${label}</label>` + (area ?
+    `<textarea id="o-${id}" data-ofield="${id}" placeholder="${esc(ph)}">${esc(f[id] || "")}</textarea>` :
+    `<input type="text" id="o-${id}" data-ofield="${id}" placeholder="${esc(ph)}" value="${esc(f[id] || "")}">`);
+  let body = "", withFig = i === 3;
+  switch(i){
+    case 0:
+      if(f.claim == null && p.claim) f.claim = p.claim;
+      body = `<h2>The claim</h2><p>What does ${esc(p.name)} say ${esc(name)} does for you? Use the label's words, or what you heard about it.</p>` +
+        field("claim", "The claim", "Clears breakouts") +
+        `<p style="margin-top:14px">Where did you come across it?</p><div class="chips">${SOURCES.map(s => `<button class="chip" data-act="ofield" data-f="source" data-v="${esc(s)}" aria-pressed="${f.source === s}">${esc(s)}</button>`).join("")}</div>`;
+      break;
+    case 1:
+      body = `<h2>Make it precise</h2><p>A claim a study could check names what changes, for whom, how fast, and compared with what.</p>` +
+        field("pWhat", "What should change?", "fewer spots") + field("pWho", "For whom?", "teens with oily skin") +
+        field("pLong", "How long until it shows?", "8 weeks") + field("pVs", "Compared with what?", "the same product without it") +
+        `<div class="why"><p id="ownPrecise">${esc(ownPrecise(f))}</p></div>`;
+      break;
+    case 2:
+      body = `<h2>Your first guess</h2><p>How sure are you that this is true?</p><blockquote class="q">${esc(ownPrecise(f))}</blockquote>` +
+        sliderBlock("initial", f.initial, null, !!f.locked) +
+        `<p class="lock">${f.locked ? "Locked in. You'll pick a new number after your sources." : "This number locks in when you move on."}</p>`;
+      break;
+    case 3:
+      body = `<h2>Find it on the model</h2><p class="q">Tap every part of the skin ${esc(name)} would have to reach or change.</p>` +
+        (f.nodesChecked ? `<div class="why"><p>${g ? `Patch's guide says ${esc(name)} acts on: ${g.nodes.map(n => esc(NODES[n].name)).join(", ")}. They're lit up.` :
+          "Patch's guide doesn't have this ingredient yet, so there's nothing to compare with. Your picks are saved with your investigation."}</p></div>` :
+          `<p class="mute small">${tapPick.length ? `Picked: ${tapPick.map(n => esc(NODES[n].name)).join(", ")}.` : "Nothing picked yet."}</p>` +
+          `<button class="btn soft" data-act="onodes" ${tapPick.length ? "" : "disabled"}>${g ? "Compare with Patch's guide" : "Save my picks"}</button>`);
+      break;
+    case 4: {
+      const d = f.draft || {};
+      const low = f.sources.length && f.sources.every(s => (SOURCE_KINDS.find(k => k.id === s.kind) || {rung:4}).rung >= 4);
+      body = `<h2>Your sources</h2><p>Find at least one source about ${esc(name)} and what it does. For each, say what kind it is, how many people it studied and who paid for it.</p>` +
+        (g ? `<p class="small mute">To start, Patch's guide cites: ${g.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>`).join("; ")}.</p>` :
+          `<p class="small mute">Where to look: ${WHERE_TO_LOOK.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(", ")}.</p>`) +
+        (f.sources.length ? `<ol class="chain">${f.sources.map((s, k) => `<li><div class="lt"><i>${k + 1}</i><span><b>${esc(s.title)}</b>` +
+          `${s.url ? ` <a href="${esc(s.url)}" target="_blank" rel="noopener">link</a>` : ""}<br><span class="small mute">${esc((SOURCE_KINDS.find(x => x.id === s.kind) || {}).label || "")}; ` +
+          `${esc(s.people || "people not stated")}; paid for by: ${esc(s.paid || "not stated")}</span></span></div>` +
+          `<div class="seg">${[["up", "More sure"], ["down", "Less sure"], ["same", "No change"]].map(([v, t]) =>
+            `<button data-act="osrceffect" data-k="${k}" data-v="${v}" aria-pressed="${s.effect === v}">${t}</button>`).join("")}` +
+          `<button data-act="osrcdel" data-k="${k}" aria-label="Remove source ${k + 1}">Remove</button></div></li>`).join("")}</ol>` : "") +
+        (low ? `<div class="aside"><h3>Climb the ladder</h3><p>Brand pages and posts sit at the bottom of the evidence ladder. Try to find one review or trial too.</p></div>` : "") +
+        `<div class="ev"><h3>Add a source</h3>` +
+        `<label for="d-title">Title, or what it is</label><input type="text" id="d-title" data-draft="title" value="${esc(d.title || "")}" placeholder="Niacinamide and the skin, a 2004 review">` +
+        `<label for="d-url">Link (optional)</label><input type="text" id="d-url" data-draft="url" value="${esc(d.url || "")}" placeholder="https://…">` +
+        `<p style="margin:12px 0 6px">What kind of source is it?</p><div class="chips">${SOURCE_KINDS.map(k => `<button class="chip" data-act="odraft" data-f="kind" data-v="${k.id}" aria-pressed="${d.kind === k.id}">${k.label}</button>`).join("")}</div>` +
+        `<label for="d-people">How many people were in it?</label><input type="text" id="d-people" data-draft="people" value="${esc(d.people || "")}" placeholder="120 people, or not stated">` +
+        `<p style="margin:12px 0 6px">Who paid for it?</p><div class="chips">${PAID.map(v => `<button class="chip" data-act="odraft" data-f="paid" data-v="${v}" aria-pressed="${d.paid === v}">${v}</button>`).join("")}</div>` +
+        `<button class="btn soft" data-act="osrcadd" ${(d.title || "").trim() && d.kind ? "" : "disabled"}>Add this source</button></div>`;
+      break;
+    }
+    case 5: {
+      const pt = DB.patchTest;
+      body = `<h2>Use it well</h2>` + (g ? `<h3>${esc(g.name)}</h3><p>${esc(g.use)}</p>${g.cautions.length ? `<ul class="list">${g.cautions.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}` :
+        `<p>Read the directions and warnings on the label, and follow them.</p>`) +
+        (pt ? `<h3>Patch-test it first</h3><ol class="list">${pt.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol><p class="small mute">${esc(pt.note)} ` +
+          `<a href="${esc(pt.source.url)}" target="_blank" rel="noopener">${esc(pt.source.name)}</a></p>` : "");
+      break;
+    }
+    case 6:
+      body = `<h2>Your new number</h2><p>After your sources, how sure are you?</p><blockquote class="q">${esc(ownPrecise(f))}</blockquote>` +
+        sliderBlock("updated", f.updated, f.initial, false) + `<p class="lock">The dashed circle is where you started.</p>`;
+      break;
+    case 7:
+      body = `<h2>What moved you</h2><p>Which source moved your number most?</p><div class="chips">` +
+        f.sources.map((s, k) => `<button class="chip" data-act="ofield" data-f="mover" data-v="s${k}" aria-pressed="${f.mover === "s" + k}">${esc(s.title)}</button>`).join("") +
+        `<button class="chip" data-act="ofield" data-f="mover" data-v="none" aria-pressed="${f.mover === "none"}">None of them</button></div>` +
+        field("belief", moved(f) >= 5 ? "What moved your number?" : "Why didn't your number move much?", "Any honest answer counts", true) +
+        field("changeMind", "What would change your mind?", "A trial in teens that…", true);
+      break;
+    case 8:
+      body = `<h2>Your decision</h2><p>Is using it reasonable for you?</p><div class="chips">${DECISIONS.map(d =>
+        `<button class="chip" data-act="ofield" data-f="decision" data-v="${esc(d)}" aria-pressed="${f.decision === d}">${esc(d)}</button>`).join("")}</div>` +
+        `<label for="o-verdict">Your verdict in one line</label><input type="text" id="o-verdict" data-ofield="verdict" maxlength="110" value="${esc(f.verdict || "")}" placeholder="${esc(name)}: …">`;
+      break;
+  }
+  app.innerHTML = bar(`${name} in ${p.name}`, `Step ${i + 1} of ${OINV_STEPS.length}: ${OINV_STEPS[i]}`, dots) +
+    (withFig ? `<div class="stage">${figure(f.nodesChecked && g ? "Lit up: where Patch's guide says it acts." : "")}<div class="panel step">${body}${nav}</div></div>` :
+      `<div class="narrow step">${body}${nav}</div>`);
+  if(withFig){
+    if(f.nodesChecked) applySkin({focus:g ? g.nodes : f.nodes || [], picked:f.nodes || [], right:g ? (f.nodes || []).filter(n => g.nodes.includes(n)) : []});
+    else applySkin({picked:tapPick});
+  }
+}
+function finishOwn(inv){
+  const p = productById(inv.pid), f = inv.f, m = findIng(inv.name), g = m.kind === "guide" ? m.g : null;
+  const name = g ? g.name : inv.name, key = ownKey(inv.pid, inv.name), mv = moved(f);
+  const mover = f.mover && f.mover !== "none" ? f.sources[Number(f.mover.slice(1))] : null;
+  const card = {id:"own:" + key, own:true, pid:inv.pid, ing:inv.name, title:`${name} in ${p ? p.name : "your product"}`,
+    heard:f.claim, precise:ownPrecise(f), source:f.source || "", initial:f.initial, updated:f.updated,
+    verdict:(f.verdict || "").trim(), mover:mover ? mover.title : "None of them", belief:(f.belief || "").trim(),
+    changeMind:(f.changeMind || "").trim(), decision:f.decision,
+    stands:g ? `${EVIDENCE_LEVELS[g.evidence]}, says Patch's guide. ${g.evidenceNote}` : "Your own investigation. Send it for review so someone can check your sources.",
+    sources:f.sources.map(s => ({...s})), gold:(mv >= 5 && !!mover) || (mv < 5 && (f.belief || "").trim().length >= 20),
+    evidence:f.sources.length, done:ymd()};
+  state.cards[card.id] = card;
+  state.journal.unshift({id:"j" + Date.now().toString(36), at:ymd(), kind:"card", text:`${card.title}: ${card.verdict}\nMy confidence went from ${card.initial} to ${card.updated}. ${card.belief}`});
+  delete state.own.inv[key];
+  view = {s:"card", id:card.id}; state.at = view; save();
+  fresh = true; render(); scrollTop(); celebrate();
+}
+function reviewText(c){
+  const kind = id => (SOURCE_KINDS.find(k => k.id === id) || {}).label || "";
+  const eff = {up:"made me more sure", down:"made me less sure", same:"didn't change my mind"};
+  return [`My Patch investigation: ${c.title}`, `Claim: ${c.heard}`, `Precisely: ${c.precise}`, `Heard it from: ${c.source}`,
+    `How sure I was first: ${c.initial} out of 100`, "My sources:",
+    ...(c.sources || []).map((s, k) => `${k + 1}. ${s.title}${s.url ? ` (${s.url})` : ""}. ${kind(s.kind)}; ${s.people || "people not stated"}; paid for by: ${s.paid || "not stated"}. It ${eff[s.effect] || ""}.`),
+    `How sure I am now: ${c.updated} out of 100`, `What moved me most: ${c.mover}. ${c.belief}`, `What would change my mind: ${c.changeMind}`,
+    `My decision: ${c.decision}`, `My verdict: ${c.verdict}`, `Investigated ${niceDate(c.done)}`].join("\n");
+}
+const productText = p => JSON.stringify({id:p.id, name:p.name, brand:p.brand || "", kind:p.kind || "", claim:p.claim || "", ingredients:p.ingredients,
+  source:{name:"Added by a player, from the label", url:"https://", checked:p.added}}, null, 1);
+
+function ownAct(name, el){
+  if(view.s !== "oinv") return;
+  const inv = OI(view.pid, view.name), f = inv.f;
+  switch(name){
+    case "ofield": f[el.dataset.f] = el.dataset.v; save(); readHint = "none"; render(); return;
+    case "odraft": f.draft = {...(f.draft || {}), [el.dataset.f]:el.dataset.v}; save(); readHint = "none"; render(); return;
+    case "onodes": f.nodes = tapPick.slice(); f.nodesChecked = true; tapPick = []; save(); readHint = ".why"; render(); return;
+    case "osrcadd": { const d = f.draft || {}; if(!(d.title || "").trim() || !d.kind) return;
+      f.sources.push({title:d.title.trim(), url:(d.url || "").trim(), kind:d.kind, people:(d.people || "").trim(), paid:d.paid || "", effect:null});
+      f.draft = {}; save(); readHint = "none"; render(); return; }
+    case "osrceffect": f.sources[Number(el.dataset.k)].effect = el.dataset.v; save(); readHint = "none"; render(); return;
+    case "osrcdel": f.sources.splice(Number(el.dataset.k), 1); if(f.mover && f.mover !== "none") f.mover = null; save(); readHint = "none"; render(); return;
+    case "onext":
+      if(!canNextOwn(inv)) return;
+      if(inv.i === 2) f.locked = true;
+      if(inv.i === 8){ finishOwn(inv); return; }
+      inv.i++; tapPick = []; save();
+      if(updateReady){ try{ location.reload(); return; }catch(e){} }
+      render(); scrollTop(); return;
+    case "oprev": inv.i = Math.max(0, inv.i - 1); save(); render(); scrollTop(); return;
+  }
+}
+
 /* ============ input ============ */
 function tapNode(id){
   if(view.s === "watch"){ watchTap(id); return; }
+  if(view.s === "oinv"){
+    const inv = OI(view.pid, view.name);
+    if(inv.i === 3 && !inv.f.nodesChecked){
+      tapPick = tapPick.includes(id) ? tapPick.filter(n => n !== id) : [...tapPick, id];
+      inv.f.nodes = tapPick.slice(); saveSoon(); readHint = "none"; render();
+    }
+    return;
+  }
   if(view.s === "explore"){ view.node = id; view.depth = 0; state.at = view; save(); render(); return; }
   if(view.s === "lesson"){
     const les = LESSON[view.id], rec = L(les.id), st = les.steps[rec.i];
@@ -1755,6 +2113,17 @@ app.addEventListener("input", e => {
   const t = e.target;
   if(t.dataset.sim){ sim[t.dataset.sim] = t.type === "checkbox" ? t.checked : Number(t.value); paintSim(); return; }
   if(t.hasAttribute("data-note")){ state.noteDraft = t.value; saveSoon(); return; }
+  if(t.hasAttribute("data-search")){ view.q = t.value; paintProductList(); return; }
+  if(t.dataset.add){ state.own.draft = {...(state.own.draft || {}), [t.dataset.add]:t.value}; saveSoon();
+    const nx = $("#next"); if(nx) nx.disabled = !canSaveProduct(); return; }
+  if((t.dataset.ofield || t.dataset.draft) && view.s === "oinv"){
+    const inv = OI(view.pid, view.name);
+    if(t.dataset.ofield) inv.f[t.dataset.ofield] = t.value; else inv.f.draft = {...(inv.f.draft || {}), [t.dataset.draft]:t.value};
+    saveSoon();
+    const pr = $("#ownPrecise"); if(pr) pr.textContent = ownPrecise(inv.f);
+    const add = $('[data-act="osrcadd"]'); if(add) add.disabled = !((inv.f.draft.title || "").trim() && inv.f.draft.kind);
+    const nx = $("#next"); if(nx) nx.disabled = !canNextOwn(inv); return;
+  }
   if(t.dataset.field && view.s === "inv"){
     const c = claimById(view.id); if(!c) return;
     const inv = I(c.id);
@@ -1802,6 +2171,17 @@ function act(name, el){
     case "sharecard": shareCard(id); return;
     case "addnote": { const t = (state.noteDraft || "").trim(); if(!t){ toast("Write something first."); return; }
       state.journal.unshift({id:"j" + Date.now().toString(36), at:ymd(), kind:"note", text:t}); state.noteDraft = ""; save(); render(); return; }
+    case "products": go({s:"products"}); return;
+    case "product": go({s:"product", id}); return;
+    case "ing": go({s:"ing", pid:el.dataset.pid, name:el.dataset.name}); return;
+    case "addprod": go({s:"addprod"}); return;
+    case "saveprod": { if(!canSaveProduct()) return; const d = state.own.draft, pid = "mine-" + Date.now().toString(36);
+      state.own.products[pid] = {id:pid, name:d.name.trim(), brand:(d.brand || "").trim(), claim:(d.claim || "").trim(), ingredients:splitIngs(d.ingredients), added:ymd()};
+      state.own.draft = {}; go({s:"product", id:pid}); return; }
+    case "copyproduct": { const pr = productById(id); if(pr) shareText(`Patch product: ${pr.name}`, productText(pr)); return; }
+    case "copyreview": { const c = state.cards[id]; if(c) shareText(`My Patch investigation: ${c.title}`, reviewText(c)); return; }
+    case "oinv": go({s:"oinv", pid:el.dataset.pid, name:el.dataset.name}); return;
+    case "ofield": case "odraft": case "onodes": case "osrcadd": case "osrceffect": case "osrcdel": case "onext": case "oprev": ownAct(name, el); return;
     case "copyall": shareText("My Patch journal", state.journal.map(e => `${niceDate(e.at)}\n${e.text}`).join("\n\n")); return;
   }
   /* investigation actions */
@@ -1832,6 +2212,7 @@ applyRibbon();
 if(validView(state.at)) view = state.at;
 render();
 loadClaims();
+loadProducts();
 
 /* ---- update delivery ----
    Cache-first shell, and iOS freezes rather than relaunches a home-screen app,
@@ -1854,6 +2235,7 @@ if("serviceWorker" in navigator){
       lastCheck = Date.now();
       reg.update().catch(() => {});
       loadClaims();     /* a new weekly claim may have been pushed */
+      loadProducts();   /* ...or a product, or an ingredient for the guide */
     };
     document.addEventListener("visibilitychange", maybeCheck);
     window.addEventListener("pageshow", maybeCheck);

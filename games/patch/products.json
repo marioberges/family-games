@@ -1,0 +1,172 @@
+{
+  "v": 1,
+  "note": "Patch's product database and ingredient guide. Products list their ingredients exactly as on the label; the guide explains common ingredients one at a time. Every source is recorded in notes/patch-sources.md. Add a product or an ingredient, push, and every player gets it the next time they're online.",
+  "patchTest": {
+    "steps": [
+      "Pick a spot about the size of a quarter where it won't get rubbed or washed off, like the inside of your arm or the bend of your elbow.",
+      "Put on your normal amount, twice a day, for 7 to 10 days. For something you wash off, like a cleanser, leave it on for 5 minutes or as long as the directions say.",
+      "No redness, itching or swelling after 7 to 10 days? Go ahead and use it.",
+      "If your skin reacts, gently wash it off as soon as you can and don't use it again."
+    ],
+    "note": "Even products labelled \"hypoallergenic\", \"natural\" or \"clean\" can cause a reaction. Test one new product at a time.",
+    "source": {"name": "American Academy of Dermatology: How to test skin care products", "url": "https://www.aad.org/news/how-to-test-skin-care-products-before-use"}
+  },
+  "basics": {
+    "water": "The base most products are made in.",
+    "aqua": "Water: the base most products are made in.",
+    "purified water": "The base most products are made in.",
+    "eau": "Water: the base most products are made in."
+  },
+  "ingredients": [
+    {"id": "retinol", "name": "Retinol", "aka": ["retinol"],
+     "what": "A form of vitamin A. Skin converts it, step by step, into retinoic acid, the form cells respond to, so it's gentler and weaker than prescription retinoids.",
+     "nodes": ["keratinocytes", "follicle", "fibroblast"],
+     "evidence": "some",
+     "evidenceNote": "Retinoid medicines have strong evidence for acne and sun-aged skin. Cosmetic retinol has much less: see the \"Retinol for breakouts\" claim.",
+     "use": "At night, a pea-sized amount for the whole face. Start a couple of nights a week and build up as your skin gets used to it. Sunscreen in the morning.",
+     "cautions": ["Dryness, redness and peeling are common in the first weeks", "Don't start it at the same time as other strong products, like acids"],
+     "sources": [
+       {"name": "Review of 54 retinoid acne trials, 2019 (none of them retinol)", "url": "https://pubmed.ncbi.nlm.nih.gov/30674002/"},
+       {"name": "GoodRx Health: When to use retinol", "url": "https://www.goodrx.com/health-topic/dermatology/when-to-use-retinol"}
+     ]},
+    {"id": "adapalene", "name": "Adapalene", "aka": ["adapalene"],
+     "what": "A retinoid medicine sold without a prescription (0.1% gel) for acne. It changes how the cells lining the follicle grow and shed, so pores are less likely to clog.",
+     "nodes": ["follicle", "keratinocytes"],
+     "evidence": "strong",
+     "evidenceNote": "Dermatologists strongly recommend topical retinoids for acne. Adapalene 0.1% was the first retinoid the FDA approved over the counter, for ages 12 and up.",
+     "use": "Once a day, a thin layer over the whole area where you get acne, not just on spots. Give it up to 3 months. Using more, or more often, doesn't work faster.",
+     "cautions": ["Dryness, redness and stinging are common in the first weeks", "Don't use it on cuts, scrapes, eczema or sunburn", "Limit sun and use sunscreen while you're using it", "Under 12: ask a doctor"],
+     "sources": [
+       {"name": "Differin Gel 0.1%, FDA-approved Drug Facts label", "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020380Orig1s011lbl.pdf"},
+       {"name": "FDA: Differin Gel 0.1% approved over the counter, 2016", "url": "https://www.fda.gov/newsevents/newsroom/pressannouncements/ucm510362.htm"},
+       {"name": "AAD acne guidelines, 2024", "url": "https://doi.org/10.1016/j.jaad.2023.12.017"}
+     ]},
+    {"id": "benzoyl-peroxide", "name": "Benzoyl peroxide", "aka": ["benzoyl peroxide"],
+     "what": "An acne medicine that cuts down the acne bacteria on the skin. It comes in washes, creams and gels, usually from 2.5% to 10%.",
+     "nodes": ["follicle", "microbiome"],
+     "evidence": "strong",
+     "evidenceNote": "One of the treatments America's dermatologists strongly recommend for acne.",
+     "use": "Start with a low strength and only go up slowly if you need to. Apply a thin layer just after washing, or use it as a wash.",
+     "cautions": ["Can dry and irritate skin", "Can bleach towels, pillowcases and clothes", "Store it as the label says: heat can break it down"],
+     "sources": [
+       {"name": "AAD acne guidelines, 2024 (summary)", "url": "https://pure.psu.edu/en/publications/guidelines-of-care-for-the-management-of-acne-vulgaris-2/"},
+       {"name": "Mayo Clinic: Nonprescription acne treatment", "url": "https://www.mayoclinic.org/diseases-conditions/acne/in-depth/acne-treatments/art-20045814"},
+       {"name": "AAD: Acne diagnosis and treatment", "url": "https://aad.org/acne-treatment"}
+     ]},
+    {"id": "salicylic-acid", "name": "Salicylic acid", "aka": ["salicylic acid"],
+     "what": "A beta hydroxy acid that dissolves in oil, so it can get into oily pores. It loosens the dead cells that plug them.",
+     "nodes": ["follicle", "stratum-corneum"],
+     "evidence": "some",
+     "evidenceNote": "Dermatologists' 2024 guideline gives it a conditional recommendation: it helps, but the evidence is weaker than for benzoyl peroxide or retinoids. Works best on blackheads and whiteheads.",
+     "use": "Sold from 0.5% to 2%, as washes and leave-on products. Follow the label.",
+     "cautions": ["Mild stinging and irritation are possible", "Go easy if you also use other acids or retinoids"],
+     "sources": [
+       {"name": "Mayo Clinic: Nonprescription acne treatment", "url": "https://www.mayoclinic.org/diseases-conditions/acne/in-depth/acne-treatments/art-20045814"},
+       {"name": "AAD: Adult acne treatment dermatologists recommend", "url": "https://www.aad.org/public/diseases/acne-and-rosacea/how-to-treat-different-types-of-acne"},
+       {"name": "Dermatology Times: AAD's 2024 acne guidelines", "url": "https://dermatologytimes.com/view/AAD-releases-updated-guidelines-for-the-management-of-acne-vulgaris"}
+     ]},
+    {"id": "glycolic-acid", "name": "Glycolic acid", "aka": ["glycolic acid"],
+     "what": "An alpha hydroxy acid (AHA). It loosens the dead cells on the surface so they shed faster, which can make skin feel smoother.",
+     "nodes": ["stratum-corneum"],
+     "evidence": "some",
+     "evidenceNote": "It does exfoliate. The FDA found that AHAs make skin more sensitive to the sun while you use them and for up to a week after.",
+     "use": "Follow the label. Use sunscreen, cover up and limit sun while using it and for a week after you stop.",
+     "cautions": ["Raises sunburn risk", "Can burn, sting or irritate, especially at high strengths", "Don't pile it on with other acids or retinoids"],
+     "sources": [
+       {"name": "FDA: Alpha hydroxy acids", "url": "https://www.fda.gov/cosmetics/ingredients/alpha-hydroxy-acids"},
+       {"name": "FDA guidance: labelling cosmetics that contain AHAs", "url": "https://www.fda.gov/regulatory-information/search-fda-guidance-documents/guidance-industry-labeling-cosmetics-containing-alpha-hydroxy-acids"}
+     ]},
+    {"id": "niacinamide", "name": "Niacinamide", "aka": ["niacinamide", "nicotinamide"],
+     "what": "A form of vitamin B3. Studies suggest it helps the barrier hold on to water and can reduce oiliness.",
+     "nodes": ["stratum-corneum", "sebaceous"],
+     "evidence": "some",
+     "evidenceNote": "Some trials support barrier and oil benefits. For acne, a review found the evidence unclear because there are few good studies. Usually well tolerated.",
+     "use": "Follow the label. It's in many moisturizers and serums, often at 2% to 10%.",
+     "cautions": ["Usually well tolerated; stop if it irritates"],
+     "sources": [
+       {"name": "DermNet: Nicotinamide", "url": "https://dermnetnz.org/treatments/nicotinamide.html"},
+       {"name": "Review: Nicotinic acid/niacinamide and the skin, 2004", "url": "https://pubmed.ncbi.nlm.nih.gov/17147561/"},
+       {"name": "Review: The role of nicotinamide in acne treatment, 2017", "url": "https://pubmed.ncbi.nlm.nih.gov/28220628/"}
+     ]},
+    {"id": "vitamin-c", "name": "Vitamin C", "aka": ["ascorbic acid", "l-ascorbic acid", "sodium ascorbyl phosphate", "magnesium ascorbyl phosphate", "ascorbyl glucoside", "ascorbyl palmitate", "3-o-ethyl ascorbic acid", "tetrahexyldecyl ascorbate"],
+     "what": "An antioxidant. The most studied form, L-ascorbic acid, breaks down in air, heat and light, and only gets into skin well in a very acidic product.",
+     "nodes": ["keratinocytes", "fibroblast"],
+     "evidence": "some",
+     "evidenceNote": "Some studies show benefits for sun-aged skin and dark spots, but the versions in products differ a lot and many are less studied.",
+     "use": "Follow the label. Keep it closed, cool and out of the light.",
+     "cautions": ["If it turns yellow or brown, it has broken down", "Can sting"],
+     "sources": [
+       {"name": "Review: Topical vitamin C and the skin, 2017", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5605218/"},
+       {"name": "Linus Pauling Institute: Vitamin C and skin health", "url": "https://lpi.oregonstate.edu/mic/health-disease/skin-health/vitamin-C"}
+     ]},
+    {"id": "hyaluronic-acid", "name": "Hyaluronic acid", "aka": ["hyaluronic acid", "sodium hyaluronate", "hydrolyzed hyaluronic acid", "sodium acetylated hyaluronate"],
+     "what": "A humectant: it holds on to water. Big versions stay on top of the skin and hydrate the surface; only smaller pieces get into the stratum corneum.",
+     "nodes": ["stratum-corneum"],
+     "evidence": "some",
+     "evidenceNote": "It does hydrate the surface. It doesn't refill the hyaluronic acid deep in the dermis.",
+     "use": "Follow the label. A moisturizer on top helps keep the water in.",
+     "cautions": ["Very well tolerated"],
+     "sources": [
+       {"name": "Harvard Health: The hype on hyaluronic acid", "url": "https://www.health.harvard.edu/blog/the-hype-on-hyaluronic-acid-2020012318653"},
+       {"name": "Study: skin penetration of hyaluronic acid by size, 2016", "url": "https://pubmed.ncbi.nlm.nih.gov/25877232/"}
+     ]},
+    {"id": "ceramides", "name": "Ceramides", "aka": ["ceramide np", "ceramide ap", "ceramide eop", "ceramide ns", "ceramide as", "ceramide 1", "ceramide 3", "ceramide 6 ii", "ceramide"],
+     "what": "Fats that make up a big part of the barrier's mortar, with cholesterol and fatty acids. Moisturizers add them to help the barrier.",
+     "nodes": ["stratum-corneum"],
+     "evidence": "some",
+     "evidenceNote": "Moisturizers work by hydrating skin and helping restore its barrier. Ceramides are one of the barrier's own ingredients.",
+     "use": "Use the moisturizer as the label says, ideally on slightly damp skin.",
+     "cautions": ["Very well tolerated"],
+     "sources": [
+       {"name": "StatPearls: Moisturizers", "url": "https://ncbi.nlm.nih.gov/books/NBK545171"},
+       {"name": "StatPearls: The skin barrier and moisturizers", "url": "https://www.statpearls.com/ArticleLibrary/viewarticle/25225"}
+     ]},
+    {"id": "petrolatum", "name": "Petrolatum", "aka": ["petrolatum", "white petrolatum", "petroleum jelly", "mineral jelly"],
+     "what": "An occlusive: a layer that slows water leaving the skin. It's the most effective one, cutting water loss through the epidermis by nearly 99%.",
+     "nodes": ["stratum-corneum"],
+     "evidence": "strong",
+     "evidenceNote": "Well studied. It also slips into the gaps of the stratum corneum, and the barrier can recover normally underneath it.",
+     "use": "A thin layer, best on slightly damp skin, to lock the water in.",
+     "cautions": ["Feels greasy"],
+     "sources": [
+       {"name": "StatPearls: Moisturizers", "url": "https://ncbi.nlm.nih.gov/books/NBK545171"},
+       {"name": "Ghadially et al.: how petrolatum works in the stratum corneum, 1992", "url": "https://pubmed.ncbi.nlm.nih.gov/1564142"}
+     ]},
+    {"id": "sunscreen-filters", "name": "Sunscreen filters", "aka": ["zinc oxide", "titanium dioxide", "avobenzone", "homosalate", "octisalate", "octocrylene", "octinoxate", "oxybenzone", "ensulizole", "bemotrizinol"],
+     "what": "The ingredients that absorb or scatter UV light. Zinc oxide and titanium dioxide are the mineral ones; the rest are called chemical filters.",
+     "nodes": ["melanocyte", "keratinocytes", "fibroblast"],
+     "evidence": "strong",
+     "evidenceNote": "Sunscreen prevents sunburn and sun damage. The FDA lists zinc oxide, titanium dioxide and bemotrizinol as safe and effective, and has asked for more data on the others; it hasn't found them harmful.",
+     "use": "Broad spectrum, SPF 30 or higher. Reapply every 2 hours outdoors, and after swimming or sweating.",
+     "cautions": ["Mineral sunscreens are recommended for sensitive skin", "No sunscreen blocks 100% of UV"],
+     "sources": [
+       {"name": "AAD: Sunscreen FAQs", "url": "https://www.aad.org/media/stats-sunscreen"},
+       {"name": "American Cancer Society: How to use sunscreen", "url": "https://www.cancer.org/cancer/risk-prevention/sun-and-uv/how-to-use-sunscreen.html"}
+     ]},
+    {"id": "fragrance", "name": "Fragrance", "aka": ["fragrance", "parfum", "perfume", "linalool", "limonene", "geraniol", "citronellol", "eugenol"],
+     "what": "Makes a product smell nice. It does nothing for your skin.",
+     "nodes": ["microbiome"],
+     "evidence": "na",
+     "evidenceNote": "Fragrances are the most common cause of allergic reactions to cosmetics. Up to about 4.5% of adults are allergic to fragrance ingredients.",
+     "use": "If your skin is sensitive, pick fragrance-free products, and patch-test anything new.",
+     "cautions": ["Can cause allergic rashes, sometimes after years of use without problems", "\"Unscented\" can still contain fragrance that masks other smells"],
+     "sources": [
+       {"name": "DermNet: Cosmetic allergy", "url": "https://pro.dermnetnz.org/dermatitis/cosmetics-allergy.html"},
+       {"name": "Review: Fragrances, contact allergy and other effects, 2020", "url": "https://pubmed.ncbi.nlm.nih.gov/31433384/"}
+     ]}
+  ],
+  "products": [
+    {"id": "differin-gel", "name": "Differin Gel 0.1%", "brand": "Differin (Galderma)", "kind": "Acne gel",
+     "claim": "For the treatment of acne.",
+     "ingredients": ["Adapalene 0.1%", "Carbomer 940", "Edetate Disodium", "Methylparaben", "Poloxamer 182", "Propylene Glycol", "Purified Water", "Sodium Hydroxide"],
+     "source": {"name": "FDA-approved Drug Facts label", "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020380Orig1s011lbl.pdf", "checked": "2026-11-24"}},
+    {"id": "cerave-moisturizing-cream", "name": "Moisturizing Cream", "brand": "CeraVe", "kind": "Moisturizer",
+     "claim": "Moisturizes and helps restore the protective skin barrier.",
+     "ingredients": ["Water", "Glycerin", "Cetearyl Alcohol", "Caprylic/Capric Triglyceride", "Cetyl Alcohol", "Ceteareth-20", "Petrolatum", "Potassium Phosphate", "Ceramide NP", "Ceramide AP", "Ceramide EOP", "Carbomer", "Dimethicone", "Behentrimonium Methosulfate", "Sodium Lauroyl Lactylate", "Sodium Hyaluronate", "Cholesterol", "Phenoxyethanol", "Disodium EDTA", "Dipotassium Phosphate", "Tocopherol", "Phytosphingosine", "Xanthan Gum", "Ethylhexylglycerin"],
+     "source": {"name": "Ingredient list as sold in US stores (Skinsort, H-E-B)", "url": "https://skinsort.com/products/cerave/moisturizing-cream", "checked": "2026-11-24"}},
+    {"id": "the-ordinary-niacinamide-zinc", "name": "Niacinamide 10% + Zinc 1%", "brand": "The Ordinary", "kind": "Serum",
+     "claim": "Reduces the look of blemishes and balances visible oiliness. The brand says it is not a treatment for acne.",
+     "ingredients": ["Aqua (Water)", "Niacinamide", "Pentylene Glycol", "Zinc PCA", "Dimethyl Isosorbide", "Tamarindus Indica Seed Gum", "Xanthan Gum", "Isoceteth-20", "Ethoxydiglycol", "Phenoxyethanol", "Chlorphenesin"],
+     "source": {"name": "Retailer ingredient sheet (Next) and product description (John Lewis)", "url": "https://xcdn.next.co.uk/pdfs/ingredients/AF4859.pdf", "checked": "2026-11-24"}}
+  ]
+}
